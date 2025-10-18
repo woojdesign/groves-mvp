@@ -1,0 +1,55 @@
+/**
+ * Component-level utility classes
+ * These provide alternative CSS-based styling options alongside the component-based approach
+ */
+
+@layer components {
+  /* Premium Glass Card Base */
+  .glass-card {
+    @apply relative bg-card/70 backdrop-blur-xl rounded-2xl sm:rounded-3xl;
+    @apply p-6 sm:p-10 lg:p-14 shadow-2xl shadow-black/[0.05];
+    @apply border border-white/20 overflow-hidden;
+  }
+
+  .glass-card-glow {
+    @apply absolute inset-0 rounded-2xl sm:rounded-3xl;
+    @apply bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none;
+  }
+
+  .glass-card-accent {
+    @apply absolute top-0 left-0 right-0 h-2;
+    @apply bg-gradient-to-r from-secondary/60 via-accent/80 to-secondary/60;
+  }
+
+  /* Premium Input */
+  .input-premium {
+    @apply rounded-2xl h-14 bg-background/60 backdrop-blur-sm;
+    @apply border-border/40 hover:border-border/70;
+    @apply focus:border-secondary/50 focus:ring-4 focus:ring-secondary/10;
+    @apply transition-all text-base;
+  }
+
+  /* Icon Badge */
+  .icon-badge {
+    @apply rounded-full bg-accent/10 flex items-center justify-center shadow-sm;
+  }
+
+  .icon-badge-sm { @apply w-12 h-12; }
+  .icon-badge-md { @apply w-14 h-14; }
+  .icon-badge-lg { @apply w-16 h-16 sm:w-20 sm:h-20; }
+
+  /* Premium Button Shimmer */
+  .btn-shimmer {
+    @apply absolute inset-0 -translate-x-full group-hover:translate-x-full;
+    @apply transition-transform duration-1000;
+    @apply bg-gradient-to-r from-transparent via-white/20 to-transparent;
+  }
+
+  /* Responsive Padding Utilities */
+  .p-card { @apply p-6 sm:p-10 lg:p-14; }
+  .p-card-sm { @apply p-4 sm:p-6 lg:p-8; }
+  .p-card-lg { @apply p-8 sm:p-12 lg:p-16; }
+
+  .p-section { @apply p-8 sm:p-16 lg:p-20; }
+  .gap-responsive { @apply gap-3 sm:gap-5; }
+}
