@@ -726,9 +726,9 @@ X-RateLimit-Reset: 1635789600
 | `POST /api/auth/verify` | 2 | ✅ Complete | Returns JWT tokens |
 | `POST /api/auth/refresh` | 2 | ✅ Complete | Generates new access token |
 | `POST /api/auth/logout` | 2 | ✅ Complete | Audit logged |
-| `POST /api/onboarding` | 3 | 🔄 Pending | - |
-| `GET /api/profile` | 3 | 🔄 Pending | - |
-| `PATCH /api/profile` | Post-MVP | ⏸️ Deferred | - |
+| `POST /api/onboarding` | 3 | ✅ Complete | Validation, duplicate prevention |
+| `GET /api/profile` | 3 | ✅ Complete | Returns user profile |
+| `PATCH /api/profile` | 3 | ✅ Complete | Updates profile fields |
 | `GET /api/matches` | 5 | 🔄 Pending | - |
 | `POST /api/matches/:id/accept` | 6 | 🔄 Pending | - |
 | `POST /api/matches/:id/pass` | 6 | 🔄 Pending | - |
@@ -740,5 +740,5 @@ X-RateLimit-Reset: 1635789600
 ---
 
 **Document Version**: 0.1.0
-**Last Updated**: 2025-10-22 (Phase 1 Complete)
-**Next Update**: After Phase 2 (Authentication endpoints implemented)
+**Last Updated**: 2025-10-22 (Phase 3 Complete)
+**Next Update**: After Phase 4 (Embedding generation implemented)
