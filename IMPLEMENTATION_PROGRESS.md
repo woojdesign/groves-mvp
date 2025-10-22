@@ -1,8 +1,8 @@
 # Grove MVP Backend Implementation Progress
 
 **Started**: 2025-10-22
-**Current Phase**: Phase 2 - Authentication
-**Status**: Phase 2 Complete ✅
+**Current Phase**: Phase 5 - Matching Algorithm
+**Status**: Phase 4 Complete ✅
 
 ---
 
@@ -13,6 +13,7 @@
 - **Progress Documentation**: This file tracks all progress for continuity
 - **Code Review**: code-reviewer agent invoked at end of each phase
 - **Commits**: Detailed commits at end of each phase
+- **Current Progress**: Phase 4 complete (4/10 phases done)
 
 ---
 
@@ -181,9 +182,69 @@
 
 ---
 
-### Phase 4: Embedding Generation (7 days) - PENDING
-**Status**: Not Started
+### Phase 4: Embedding Generation (7 days) - COMPLETE
+**Status**: Complete
+**Start Date**: 2025-10-22
+**Completion Date**: 2025-10-22
+**Git Commit**: abbc483
 **Prerequisites**: Phase 3 complete
+
+**Tasks**:
+- [x] 4.1: Install dependencies (@nestjs/bull, bull, openai, ioredis)
+- [x] 4.2: Create OpenAI service module with generateEmbedding method
+- [x] 4.3: Create Embeddings module with createEmbedding method
+- [x] 4.4: Set up BullMQ job queue with Redis connection
+- [x] 4.5: Create embedding generation job processor
+- [x] 4.6: Update ProfilesService to trigger embedding jobs on create/update
+- [x] 4.7: Add embedding status endpoint (GET /api/profile/embedding-status)
+- [x] 4.8: Write comprehensive tests (all passing)
+
+**Key Deliverables**:
+- [x] OpenAI service with text-embedding-3-small model (1536 dimensions)
+- [x] Background job queue using BullMQ with Redis
+- [x] Embedding generation processor with exponential backoff retry (3 attempts)
+- [x] Embeddings stored in PostgreSQL using pgvector with raw SQL
+- [x] Profile create/update triggers embedding job automatically
+- [x] Embedding status endpoint for frontend progress tracking
+- [x] All tests passing (52 tests, 9 test suites)
+
+**Implementation Details**:
+- **OpenAI Integration**:
+  - Model: text-embedding-3-small (1536 dimensions, cheaper than ada-002)
+  - Text preprocessing: "Interest: {nicheInterest}. Project: {project}. Exploring: {rabbitHole}"
+  - Error handling for rate limits (429) and auth errors (401)
+  - Token usage logging for cost monitoring
+- **Background Jobs**:
+  - Queue: 'embedding-generation' with Redis backend
+  - Retry strategy: 3 attempts with exponential backoff (2s initial delay)
+  - Job payload: { userId, profileId }
+  - Processor flow: fetch profile → preprocess → OpenAI API → store vector
+- **Vector Storage**:
+  - Raw SQL for pgvector insert (Prisma doesn't support vector type)
+  - Upsert logic: INSERT ... ON CONFLICT DO UPDATE
+  - EmbeddingsService handles duplicate embeddings automatically
+- **Integration**:
+  - ProfilesService queues job on profile create
+  - ProfilesService queues job on profile update IF semantic fields changed
+  - getEmbeddingStatus() checks: pending → processing → completed → failed
+  - embeddingStatus now returns actual status instead of hardcoded "queued"
+- **API Endpoints**:
+  - POST /api/onboarding (existing, now queues embedding job)
+  - PATCH /api/profile (existing, queues job if nicheInterest/project/rabbitHole changed)
+  - GET /api/profile/embedding-status (new, returns: { status: "pending" | "processing" | "completed" | "failed" })
+- **Tests**:
+  - OpenaiService: 5 tests (text preprocessing, API error handling)
+  - EmbeddingsService: 6 tests (create, get, has, delete)
+  - EmbeddingGenerationProcessor: 3 tests (success, profile not found, OpenAI failure)
+  - ProfilesService: Updated 9 tests with new dependencies
+  - All 52 tests passing across 9 test suites
+
+**Notes**:
+- OpenAI API key is placeholder in .env (update with real key for production)
+- Redis must be running for BullMQ (docker compose up -d redis)
+- Cost: ~$0.01 per 1000 users with text-embedding-3-small
+- Embedding regeneration only triggered when semantic fields change (not for preferences/connectionType)
+- Ready for Phase 5 (Matching Algorithm) - embeddings are now being generated!
 
 ---
 
@@ -320,6 +381,49 @@
 - Installed `@nestjs/mapped-types` package
 
 **Tests**: 6 test suites, 34 tests passing
+
+---
+
+### Session 4: 2025-10-22 - Phase 4 Implementation
+
+**Implementation Agent (Claude Code)**:
+- ✅ Installed OpenAI and ioredis dependencies
+- ✅ Updated .env to use text-embedding-3-small model (1536 dimensions)
+- ✅ Created OpenAI module with embedding generation service
+- ✅ Implemented OpenaiService with generateEmbedding() and preprocessProfileText()
+- ✅ Added error handling for rate limits and authentication failures
+- ✅ Created Embeddings module with pgvector storage
+- ✅ Implemented EmbeddingsService with raw SQL for vector insert/upsert
+- ✅ Set up BullMQ job queue with Redis connection in JobsModule
+- ✅ Created embedding-generation queue with retry configuration
+- ✅ Implemented EmbeddingGenerationProcessor for background jobs
+- ✅ Updated ProfilesModule to import BullModule and EmbeddingsModule
+- ✅ Updated ProfilesService to queue embedding jobs on create/update
+- ✅ Added getEmbeddingStatus() method to check job state
+- ✅ Added GET /api/profile/embedding-status endpoint
+- ✅ Wrote comprehensive unit tests for all new services
+- ✅ Updated ProfilesService tests with new dependencies
+- ✅ Fixed TypeScript compilation errors (type imports)
+- ✅ All tests passing (52 tests, 9 test suites)
+- ✅ Build successful
+
+**Files Created**:
+- `src/openai/` - OpenAI integration module
+  - `openai.module.ts`, `openai.service.ts`, `openai.service.spec.ts`
+- `src/embeddings/` - Embeddings storage module
+  - `embeddings.module.ts`, `embeddings.service.ts`, `embeddings.service.spec.ts`
+- `src/jobs/` - Background job processing module
+  - `jobs.module.ts`, `embedding-generation.processor.ts`, `embedding-generation.processor.spec.ts`
+
+**Files Modified**:
+- `src/app.module.ts` - Added JobsModule
+- `src/profiles/profiles.module.ts` - Added BullModule and EmbeddingsModule
+- `src/profiles/profiles.service.ts` - Added job queue integration and status tracking
+- `src/profiles/profiles.controller.ts` - Added embedding-status endpoint
+- `src/profiles/profiles.service.spec.ts` - Updated with new dependencies
+- `.env`, `.env.example` - Updated to text-embedding-3-small
+
+**Tests**: 9 test suites, 52 tests passing
 
 ---
 
