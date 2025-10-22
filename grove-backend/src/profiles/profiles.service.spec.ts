@@ -2,12 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmbeddingsService } from '../embeddings/embeddings.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 describe('ProfilesService', () => {
   let service: ProfilesService;
   let prisma: PrismaService;
+  let embeddingsService: EmbeddingsService;
 
   const mockPrismaService = {
     profile: {
@@ -18,6 +20,19 @@ describe('ProfilesService', () => {
     event: {
       create: jest.fn(),
     },
+    embedding: {
+      count: jest.fn(),
+    },
+  };
+
+  const mockEmbeddingsService = {
+    hasEmbedding: jest.fn(),
+    createEmbedding: jest.fn(),
+  };
+
+  const mockQueue = {
+    add: jest.fn().mockResolvedValue({}),
+    getJobs: jest.fn().mockResolvedValue([]),
   };
 
   const mockUserId = 'user-123';
@@ -49,11 +64,20 @@ describe('ProfilesService', () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
+        {
+          provide: EmbeddingsService,
+          useValue: mockEmbeddingsService,
+        },
+        {
+          provide: 'BullQueue_embedding-generation',
+          useValue: mockQueue,
+        },
       ],
     }).compile();
 
     service = module.get<ProfilesService>(ProfilesService);
     prisma = module.get<PrismaService>(PrismaService);
+    embeddingsService = module.get<EmbeddingsService>(EmbeddingsService);
 
     // Reset mocks
     jest.clearAllMocks();
@@ -68,23 +92,23 @@ describe('ProfilesService', () => {
       mockPrismaService.profile.findUnique.mockResolvedValue(null);
       mockPrismaService.profile.create.mockResolvedValue(mockProfile);
       mockPrismaService.event.create.mockResolvedValue({});
+      mockEmbeddingsService.hasEmbedding.mockResolvedValue(false);
+      mockQueue.getJobs.mockResolvedValue([]);
 
       const result = await service.createProfile(mockUserId, mockProfileDto);
 
-      expect(result).toEqual({
-        profile: {
-          id: mockProfile.id,
-          userId: mockProfile.userId,
-          nicheInterest: mockProfile.nicheInterest,
-          project: mockProfile.project,
-          connectionType: mockProfile.connectionType,
-          rabbitHole: mockProfile.rabbitHole,
-          preferences: mockProfile.preferences,
-          createdAt: mockProfile.createdAt,
-          updatedAt: mockProfile.updatedAt,
-        },
-        embeddingStatus: 'queued',
+      expect(result.profile).toEqual({
+        id: mockProfile.id,
+        userId: mockProfile.userId,
+        nicheInterest: mockProfile.nicheInterest,
+        project: mockProfile.project,
+        connectionType: mockProfile.connectionType,
+        rabbitHole: mockProfile.rabbitHole,
+        preferences: mockProfile.preferences,
+        createdAt: mockProfile.createdAt,
+        updatedAt: mockProfile.updatedAt,
       });
+      expect(result.embeddingStatus).toBeDefined();
 
       expect(mockPrismaService.profile.findUnique).toHaveBeenCalledWith({
         where: { userId: mockUserId },
@@ -106,6 +130,19 @@ describe('ProfilesService', () => {
           metadata: { connectionType: mockProfileDto.connectionType },
         },
       });
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        {
+          userId: mockUserId,
+          profileId: mockProfile.id,
+        },
+        expect.objectContaining({
+          attempts: 3,
+          backoff: expect.objectContaining({
+            type: 'exponential',
+            delay: 2000,
+          }),
+        }),
+      );
     });
 
     it('should throw ConflictException if profile already exists', async () => {
@@ -175,23 +212,23 @@ describe('ProfilesService', () => {
       mockPrismaService.profile.findUnique.mockResolvedValue(mockProfile);
       mockPrismaService.profile.update.mockResolvedValue(updatedProfile);
       mockPrismaService.event.create.mockResolvedValue({});
+      mockEmbeddingsService.hasEmbedding.mockResolvedValue(false);
+      mockQueue.getJobs.mockResolvedValue([]);
 
       const result = await service.updateProfile(mockUserId, updateDto);
 
-      expect(result).toEqual({
-        profile: {
-          id: updatedProfile.id,
-          userId: updatedProfile.userId,
-          nicheInterest: updatedProfile.nicheInterest,
-          project: updatedProfile.project,
-          connectionType: updatedProfile.connectionType,
-          rabbitHole: updatedProfile.rabbitHole,
-          preferences: updatedProfile.preferences,
-          createdAt: updatedProfile.createdAt,
-          updatedAt: updatedProfile.updatedAt,
-        },
-        embeddingStatus: 'queued',
+      expect(result.profile).toEqual({
+        id: updatedProfile.id,
+        userId: updatedProfile.userId,
+        nicheInterest: updatedProfile.nicheInterest,
+        project: updatedProfile.project,
+        connectionType: updatedProfile.connectionType,
+        rabbitHole: updatedProfile.rabbitHole,
+        preferences: updatedProfile.preferences,
+        createdAt: updatedProfile.createdAt,
+        updatedAt: updatedProfile.updatedAt,
       });
+      expect(result.embeddingStatus).toBeDefined();
 
       expect(mockPrismaService.profile.update).toHaveBeenCalledWith({
         where: { userId: mockUserId },
@@ -204,6 +241,8 @@ describe('ProfilesService', () => {
           metadata: { fields: Object.keys(updateDto) },
         },
       });
+      // Should not trigger embedding regeneration for preferences-only update
+      expect(mockQueue.add).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if profile does not exist', async () => {

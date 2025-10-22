@@ -38,4 +38,10 @@ export class ProfilesController {
   ) {
     return this.profilesService.updateProfile(user.id, dto);
   }
+
+  @Get('profile/embedding-status')
+  async getEmbeddingStatus(@CurrentUser() user: User) {
+    const status = await this.profilesService.getEmbeddingStatus(user.id);
+    return { status };
+  }
 }

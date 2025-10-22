@@ -14,4 +14,7 @@ export declare class ProfilesController {
         profile: import("./dto/profile-response.dto").ProfileResponseDto;
         embeddingStatus: string;
     }>;
+    getEmbeddingStatus(user: User): Promise<{
+        status: string;
+    }>;
 }

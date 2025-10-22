@@ -8,13 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProfilesModule = void 0;
 const common_1 = require("@nestjs/common");
+const bull_1 = require("@nestjs/bull");
 const profiles_controller_1 = require("./profiles.controller");
 const profiles_service_1 = require("./profiles.service");
+const embeddings_module_1 = require("../embeddings/embeddings.module");
 let ProfilesModule = class ProfilesModule {
 };
 exports.ProfilesModule = ProfilesModule;
 exports.ProfilesModule = ProfilesModule = __decorate([
     (0, common_1.Module)({
+        imports: [
+            bull_1.BullModule.registerQueue({
+                name: 'embedding-generation',
+            }),
+            embeddings_module_1.EmbeddingsModule,
+        ],
         controllers: [profiles_controller_1.ProfilesController],
         providers: [profiles_service_1.ProfilesService],
         exports: [profiles_service_1.ProfilesService],

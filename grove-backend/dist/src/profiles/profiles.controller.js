@@ -32,6 +32,10 @@ let ProfilesController = class ProfilesController {
     async updateProfile(user, dto) {
         return this.profilesService.updateProfile(user.id, dto);
     }
+    async getEmbeddingStatus(user) {
+        const status = await this.profilesService.getEmbeddingStatus(user.id);
+        return { status };
+    }
 };
 exports.ProfilesController = ProfilesController;
 __decorate([
@@ -58,6 +62,13 @@ __decorate([
     __metadata("design:paramtypes", [Object, update_profile_dto_1.UpdateProfileDto]),
     __metadata("design:returntype", Promise)
 ], ProfilesController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Get)('profile/embedding-status'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ProfilesController.prototype, "getEmbeddingStatus", null);
 exports.ProfilesController = ProfilesController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [profiles_service_1.ProfilesService])

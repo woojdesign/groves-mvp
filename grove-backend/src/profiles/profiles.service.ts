@@ -2,15 +2,27 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import type { Queue } from 'bull';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmbeddingsService } from '../embeddings/embeddings.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfileResponseDto } from './dto/profile-response.dto';
+import { EmbeddingJobPayload } from '../jobs/embedding-generation.processor';
 
 @Injectable()
 export class ProfilesService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(ProfilesService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private embeddingsService: EmbeddingsService,
+    @InjectQueue('embedding-generation')
+    private embeddingQueue: Queue<EmbeddingJobPayload>,
+  ) {}
 
   async createProfile(userId: string, dto: CreateProfileDto) {
     // Check if profile already exists
@@ -43,11 +55,31 @@ export class ProfilesService {
       },
     });
 
-    // Return profile with embedding status placeholder
-    // Phase 4 will implement actual embedding generation
+    // Queue embedding generation job
+    await this.embeddingQueue.add(
+      {
+        userId,
+        profileId: profile.id,
+      },
+      {
+        attempts: 3, // Retry up to 3 times on failure
+        backoff: {
+          type: 'exponential',
+          delay: 2000, // Start with 2 second delay
+        },
+      },
+    );
+
+    this.logger.log(
+      `Queued embedding generation job for user ${userId}, profile ${profile.id}`,
+    );
+
+    // Get actual embedding status
+    const embeddingStatus = await this.getEmbeddingStatus(userId);
+
     return {
       profile: this.mapToProfileResponse(profile),
-      embeddingStatus: 'queued',
+      embeddingStatus,
     };
   }
 
@@ -89,14 +121,37 @@ export class ProfilesService {
       },
     });
 
-    // Phase 4: Trigger embedding regeneration if interests changed
-    // if (dto.nicheInterest || dto.project || dto.rabbitHole) {
-    //   await this.embeddingsQueue.add('regenerate', { userId });
-    // }
+    // Trigger embedding regeneration if semantic fields changed
+    if (dto.nicheInterest || dto.project || dto.rabbitHole !== undefined) {
+      this.logger.log(
+        `Profile semantic fields updated for user ${userId}, triggering embedding regeneration`,
+      );
+
+      await this.embeddingQueue.add(
+        {
+          userId,
+          profileId: profile.id,
+        },
+        {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 2000,
+          },
+        },
+      );
+
+      this.logger.log(
+        `Queued embedding regeneration job for user ${userId}`,
+      );
+    }
+
+    // Get actual embedding status
+    const embeddingStatus = await this.getEmbeddingStatus(userId);
 
     return {
       profile: this.mapToProfileResponse(updated),
-      embeddingStatus: 'queued',
+      embeddingStatus,
     };
   }
 
@@ -107,6 +162,56 @@ export class ProfilesService {
     });
 
     return !!profile;
+  }
+
+  /**
+   * Get the embedding status for a user
+   * @param userId - The user ID
+   * @returns "pending" | "processing" | "completed" | "failed"
+   */
+  async getEmbeddingStatus(userId: string): Promise<string> {
+    try {
+      // Check if embedding exists in database
+      const hasEmbedding = await this.embeddingsService.hasEmbedding(userId);
+
+      if (hasEmbedding) {
+        return 'completed';
+      }
+
+      // Check if there's a pending/active job in the queue
+      const jobs = await this.embeddingQueue.getJobs([
+        'waiting',
+        'active',
+        'delayed',
+      ]);
+
+      const userJob = jobs.find((job) => job.data.userId === userId);
+
+      if (userJob) {
+        const state = await userJob.getState();
+        if (state === 'active') {
+          return 'processing';
+        }
+        return 'pending';
+      }
+
+      // Check for failed jobs
+      const failedJobs = await this.embeddingQueue.getJobs(['failed']);
+      const userFailedJob = failedJobs.find((job) => job.data.userId === userId);
+
+      if (userFailedJob) {
+        return 'failed';
+      }
+
+      // Default to pending if profile exists but no embedding
+      return 'pending';
+    } catch (error) {
+      this.logger.error(
+        `Failed to get embedding status for user ${userId}`,
+        error.message,
+      );
+      return 'pending';
+    }
   }
 
   private mapToProfileResponse(profile: any): ProfileResponseDto {

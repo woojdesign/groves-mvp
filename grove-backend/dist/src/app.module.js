@@ -18,6 +18,7 @@ const health_module_1 = require("./health/health.module");
 const auth_module_1 = require("./auth/auth.module");
 const email_module_1 = require("./email/email.module");
 const profiles_module_1 = require("./profiles/profiles.module");
+const jobs_module_1 = require("./jobs/jobs.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -38,6 +39,7 @@ exports.AppModule = AppModule = __decorate([
             health_module_1.HealthModule,
             auth_module_1.AuthModule,
             email_module_1.EmailModule,
+            jobs_module_1.JobsModule,
             profiles_module_1.ProfilesModule,
         ],
         controllers: [app_controller_1.AppController],

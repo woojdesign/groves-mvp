@@ -38,6 +38,8 @@
     "class-validator": "^0.14.2",
     "dotenv": "^17.2.3",
     "handlebars": "^4.7.8",
+    "ioredis": "^5.8.2",
+    "openai": "^6.6.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "postmark": "^4.0.5",

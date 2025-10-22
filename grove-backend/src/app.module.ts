@@ -9,6 +9,7 @@ import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { JobsModule } from './jobs/jobs.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ProfilesModule } from './profiles/profiles.module';
     HealthModule,
     AuthModule,
     EmailModule,
+    JobsModule,
     ProfilesModule,
   ],
   controllers: [AppController],
