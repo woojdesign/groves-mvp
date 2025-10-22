@@ -722,10 +722,10 @@ X-RateLimit-Reset: 1635789600
 | Endpoint | Phase | Status | Notes |
 |----------|-------|--------|-------|
 | `GET /health` | 1 | ✅ Complete | - |
-| `POST /api/auth/magic-link` | 2 | 🔄 Pending | - |
-| `POST /api/auth/verify` | 2 | 🔄 Pending | - |
-| `POST /api/auth/refresh` | 2 | 🔄 Pending | - |
-| `POST /api/auth/logout` | 2 | 🔄 Pending | - |
+| `POST /api/auth/magic-link` | 2 | ✅ Complete | Rate limited: 3/10min |
+| `POST /api/auth/verify` | 2 | ✅ Complete | Returns JWT tokens |
+| `POST /api/auth/refresh` | 2 | ✅ Complete | Generates new access token |
+| `POST /api/auth/logout` | 2 | ✅ Complete | Audit logged |
 | `POST /api/onboarding` | 3 | 🔄 Pending | - |
 | `GET /api/profile` | 3 | 🔄 Pending | - |
 | `PATCH /api/profile` | Post-MVP | ⏸️ Deferred | - |

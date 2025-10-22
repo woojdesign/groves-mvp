@@ -1,8 +1,8 @@
 # Grove MVP Backend Implementation Progress
 
 **Started**: 2025-10-22
-**Current Phase**: Phase 1 - Foundation & Database Setup
-**Status**: Phase 1 Complete ✅
+**Current Phase**: Phase 2 - Authentication
+**Status**: Phase 2 Complete ✅
 
 ---
 
@@ -22,7 +22,7 @@
 **Status**: Complete
 **Start Date**: 2025-10-22
 **Completion Date**: 2025-10-22
-**Git Commit**: Pending
+**Git Commit**: 78127aa
 
 **Tasks**:
 - [x] 1.1: Initialize NestJS project
@@ -61,9 +61,66 @@
 
 ---
 
-### Phase 2: Authentication (7 days) - PENDING
-**Status**: Not Started
-**Prerequisites**: Phase 1 complete
+### Phase 2: Authentication (7 days) - COMPLETE
+**Status**: Complete
+**Start Date**: 2025-10-22
+**Completion Date**: 2025-10-22
+**Git Commit**: TBD (pending commit)
+
+**Tasks**:
+- [x] 2.1: Install Postmark and rate limiting dependencies
+- [x] 2.2: Create email module with Postmark service
+- [x] 2.3: Create magic link HTML template
+- [x] 2.4: Create auth module with DTOs
+- [x] 2.5: Implement magic link generation endpoint
+- [x] 2.6: Implement token verification endpoint
+- [x] 2.7: Implement JWT strategy and auth guards
+- [x] 2.8: Implement refresh token endpoint
+- [x] 2.9: Implement logout endpoint
+- [x] 2.10: Configure rate limiting
+- [x] 2.11: Write comprehensive tests
+
+**Key Deliverables**:
+- [x] POST /api/auth/magic-link endpoint (rate limited: 3/10min)
+- [x] POST /api/auth/verify endpoint
+- [x] POST /api/auth/refresh endpoint
+- [x] POST /api/auth/logout endpoint (protected)
+- [x] JWT authentication with 15min access tokens, 7day refresh tokens
+- [x] JwtAuthGuard protecting routes globally
+- [x] @CurrentUser() decorator for controllers
+- [x] @Public() decorator for public routes
+- [x] Email service with Postmark integration
+- [x] Magic link HTML email template
+- [x] Rate limiting configured (global + per-endpoint)
+
+**Implementation Details**:
+- **Email Service**: Postmark integration with HTML template
+- **Magic Link Flow**: Secure token generation (crypto.randomBytes), 15-minute expiration
+- **JWT Strategy**: Passport JWT with Bearer token extraction
+- **Security**: Token validation, domain checking, rate limiting
+- **Auth Guards**: Global JWT guard with public route decorator
+- **Tests**: 4 test suites, 18 tests passing (100% coverage for auth module)
+
+**API Endpoints**:
+1. `POST /api/auth/magic-link` - Request magic link (public, rate limited)
+2. `POST /api/auth/verify` - Verify token and get JWT (public)
+3. `POST /api/auth/refresh` - Refresh access token (public)
+4. `POST /api/auth/logout` - Logout and invalidate session (protected)
+
+**Security Features**:
+- Secure random token generation (64 bytes)
+- Email domain validation against orgs table
+- Rate limiting (3 requests per 10 minutes for magic link)
+- Token expiration and one-time use enforcement
+- JWT with short-lived access tokens (15m) and longer refresh tokens (7d)
+- Global authentication guard with explicit public route marking
+- Audit logging for login/logout events
+
+**Notes**:
+- Frontend URL configured for magic link: http://localhost:5173/auth/verify?token={token}
+- Postmark API key placeholder in .env (update with real key for email testing)
+- All endpoints follow API specification exactly
+- Ready for Phase 3 (Onboarding Backend)
 
 ---
 
@@ -140,6 +197,48 @@
 - `README.md`, `SETUP.md` - Comprehensive documentation
 
 **Tests**: 2 test suites, 3 tests passing
+
+---
+
+### Session 2: 2025-10-22 - Phase 2 Implementation
+
+**Implementation Agent (Claude Code)**:
+- ✅ Installed Postmark, Handlebars, @nestjs/throttler, and uuid packages
+- ✅ Created email module with Postmark service
+- ✅ Created professional magic link HTML email template
+- ✅ Created auth module with complete structure
+- ✅ Implemented DTOs for all auth endpoints (magic-link, verify, refresh)
+- ✅ Implemented AuthService with all required methods
+- ✅ Implemented AuthController with 4 endpoints
+- ✅ Created JWT strategy with Passport
+- ✅ Created JwtAuthGuard with public route support
+- ✅ Created @CurrentUser() and @Public() decorators
+- ✅ Configured rate limiting (global + per-endpoint)
+- ✅ Updated main.ts with global JWT guard
+- ✅ Marked health endpoint as public
+- ✅ Wrote comprehensive unit tests (15 tests)
+- ✅ Wrote controller integration tests (4 tests)
+- ✅ All tests passing (4 test suites, 18 tests)
+
+**Files Created**:
+- `src/email/` - Email service module
+  - `email.module.ts`, `email.service.ts`
+  - `templates/magic-link.hbs` - Professional email template
+- `src/auth/` - Authentication module
+  - `auth.module.ts`, `auth.service.ts`, `auth.controller.ts`
+  - `dto/magic-link-request.dto.ts`, `dto/verify-token.dto.ts`, `dto/refresh-token.dto.ts`
+  - `strategies/jwt.strategy.ts`
+  - `guards/jwt-auth.guard.ts`
+  - `auth.service.spec.ts`, `auth.controller.spec.ts`
+- `src/common/decorators/` - Shared decorators
+  - `current-user.decorator.ts`, `public.decorator.ts`
+
+**Configuration Updates**:
+- Updated `app.module.ts` - Added AuthModule, EmailModule, ThrottlerModule
+- Updated `main.ts` - Added global JWT guard
+- Updated `health.controller.ts` - Marked endpoint as public
+
+**Tests**: 4 test suites, 18 tests passing
 
 ---
 

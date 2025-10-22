@@ -1,0 +1,41 @@
+# Development Dockerfile for Grove MVP
+# This container provides an isolated environment for Claude Code to work autonomously
+
+FROM node:20-bookworm
+
+# Install Claude Code CLI
+RUN npm install -g @anthropic-ai/claude-code
+
+# Install git and other useful dev tools
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy package files for dependency installation
+# These will be cached unless package.json changes
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Use the existing 'node' user (UID 1000) for running Claude Code
+# (--dangerously-skip-permission cannot run as root)
+RUN chown -R node:node /workspace
+
+# Switch to non-root user
+USER node
+
+# The rest of the files will be mounted via docker-compose
+# This allows for live code changes without rebuilding
+
+# Expose Vite dev server port
+EXPOSE 3000
+
+# Default command: Start an interactive shell
+# You can override this to run Claude Code directly
+CMD ["/bin/bash"]

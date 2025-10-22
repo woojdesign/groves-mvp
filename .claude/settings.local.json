@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(bin/rails runner:*)",
+      "Bash(docker compose exec:*)",
+      "Bash(claude task create:*)",
+      "Bash(bash:*)",
+      "Bash(docker compose:*)",
+      "Bash(/Users/seankim/mrp-docker/hack/spec_metadata.sh:*)",
+      "Bash(git checkout:*)",
+      "Bash(chmod:*)",
+      "Bash(./hack/generate_frontmatter.sh:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(bundle list:*)",
+      "Bash(gem list)",
+      "Bash(docker-compose exec rails-mrp-api gem:*)",
+      "Bash(git log:*)",
+      "Bash(unzip:*)",
+      "Bash(test:*)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(lsof:*)",
+      "Bash(npx tsc:*)",
+      "Read(//Users/seankim/**)",
+      "Bash(npm run build:*)",
+      "WebSearch",
+      "WebFetch(domain:simonwillison.net)",
+      "Bash(docker-compose exec:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
