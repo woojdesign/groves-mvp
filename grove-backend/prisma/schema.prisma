@@ -1,0 +1,220 @@
+// Grove MVP - Prisma Schema
+// Defines all 10 database tables for the Grove MVP backend
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// 1. ORGANIZATIONS
+// ============================================
+model Org {
+  id        String   @id @default(uuid())
+  name      String
+  domain    String   @unique
+  status    String   @default("active") // active, inactive
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users User[]
+
+  @@map("orgs")
+}
+
+// ============================================
+// 2. USERS
+// ============================================
+model User {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  name       String
+  orgId      String    @map("org_id")
+  status     String    @default("active") // active, paused, deleted
+  lastActive DateTime? @map("last_active")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  org         Org           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  profile     Profile?
+  embedding   Embedding?
+  matchesAsA  Match[]       @relation("MatchUserA")
+  matchesAsB  Match[]       @relation("MatchUserB")
+  feedback    Feedback[]
+  reportsMade SafetyFlag[]  @relation("Reporter")
+  reportsReceived SafetyFlag[] @relation("Reported")
+  events      Event[]
+
+  @@index([orgId])
+  @@index([email])
+  @@index([status])
+  @@map("users")
+}
+
+// ============================================
+// 3. PROFILES
+// ============================================
+model Profile {
+  id             String   @id @default(uuid())
+  userId         String   @unique @map("user_id")
+  nicheInterest  String   @map("niche_interest") @db.Text
+  project        String   @db.Text
+  connectionType String   @map("connection_type")
+  rabbitHole     String?  @map("rabbit_hole") @db.Text
+  preferences    String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// ============================================
+// 4. EMBEDDINGS
+// ============================================
+model Embedding {
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id")
+  interestsText String   @map("interests_text") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Vector column will be added via raw SQL migration
+  // embedding vector(1536)
+
+  @@map("embeddings")
+}
+
+// ============================================
+// 5. MATCHES
+// ============================================
+model Match {
+  id              String    @id @default(uuid())
+  userAId         String    @map("user_a_id")
+  userBId         String    @map("user_b_id")
+  similarityScore Float     @map("similarity_score")
+  sharedInterest  String?   @map("shared_interest")
+  context         String?   @db.Text
+  status          String    @default("pending") // pending, accepted, rejected, expired
+  expiresAt       DateTime? @map("expires_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  userA User   @relation("MatchUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB User   @relation("MatchUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  intro Intro?
+
+  @@unique([userAId, userBId])
+  @@index([userAId])
+  @@index([userBId])
+  @@index([status])
+  @@map("matches")
+}
+
+// ============================================
+// 6. INTROS (Double Opt-In State Machine)
+// ============================================
+model Intro {
+  id           String    @id @default(uuid())
+  matchId      String    @unique @map("match_id")
+  userAStatus  String    @default("pending") @map("user_a_status") // pending, accepted, passed
+  userBStatus  String    @default("pending") @map("user_b_status") // pending, accepted, passed
+  status       String    @default("pending") // pending, accepted_by_a, accepted_by_b, mutual, rejected, expired
+  introSentAt  DateTime? @map("intro_sent_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  match    Match      @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  feedback Feedback[]
+
+  @@index([status])
+  @@map("intros")
+}
+
+// ============================================
+// 7. FEEDBACK
+// ============================================
+model Feedback {
+  id        String   @id @default(uuid())
+  introId   String   @map("intro_id")
+  userId    String   @map("user_id")
+  didMeet   String?  @map("did_meet") // yes, scheduled, no
+  helpful   Boolean?
+  note      String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  intro Intro @relation(fields: [introId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([introId])
+  @@index([userId])
+  @@map("feedback")
+}
+
+// ============================================
+// 8. SAFETY FLAGS (Reports & Moderation)
+// ============================================
+model SafetyFlag {
+  id             String    @id @default(uuid())
+  reporterId     String    @map("reporter_id")
+  reportedId     String    @map("reported_id")
+  matchId        String?   @map("match_id")
+  reason         String
+  comment        String?   @db.Text
+  status         String    @default("pending") // pending, reviewed, actioned, dismissed
+  actionTaken    String?   @map("action_taken") // warning, strike, ban, none
+  reviewedAt     DateTime? @map("reviewed_at")
+  reviewedBy     String?   @map("reviewed_by")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  reporter User @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reported User @relation("Reported", fields: [reportedId], references: [id], onDelete: Cascade)
+
+  @@index([reportedId])
+  @@index([status])
+  @@map("safety_flags")
+}
+
+// ============================================
+// 9. EVENTS (Audit Log)
+// ============================================
+model Event {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  eventType String   @map("event_type")
+  metadata  Json?
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("events")
+}
+
+// ============================================
+// 10. AUTH TOKENS (Magic Links)
+// ============================================
+model AuthToken {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([token])
+  @@index([email])
+  @@index([expiresAt])
+  @@map("auth_tokens")
+}

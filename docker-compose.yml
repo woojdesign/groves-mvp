@@ -1,0 +1,75 @@
+services:
+  grove-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: grove-mvp-dev
+    volumes:
+      # Mount the entire project directory for real-time sync
+      # Changes in container appear on host immediately (and vice versa)
+      - .:/workspace
+      # Prevent node_modules from being overwritten by host
+      # This keeps container's Linux-compiled native modules separate
+      - /workspace/node_modules
+      # Mount Claude Code config to persist authentication
+      # This way you only need to login once
+      - ~/.config/claude:/home/node/.config/claude
+    ports:
+      # Vite dev server (host:container)
+      - "3000:3000"
+      # NestJS backend API
+      - "4000:4000"
+    environment:
+      # Set environment variables
+      - NODE_ENV=development
+      # Add your Anthropic API key here or pass via .env file
+      # - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+    # Optional: Limit resources to prevent runaway processes
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    # Keep container running
+    stdin_open: true
+    tty: true
+    # Optional: Restrict network access for maximum security
+    # Uncomment the line below to disable all network access
+    # network_mode: "none"
+
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: grove-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: grove_mvp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: grove-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
