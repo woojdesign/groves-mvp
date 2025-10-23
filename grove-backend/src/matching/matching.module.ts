@@ -3,6 +3,8 @@ import { MatchingController } from './matching.controller';
 import { MatchingService } from './matching.service';
 import { VectorMatchingEngine } from './engines/vector-matching.engine';
 import { PrismaModule } from '../prisma/prisma.module';
+import { IntrosModule } from '../intros/intros.module';
+import { EmailModule } from '../email/email.module';
 
 // Import strategies
 import { VectorSimilarityStrategy } from './strategies/matching/vector-similarity.strategy';
@@ -24,7 +26,7 @@ import { DiversityRankingStrategy } from './strategies/ranking/diversity-ranking
  * - Ranking: DiversityRankingStrategy (promotes cross-org diversity)
  */
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, IntrosModule, EmailModule],
   controllers: [MatchingController],
   providers: [
     MatchingService,

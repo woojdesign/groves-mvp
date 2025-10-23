@@ -11,6 +11,7 @@ import { EmailModule } from './email/email.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { JobsModule } from './jobs/jobs.module';
 import { MatchingModule } from './matching/matching.module';
+import { IntrosModule } from './intros/intros.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MatchingModule } from './matching/matching.module';
     JobsModule,
     ProfilesModule,
     MatchingModule,
+    IntrosModule,
   ],
   controllers: [AppController],
   providers: [

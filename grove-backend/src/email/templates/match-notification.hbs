@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>We found a great match: {{matchName}}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .container {
+      background: #fafaf9;
+      border-radius: 16px;
+      padding: 40px;
+      margin: 20px 0;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo-text {
+      font-size: 28px;
+      font-weight: 300;
+      color: #a07855;
+      font-family: Georgia, serif;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 300;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+    p {
+      margin-bottom: 20px;
+      color: #525252;
+    }
+    .match-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+      border: 1px solid #e5e5e4;
+    }
+    .match-name {
+      font-size: 20px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    .match-score {
+      font-size: 14px;
+      color: #a07855;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .shared-interest {
+      background: #fef3c7;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #78350f;
+      margin-bottom: 16px;
+    }
+    .reason {
+      font-size: 15px;
+      color: #525252;
+      line-height: 1.6;
+    }
+    .button-group {
+      margin: 30px 0;
+      text-align: center;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 500;
+      margin: 8px;
+      font-size: 16px;
+    }
+    .button-accept {
+      background: #a07855;
+      color: #ffffff !important;
+    }
+    .button-accept:hover {
+      background: #8a6547;
+    }
+    .button-pass {
+      background: #f5f5f4;
+      color: #525252 !important;
+    }
+    .button-pass:hover {
+      background: #e7e5e4;
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e5e4;
+      font-size: 14px;
+      color: #737373;
+    }
+    .privacy-note {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 12px 16px;
+      margin: 20px 0;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #14532d;
+    }
+    .expires {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      margin: 20px 0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-text">grove</div>
+    </div>
+
+    <h1>We found a great match for you!</h1>
+
+    <p>Hi {{userName}},</p>
+
+    <p>Based on your interests and what you're working on, we think you'd connect well with this person:</p>
+
+    <div class="match-card">
+      <div class="match-name">{{matchName}}</div>
+      <div class="match-score">{{score}}% match</div>
+
+      <div class="shared-interest">
+        <strong>Shared interest:</strong> {{sharedInterest}}
+      </div>
+
+      <div class="reason">
+        {{reason}}
+      </div>
+    </div>
+
+    <div class="privacy-note">
+      Privacy first: They won't know you saw this unless you both choose to connect.
+    </div>
+
+    <p style="text-align: center; font-size: 16px; color: #1a1a1a; margin-top: 30px;">
+      <strong>What would you like to do?</strong>
+    </p>
+
+    <div class="button-group">
+      <a href="{{acceptUrl}}" class="button button-accept">I'm interested</a>
+      <a href="{{passUrl}}" class="button button-pass">Not for me</a>
+    </div>
+
+    <div class="expires">
+      This match expires in <strong>7 days</strong>. Take your time!
+    </div>
+
+    <div class="footer">
+      <p>
+        <strong>Grove</strong> – Professional connection matching<br>
+        This email was sent to {{recipientEmail}}
+      </p>
+      <p style="font-size: 12px; color: #a3a3a3;">
+        These introductions are sent to help you discover meaningful professional connections.
+        You can adjust your preferences anytime in settings.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

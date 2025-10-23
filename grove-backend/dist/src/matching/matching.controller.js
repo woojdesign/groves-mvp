@@ -26,6 +26,12 @@ let MatchingController = class MatchingController {
     async getMatches(user, query) {
         return this.matchingService.getMatchesForUser(user.id, query);
     }
+    async acceptMatch(matchId, user) {
+        return this.matchingService.acceptMatch(matchId, user.id);
+    }
+    async passMatch(matchId, user) {
+        return this.matchingService.passMatch(matchId, user.id);
+    }
 };
 exports.MatchingController = MatchingController;
 __decorate([
@@ -37,6 +43,24 @@ __decorate([
     __metadata("design:paramtypes", [Object, generate_matches_request_dto_1.GenerateMatchesRequestDto]),
     __metadata("design:returntype", Promise)
 ], MatchingController.prototype, "getMatches", null);
+__decorate([
+    (0, common_1.Post)(':matchId/accept'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('matchId')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], MatchingController.prototype, "acceptMatch", null);
+__decorate([
+    (0, common_1.Post)(':matchId/pass'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Param)('matchId')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], MatchingController.prototype, "passMatch", null);
 exports.MatchingController = MatchingController = __decorate([
     (0, common_1.Controller)('matches'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

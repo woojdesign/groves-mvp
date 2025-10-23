@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  Post,
+  Param,
   Query,
   UseGuards,
   HttpCode,
@@ -11,6 +13,8 @@ import { GenerateMatchesRequestDto } from './dto/generate-matches-request.dto';
 import { MatchCandidateDto } from './dto/match-candidate.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { AcceptMatchResponseDto } from '../intros/dto/accept-match-response.dto';
+import { PassMatchResponseDto } from '../intros/dto/pass-match-response.dto';
 
 /**
  * Controller for matching endpoints.
@@ -33,5 +37,32 @@ export class MatchingController {
     @Query() query: GenerateMatchesRequestDto,
   ): Promise<MatchCandidateDto[]> {
     return this.matchingService.getMatchesForUser(user.id, query);
+  }
+
+  /**
+   * POST /api/matches/:matchId/accept
+   * Accept a match (express interest).
+   * Creates intro if other user has also accepted.
+   */
+  @Post(':matchId/accept')
+  @HttpCode(HttpStatus.OK)
+  async acceptMatch(
+    @Param('matchId') matchId: string,
+    @CurrentUser() user: { id: string; email: string },
+  ): Promise<AcceptMatchResponseDto> {
+    return this.matchingService.acceptMatch(matchId, user.id);
+  }
+
+  /**
+   * POST /api/matches/:matchId/pass
+   * Pass on a match (decline interest).
+   */
+  @Post(':matchId/pass')
+  @HttpCode(HttpStatus.OK)
+  async passMatch(
+    @Param('matchId') matchId: string,
+    @CurrentUser() user: { id: string; email: string },
+  ): Promise<PassMatchResponseDto> {
+    return this.matchingService.passMatch(matchId, user.id);
   }
 }

@@ -91,6 +91,61 @@ let EmailService = EmailService_1 = class EmailService {
             throw error;
         }
     }
+    async sendMatchNotification(to, userName, match) {
+        try {
+            const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
+            const template = this.loadTemplate('match-notification');
+            const html = template({
+                userName,
+                matchName: match.name,
+                score: Math.round(match.score * 100),
+                sharedInterest: match.sharedInterest,
+                reason: match.reason,
+                acceptUrl: `${frontendUrl}/matches/${match.id}/accept`,
+                passUrl: `${frontendUrl}/matches/${match.id}/pass`,
+                recipientEmail: to,
+            });
+            const result = await this.client.sendEmail({
+                From: this.fromEmail,
+                To: to,
+                Subject: `We found a great match: ${match.name}`,
+                HtmlBody: html,
+                TextBody: `You have a new match: ${match.name} (${Math.round(match.score * 100)}% match)\n\nShared interest: ${match.sharedInterest}\n\n${match.reason}\n\nAccept: ${frontendUrl}/matches/${match.id}/accept\nPass: ${frontendUrl}/matches/${match.id}/pass`,
+                MessageStream: 'outbound',
+            });
+            this.logger.log(`Match notification sent to ${to}. MessageID: ${result.MessageID}`);
+        }
+        catch (error) {
+            this.logger.error(`Failed to send match notification to ${to}:`, error);
+            throw error;
+        }
+    }
+    async sendMutualIntroduction(to, userName, match, sharedInterest, context) {
+        try {
+            const template = this.loadTemplate('mutual-introduction');
+            const html = template({
+                userName,
+                matchName: match.name,
+                matchEmail: match.email,
+                sharedInterest,
+                context,
+                recipientEmail: to,
+            });
+            const result = await this.client.sendEmail({
+                From: this.fromEmail,
+                To: to,
+                Subject: `It's a match with ${match.name}!`,
+                HtmlBody: html,
+                TextBody: `Great news! You and ${match.name} both expressed interest in connecting.\n\nEmail: ${match.email}\n\nShared interest: ${sharedInterest}\n\n${context}\n\nReach out soon to start the conversation!`,
+                MessageStream: 'outbound',
+            });
+            this.logger.log(`Mutual introduction sent to ${to}. MessageID: ${result.MessageID}`);
+        }
+        catch (error) {
+            this.logger.error(`Failed to send mutual introduction to ${to}:`, error);
+            throw error;
+        }
+    }
     loadTemplate(name) {
         const templatePath = path.join(__dirname, 'templates', `${name}.hbs`);
         const templateSource = fs.readFileSync(templatePath, 'utf-8');

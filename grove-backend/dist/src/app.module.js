@@ -20,6 +20,7 @@ const email_module_1 = require("./email/email.module");
 const profiles_module_1 = require("./profiles/profiles.module");
 const jobs_module_1 = require("./jobs/jobs.module");
 const matching_module_1 = require("./matching/matching.module");
+const intros_module_1 = require("./intros/intros.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -43,6 +44,7 @@ exports.AppModule = AppModule = __decorate([
             jobs_module_1.JobsModule,
             profiles_module_1.ProfilesModule,
             matching_module_1.MatchingModule,
+            intros_module_1.IntrosModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

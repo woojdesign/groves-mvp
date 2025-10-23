@@ -12,6 +12,8 @@ const matching_controller_1 = require("./matching.controller");
 const matching_service_1 = require("./matching.service");
 const vector_matching_engine_1 = require("./engines/vector-matching.engine");
 const prisma_module_1 = require("../prisma/prisma.module");
+const intros_module_1 = require("../intros/intros.module");
+const email_module_1 = require("../email/email.module");
 const vector_similarity_strategy_1 = require("./strategies/matching/vector-similarity.strategy");
 const composite_filter_1 = require("./strategies/filters/composite.filter");
 const prior_matches_filter_1 = require("./strategies/filters/prior-matches.filter");
@@ -23,7 +25,7 @@ let MatchingModule = class MatchingModule {
 exports.MatchingModule = MatchingModule;
 exports.MatchingModule = MatchingModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, intros_module_1.IntrosModule, email_module_1.EmailModule],
         controllers: [matching_controller_1.MatchingController],
         providers: [
             matching_service_1.MatchingService,
