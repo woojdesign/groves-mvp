@@ -373,9 +373,98 @@ ORDER BY similarity_score DESC
 
 ---
 
-### Phase 6: Double Opt-In Flow (7 days) - PENDING
-**Status**: Not Started
+### Phase 6: Double Opt-In Flow (7 days) - COMPLETE
+**Status**: Complete
+**Start Date**: 2025-10-23
+**Completion Date**: 2025-10-23
+**Git Commit**: 49f8b48
 **Prerequisites**: Phase 5 complete
+
+**Tasks**:
+- [x] 6.1: Store generated matches in database with expiration
+- [x] 6.2: Implement POST /api/matches/:id/accept endpoint
+- [x] 6.3: Implement POST /api/matches/:id/pass endpoint
+- [x] 6.4: Create IntrosService with state machine
+- [x] 6.5: Create match notification email template
+- [x] 6.6: Create mutual introduction email template
+- [x] 6.7: Send match notifications when matches are generated
+- [x] 6.8: Send mutual introduction email on double opt-in
+- [x] 6.9: Add GET /api/intros endpoint
+- [x] 6.10: Write comprehensive tests
+
+**Key Deliverables**:
+- [x] Matches stored in database with 7-day expiration
+- [x] Accept/pass endpoints working with state machine
+- [x] Match notification email template (match-notification.hbs)
+- [x] Mutual introduction email template (mutual-introduction.hbs)
+- [x] Email sending on match generation (to BOTH users)
+- [x] Email sending on mutual acceptance (to BOTH users)
+- [x] GET /api/intros endpoint returning active introductions
+- [x] All tests passing (98 tests, 19 test suites)
+
+**Implementation Details**:
+- **Match Storage**: MatchingService checks database for existing matches before generating new ones
+  - Stores matches with status='pending', expiresAt=7 days from creation
+  - Bidirectional matching (userAId/userBId)
+- **Accept Endpoint**: POST /api/matches/:id/accept
+  - Single acceptance creates partial intro (status='accepted_by_a' or 'accepted_by_b')
+  - Mutual acceptance creates full intro + sends mutual introduction email
+  - Returns mutualMatch boolean to indicate if intro created
+- **Pass Endpoint**: POST /api/matches/:id/pass
+  - Updates match status to 'rejected'
+  - Hides match from both users
+- **IntrosService State Machine**:
+  - createIntroduction(): Creates intro record + sends mutual intro email to both users
+  - getActiveIntros(): Returns active/mutual intros with match details
+  - completeIntroduction(): Marks intro as completed (for feedback flow)
+- **Email Templates**:
+  - match-notification.hbs: Sent to BOTH users when matches generated
+    - Includes match score, shared interests, context
+    - Accept/Pass buttons linking to frontend
+    - Privacy notice (neither knows other received email)
+  - mutual-introduction.hbs: Sent to BOTH users when both accept
+    - Reveals contact information (email)
+    - Shared interests recap + conversation starters
+- **Privacy Features**:
+  - Neither user knows if the other received a match notification
+  - Contact information only revealed after mutual acceptance
+  - Match status tracked bidirectionally
+  - Audit logs for all accept/pass actions
+- **Tests**: All 98 tests passing
+  - IntrosService: 5 tests (create intro, get active intros, error handling)
+  - IntrosController: 2 tests (GET /intros)
+  - MatchingService: Updated with database storage tests
+
+**API Endpoints**:
+1. `POST /api/matches/:matchId/accept` - Accept a match (protected)
+2. `POST /api/matches/:matchId/pass` - Pass on a match (protected)
+3. `GET /api/intros` - Get active introductions (protected)
+
+**State Machine**:
+```
+Match Status Flow:
+pending → (user A accepts) → accepted_by_a
+       → (user B accepts) → accepted_by_b
+       → (both accept) → accepted → intro created with status='mutual'
+pending → (user passes) → rejected (hidden from both)
+```
+
+**Notes**:
+- Phase 6 completed in 1 day (accelerated from 7-day estimate)
+- All success criteria met:
+  - ✅ Matches stored in database with expiration
+  - ✅ POST /api/matches/:id/accept working
+  - ✅ POST /api/matches/:id/pass working
+  - ✅ Match notification emails sent to BOTH users
+  - ✅ Mutual introduction emails sent on double opt-in
+  - ✅ GET /api/intros endpoint working
+  - ✅ State machine working correctly
+  - ✅ All tests passing (98 tests)
+  - ✅ MVP backend functionally complete!
+- Email notifications use Postmark service (configured in Phase 2)
+- Frontend URLs point to localhost:5173 for development
+- Privacy-preserving: mirrored notifications, double opt-in required
+- Ready for Phase 7 (Production Deployment) or optional phases 8-9 (Feedback/Safety)
 
 ---
 
