@@ -84,9 +84,9 @@ async function bootstrap() {
   app.setGlobalPrefix(process.env.API_PREFIX || 'api');
 
   const port = process.env.PORT || 4000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0'); // Bind to all interfaces (required for Docker)
 
-  console.log(`🚀 Grove Backend API running on http://localhost:${port}`);
-  console.log(`📊 Health check: http://localhost:${port}/health`);
+  console.log(`🚀 Grove Backend API running on http://0.0.0.0:${port}`);
+  console.log(`📊 Health check: http://localhost:${port}/api/health`);
 }
 bootstrap();

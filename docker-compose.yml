@@ -16,9 +16,9 @@ services:
       - ~/.config/claude:/home/node/.config/claude
     ports:
       # Vite dev server (host:container)
-      - "3000:3000"
-      # NestJS backend API (mapped to 4001 on host to avoid conflict)
-      - "4001:4000"
+      - "5173:5173"
+      # NestJS backend API (host:container)
+      - "4000:4000"
     environment:
       # Set environment variables
       - NODE_ENV=development

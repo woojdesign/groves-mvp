@@ -89,9 +89,9 @@ async function bootstrap() {
     app.useGlobalInterceptors(new org_filter_interceptor_1.OrgFilterInterceptor(reflector));
     app.setGlobalPrefix(process.env.API_PREFIX || 'api');
     const port = process.env.PORT || 4000;
-    await app.listen(port);
-    console.log(`🚀 Grove Backend API running on http://localhost:${port}`);
-    console.log(`📊 Health check: http://localhost:${port}/health`);
+    await app.listen(port, '0.0.0.0');
+    console.log(`🚀 Grove Backend API running on http://0.0.0.0:${port}`);
+    console.log(`📊 Health check: http://localhost:${port}/api/health`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
