@@ -4,6 +4,28 @@
 
 This guide walks through deploying the Grove NestJS backend to Railway, a platform designed for full-stack applications with databases.
 
+### Understanding Railway CLI Commands
+
+**Important clarification on Railway CLI**:
+
+| Command | Where It Runs | Use Case |
+|---------|---------------|----------|
+| `railway run <cmd>` | **Your local machine** | Runs command locally WITH Railway's environment variables (connects to Railway DB) |
+| `railway ssh` | **Inside Railway container** | Opens shell session in the running container on Railway |
+| Start script in `package.json` | **Railway container** | Runs automatically on deployment |
+
+**Example:**
+```bash
+# This runs on YOUR laptop but connects to Railway's database:
+railway run npx prisma migrate deploy
+
+# This runs INSIDE Railway's container:
+railway ssh
+npx prisma migrate deploy
+```
+
+Both achieve the same result, but run in different locations.
+
 ## Why Railway?
 
 - ✅ Perfect for NestJS long-running servers
@@ -178,26 +200,14 @@ Railway auto-detects package.json, but verify:
 
 Railway will deploy the app, but migrations aren't run yet.
 
-### 6.2 Run Migrations via CLI
+### 6.2 Choose Migration Approach
 
-**Option A: Railway CLI**:
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
+Railway doesn't automatically run migrations. You have three options:
 
-# Link to project
-railway link
+**Option A: Automatic Migrations (RECOMMENDED)**
 
-# Run migration
-railway run npx prisma migrate deploy
+Add migrations to your start command in `package.json`:
 
-# Generate Prisma client (if needed)
-railway run npx prisma generate
-```
-
-**Option B: Add to Build Command**:
-
-Edit `package.json` in `grove-backend/`:
 ```json
 {
   "scripts": {
@@ -207,7 +217,47 @@ Edit `package.json` in `grove-backend/`:
 }
 ```
 
-This auto-runs migrations on every deployment.
+**Important**: Use this format in Railway if setting custom start command:
+```bash
+/bin/sh -c "npx prisma migrate deploy && npm run start:prod"
+```
+
+✅ **Pros**: Automatic, runs on every deployment, no manual steps
+⚠️ **Cons**: Deployment fails if migration fails (which is usually what you want)
+
+**Option B: Local Execution via Railway CLI**
+
+```bash
+# Install Railway CLI (if not installed)
+npm install -g @railway/cli
+
+# Link to your project
+railway link
+
+# Run migration from your local machine (connects to Railway DB)
+railway run npx prisma migrate deploy
+
+# Note: "railway run" runs LOCALLY with Railway's environment variables
+# It connects to your Railway database from your machine
+```
+
+✅ **Pros**: Manual control, can test migrations first
+⚠️ **Cons**: Must remember to run manually after each schema change
+
+**Option C: SSH into Railway Container**
+
+```bash
+# SSH into running container
+railway ssh
+
+# Once inside container:
+cd /app
+npx prisma migrate deploy
+exit
+```
+
+✅ **Pros**: Runs directly on Railway infrastructure
+⚠️ **Cons**: Container must be running, manual process
 
 ### 6.3 Verify Database
 

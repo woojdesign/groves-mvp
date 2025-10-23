@@ -108,19 +108,43 @@ openssl rand -base64 32
 # Copy outputs to Railway variables
 ```
 
-#### Step 5: Deploy & Migrate
+#### Step 5: Configure Automatic Migrations (RECOMMENDED)
 
-Railway auto-deploys. Then run migrations:
+Update `grove-backend/package.json` to auto-run migrations:
+
+```json
+{
+  "scripts": {
+    "build": "nest build && npx prisma generate",
+    "start:prod": "npx prisma migrate deploy && node dist/main"
+  }
+}
+```
+
+Push this change:
+```bash
+git add grove-backend/package.json
+git commit -m "chore: Add automatic migration to start command"
+git push
+```
+
+Railway will redeploy and automatically run migrations before starting the server.
+
+**Alternative: Manual Migration**
+
+If you prefer manual control, use Railway CLI locally:
 
 ```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
 # Link to project
 railway link
 
-# Run migrations
+# Run migrations from your local machine (connects to Railway DB)
 railway run npx prisma migrate deploy
 
-# Verify
-railway run npx prisma migrate status
+# Note: This runs on YOUR computer but connects to Railway's database
 ```
 
 #### Step 6: Get Backend URL
