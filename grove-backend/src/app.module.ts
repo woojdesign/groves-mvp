@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { JobsModule } from './jobs/jobs.module';
+import { MatchingModule } from './matching/matching.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { JobsModule } from './jobs/jobs.module';
     EmailModule,
     JobsModule,
     ProfilesModule,
+    MatchingModule,
   ],
   controllers: [AppController],
   providers: [
