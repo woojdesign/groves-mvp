@@ -24,4 +24,5 @@ export declare class ProfilesService {
     hasCompletedOnboarding(userId: string): Promise<boolean>;
     getEmbeddingStatus(userId: string): Promise<string>;
     private mapToProfileResponse;
+    private getChangedFields;
 }

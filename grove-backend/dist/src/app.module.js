@@ -24,6 +24,7 @@ const matching_module_1 = require("./matching/matching.module");
 const intros_module_1 = require("./intros/intros.module");
 const admin_module_1 = require("./admin/admin.module");
 const gdpr_module_1 = require("./gdpr/gdpr.module");
+const encryption_module_1 = require("./encryption/encryption.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -34,6 +35,7 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
                 envFilePath: '.env',
             }),
+            encryption_module_1.EncryptionModule,
             throttler_1.ThrottlerModule.forRoot([
                 {
                     ttl: 60000,

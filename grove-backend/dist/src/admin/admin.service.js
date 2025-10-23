@@ -17,7 +17,16 @@ let AdminService = class AdminService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async createUser(dto, adminId, orgId) {
+    getRequestMetadata(req) {
+        if (!req) {
+            return { ipAddress: 'system', userAgent: 'system' };
+        }
+        return {
+            ipAddress: req.ip || req.socket?.remoteAddress || 'unknown',
+            userAgent: req.get('user-agent') || 'unknown',
+        };
+    }
+    async createUser(dto, adminId, orgId, req) {
         const user = await this.prisma.user.create({
             data: {
                 email: dto.email,
@@ -27,6 +36,7 @@ let AdminService = class AdminService {
                 ssoProvider: dto.ssoProvider || 'magic_link',
             },
         });
+        const { ipAddress, userAgent } = this.getRequestMetadata(req);
         await this.prisma.adminAction.create({
             data: {
                 adminId,
@@ -35,8 +45,8 @@ let AdminService = class AdminService {
                 targetId: user.id,
                 orgId,
                 metadata: { email: dto.email },
-                ipAddress: '0.0.0.0',
-                userAgent: 'API',
+                ipAddress,
+                userAgent,
             },
         });
         return user;
@@ -60,7 +70,7 @@ let AdminService = class AdminService {
             totalPages: Math.ceil(total / limit),
         };
     }
-    async updateUser(userId, dto, adminId, orgId) {
+    async updateUser(userId, dto, adminId, orgId, req) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
         });
@@ -75,6 +85,7 @@ let AdminService = class AdminService {
                 role: dto.role,
             },
         });
+        const { ipAddress, userAgent } = this.getRequestMetadata(req);
         await this.prisma.adminAction.create({
             data: {
                 adminId,
@@ -83,13 +94,13 @@ let AdminService = class AdminService {
                 targetId: userId,
                 orgId,
                 metadata: dto,
-                ipAddress: '0.0.0.0',
-                userAgent: 'API',
+                ipAddress,
+                userAgent,
             },
         });
         return updated;
     }
-    async suspendUser(userId, adminId, orgId) {
+    async suspendUser(userId, adminId, orgId, req) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
         if (!user || user.orgId !== orgId) {
             throw new common_1.NotFoundException('User not found');
@@ -98,6 +109,7 @@ let AdminService = class AdminService {
             where: { id: userId },
             data: { status: 'paused' },
         });
+        const { ipAddress, userAgent } = this.getRequestMetadata(req);
         await this.prisma.adminAction.create({
             data: {
                 adminId,
@@ -106,13 +118,13 @@ let AdminService = class AdminService {
                 targetId: userId,
                 orgId,
                 metadata: {},
-                ipAddress: '0.0.0.0',
-                userAgent: 'API',
+                ipAddress,
+                userAgent,
             },
         });
         return updated;
     }
-    async deleteUser(userId, adminId, orgId) {
+    async deleteUser(userId, adminId, orgId, req) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
         if (!user || user.orgId !== orgId) {
             throw new common_1.NotFoundException('User not found');
@@ -121,6 +133,7 @@ let AdminService = class AdminService {
             where: { id: userId },
             data: { status: 'deleted' },
         });
+        const { ipAddress, userAgent } = this.getRequestMetadata(req);
         await this.prisma.adminAction.create({
             data: {
                 adminId,
@@ -129,8 +142,8 @@ let AdminService = class AdminService {
                 targetId: userId,
                 orgId,
                 metadata: {},
-                ipAddress: '0.0.0.0',
-                userAgent: 'API',
+                ipAddress,
+                userAgent,
             },
         });
         return { message: 'User deleted successfully' };
@@ -155,7 +168,7 @@ let AdminService = class AdminService {
         }
         return org;
     }
-    async updateOrganization(orgId, dto, adminId) {
+    async updateOrganization(orgId, dto, adminId, req) {
         const org = await this.prisma.org.update({
             where: { id: orgId },
             data: {
@@ -164,6 +177,7 @@ let AdminService = class AdminService {
                 ssoProvider: dto.ssoProvider,
             },
         });
+        const { ipAddress, userAgent } = this.getRequestMetadata(req);
         await this.prisma.adminAction.create({
             data: {
                 adminId,
@@ -172,8 +186,8 @@ let AdminService = class AdminService {
                 targetId: orgId,
                 orgId,
                 metadata: { changes: dto },
-                ipAddress: '0.0.0.0',
-                userAgent: 'API',
+                ipAddress,
+                userAgent,
             },
         });
         return org;

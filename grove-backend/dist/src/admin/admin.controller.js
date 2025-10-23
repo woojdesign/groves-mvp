@@ -32,22 +32,22 @@ let AdminController = class AdminController {
     async createUser(dto, req) {
         const userId = req.userId;
         const orgId = req.orgId;
-        return this.adminService.createUser(dto, userId, orgId);
+        return this.adminService.createUser(dto, userId, orgId, req);
     }
     async updateUser(userId, dto, req) {
-        return this.adminService.updateUser(userId, dto, req.userId, req.orgId);
+        return this.adminService.updateUser(userId, dto, req.userId, req.orgId, req);
     }
     async suspendUser(userId, req) {
-        return this.adminService.suspendUser(userId, req.userId, req.orgId);
+        return this.adminService.suspendUser(userId, req.userId, req.orgId, req);
     }
     async deleteUser(userId, req) {
-        return this.adminService.deleteUser(userId, req.userId, req.orgId);
+        return this.adminService.deleteUser(userId, req.userId, req.orgId, req);
     }
     async getOrganization(req) {
         return this.adminService.getOrganization(req.orgId);
     }
     async updateOrganization(dto, req) {
-        return this.adminService.updateOrganization(req.orgId, dto, req.userId);
+        return this.adminService.updateOrganization(req.orgId, dto, req.userId, req);
     }
     async getAdminActions(req, page, limit) {
         return this.adminService.getAdminActions(req.orgId, page ? parseInt(page) : 1, limit ? parseInt(limit) : 50);

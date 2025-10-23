@@ -111,25 +111,46 @@ export class ProfilesService {
     const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
     const userAgent = req.get('user-agent') || 'unknown';
 
-    const profile = await this.prisma.profile.findUnique({
+    // Fetch current state before update
+    const beforeState = await this.prisma.profile.findUnique({
       where: { userId },
     });
 
-    if (!profile) {
+    if (!beforeState) {
       throw new NotFoundException('Profile not found');
     }
 
+    // Perform the update
     const updated = await this.prisma.profile.update({
       where: { userId },
       data: dto,
     });
 
-    // Log event with IP and user-agent
+    // Calculate changed fields for audit trail
+    const changes = this.getChangedFields(beforeState, updated);
+
+    // Log event with before/after state and changed fields
     await this.prisma.event.create({
       data: {
         userId,
         eventType: 'profile_updated',
-        metadata: { fields: Object.keys(dto) },
+        metadata: {
+          before: {
+            nicheInterest: beforeState.nicheInterest,
+            project: beforeState.project,
+            connectionType: beforeState.connectionType,
+            rabbitHole: beforeState.rabbitHole,
+            preferences: beforeState.preferences,
+          },
+          after: {
+            nicheInterest: updated.nicheInterest,
+            project: updated.project,
+            connectionType: updated.connectionType,
+            rabbitHole: updated.rabbitHole,
+            preferences: updated.preferences,
+          },
+          changes,
+        },
         ipAddress,
         userAgent,
       },
@@ -144,7 +165,7 @@ export class ProfilesService {
       await this.embeddingQueue.add(
         {
           userId,
-          profileId: profile.id,
+          profileId: updated.id,
         },
         {
           attempts: 3,
@@ -240,5 +261,26 @@ export class ProfilesService {
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     };
+  }
+
+  /**
+   * Calculate which fields changed between before and after states
+   * Used for enhanced audit logging
+   */
+  private getChangedFields(before: any, after: any): string[] {
+    const changes: string[] = [];
+    const fieldsToCheck = ['nicheInterest', 'project', 'connectionType', 'rabbitHole', 'preferences'];
+
+    for (const field of fieldsToCheck) {
+      // Deep comparison for objects (like preferences)
+      const beforeValue = JSON.stringify(before[field]);
+      const afterValue = JSON.stringify(after[field]);
+
+      if (beforeValue !== afterValue) {
+        changes.push(field);
+      }
+    }
+
+    return changes;
   }
 }

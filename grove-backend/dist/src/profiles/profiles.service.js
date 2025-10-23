@@ -85,21 +85,38 @@ let ProfilesService = ProfilesService_1 = class ProfilesService {
     async updateProfile(userId, dto, req) {
         const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
         const userAgent = req.get('user-agent') || 'unknown';
-        const profile = await this.prisma.profile.findUnique({
+        const beforeState = await this.prisma.profile.findUnique({
             where: { userId },
         });
-        if (!profile) {
+        if (!beforeState) {
             throw new common_1.NotFoundException('Profile not found');
         }
         const updated = await this.prisma.profile.update({
             where: { userId },
             data: dto,
         });
+        const changes = this.getChangedFields(beforeState, updated);
         await this.prisma.event.create({
             data: {
                 userId,
                 eventType: 'profile_updated',
-                metadata: { fields: Object.keys(dto) },
+                metadata: {
+                    before: {
+                        nicheInterest: beforeState.nicheInterest,
+                        project: beforeState.project,
+                        connectionType: beforeState.connectionType,
+                        rabbitHole: beforeState.rabbitHole,
+                        preferences: beforeState.preferences,
+                    },
+                    after: {
+                        nicheInterest: updated.nicheInterest,
+                        project: updated.project,
+                        connectionType: updated.connectionType,
+                        rabbitHole: updated.rabbitHole,
+                        preferences: updated.preferences,
+                    },
+                    changes,
+                },
                 ipAddress,
                 userAgent,
             },
@@ -108,7 +125,7 @@ let ProfilesService = ProfilesService_1 = class ProfilesService {
             this.logger.log(`Profile semantic fields updated for user ${userId}, triggering embedding regeneration`);
             await this.embeddingQueue.add({
                 userId,
-                profileId: profile.id,
+                profileId: updated.id,
             }, {
                 attempts: 3,
                 backoff: {
@@ -174,6 +191,18 @@ let ProfilesService = ProfilesService_1 = class ProfilesService {
             createdAt: profile.createdAt,
             updatedAt: profile.updatedAt,
         };
+    }
+    getChangedFields(before, after) {
+        const changes = [];
+        const fieldsToCheck = ['nicheInterest', 'project', 'connectionType', 'rabbitHole', 'preferences'];
+        for (const field of fieldsToCheck) {
+            const beforeValue = JSON.stringify(before[field]);
+            const afterValue = JSON.stringify(after[field]);
+            if (beforeValue !== afterValue) {
+                changes.push(field);
+            }
+        }
+        return changes;
     }
 };
 exports.ProfilesService = ProfilesService;

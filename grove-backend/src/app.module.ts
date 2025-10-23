@@ -15,6 +15,7 @@ import { MatchingModule } from './matching/matching.module';
 import { IntrosModule } from './intros/intros.module';
 import { AdminModule } from './admin/admin.module';
 import { GdprModule } from './gdpr/gdpr.module';
+import { EncryptionModule } from './encryption/encryption.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { GdprModule } from './gdpr/gdpr.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    EncryptionModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000, // 60 seconds

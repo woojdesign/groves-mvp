@@ -75,6 +75,19 @@ let AuthService = AuthService_1 = class AuthService {
             },
         });
         if (!authToken) {
+            await this.prisma.event.create({
+                data: {
+                    userId: null,
+                    eventType: 'login_failed',
+                    metadata: {
+                        reason: 'invalid_or_expired_token',
+                        tokenPrefix: token.substring(0, 8) + '...',
+                    },
+                    ipAddress,
+                    userAgent,
+                },
+            });
+            this.logger.warn(`Failed login attempt: invalid or expired token from IP: ${ipAddress}`);
             throw new common_1.UnauthorizedException('Invalid or expired token');
         }
         await this.prisma.authToken.update({

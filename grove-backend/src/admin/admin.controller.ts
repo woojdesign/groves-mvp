@@ -44,7 +44,7 @@ export class AdminController {
   async createUser(@Body() dto: CreateUserDto, @Req() req: Request) {
     const userId = req.userId!;
     const orgId = req.orgId!;
-    return this.adminService.createUser(dto, userId, orgId);
+    return this.adminService.createUser(dto, userId, orgId, req);
   }
 
   @Put('users/:id')
@@ -54,19 +54,19 @@ export class AdminController {
     @Body() dto: UpdateUserDto,
     @Req() req: Request,
   ) {
-    return this.adminService.updateUser(userId, dto, req.userId!, req.orgId!);
+    return this.adminService.updateUser(userId, dto, req.userId!, req.orgId!, req);
   }
 
   @Post('users/:id/suspend')
   @Roles(Role.ORG_ADMIN, Role.SUPER_ADMIN)
   async suspendUser(@Param('id') userId: string, @Req() req: Request) {
-    return this.adminService.suspendUser(userId, req.userId!, req.orgId!);
+    return this.adminService.suspendUser(userId, req.userId!, req.orgId!, req);
   }
 
   @Delete('users/:id')
   @Roles(Role.ORG_ADMIN, Role.SUPER_ADMIN)
   async deleteUser(@Param('id') userId: string, @Req() req: Request) {
-    return this.adminService.deleteUser(userId, req.userId!, req.orgId!);
+    return this.adminService.deleteUser(userId, req.userId!, req.orgId!, req);
   }
 
   // Organization Management
@@ -79,7 +79,7 @@ export class AdminController {
   @Put('organization')
   @Roles(Role.ORG_ADMIN, Role.SUPER_ADMIN)
   async updateOrganization(@Body() dto: any, @Req() req: Request) {
-    return this.adminService.updateOrganization(req.orgId!, dto, req.userId!);
+    return this.adminService.updateOrganization(req.orgId!, dto, req.userId!, req);
   }
 
   // Admin Actions Log

@@ -1,10 +1,12 @@
+import type { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 export declare class AdminService {
     private prisma;
     constructor(prisma: PrismaService);
-    createUser(dto: CreateUserDto, adminId: string, orgId: string): Promise<{
+    private getRequestMetadata;
+    createUser(dto: CreateUserDto, adminId: string, orgId: string, req?: Request): Promise<{
         id: string;
         name: string;
         status: string;
@@ -49,7 +51,7 @@ export declare class AdminService {
         page: number;
         totalPages: number;
     }>;
-    updateUser(userId: string, dto: UpdateUserDto, adminId: string, orgId: string): Promise<{
+    updateUser(userId: string, dto: UpdateUserDto, adminId: string, orgId: string, req?: Request): Promise<{
         id: string;
         name: string;
         status: string;
@@ -63,7 +65,7 @@ export declare class AdminService {
         lastActive: Date | null;
         ssoSubject: string | null;
     }>;
-    suspendUser(userId: string, adminId: string, orgId: string): Promise<{
+    suspendUser(userId: string, adminId: string, orgId: string, req?: Request): Promise<{
         id: string;
         name: string;
         status: string;
@@ -77,7 +79,7 @@ export declare class AdminService {
         lastActive: Date | null;
         ssoSubject: string | null;
     }>;
-    deleteUser(userId: string, adminId: string, orgId: string): Promise<{
+    deleteUser(userId: string, adminId: string, orgId: string, req?: Request): Promise<{
         message: string;
     }>;
     getOrganization(orgId: string): Promise<{
@@ -104,7 +106,7 @@ export declare class AdminService {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    updateOrganization(orgId: string, dto: any, adminId: string): Promise<{
+    updateOrganization(orgId: string, dto: any, adminId: string, req?: Request): Promise<{
         id: string;
         domain: string;
         name: string;
@@ -125,11 +127,11 @@ export declare class AdminService {
             id: string;
             createdAt: Date;
             orgId: string | null;
+            action: string;
             metadata: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string;
             userAgent: string;
             adminId: string;
-            action: string;
             targetType: string;
             targetId: string | null;
         }[];

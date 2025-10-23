@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -11,8 +12,19 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
+  // Helper to extract IP and user-agent from request
+  private getRequestMetadata(req?: Request): { ipAddress: string; userAgent: string } {
+    if (!req) {
+      return { ipAddress: 'system', userAgent: 'system' };
+    }
+    return {
+      ipAddress: req.ip || req.socket?.remoteAddress || 'unknown',
+      userAgent: req.get('user-agent') || 'unknown',
+    };
+  }
+
   // User Management
-  async createUser(dto: CreateUserDto, adminId: string, orgId: string) {
+  async createUser(dto: CreateUserDto, adminId: string, orgId: string, req?: Request) {
     // Create user in admin's organization
     const user = await this.prisma.user.create({
       data: {
@@ -24,7 +36,8 @@ export class AdminService {
       },
     });
 
-    // Log admin action
+    // Log admin action with IP/UA
+    const { ipAddress, userAgent } = this.getRequestMetadata(req);
     await this.prisma.adminAction.create({
       data: {
         adminId,
@@ -33,8 +46,8 @@ export class AdminService {
         targetId: user.id,
         orgId,
         metadata: { email: dto.email },
-        ipAddress: '0.0.0.0', // TODO: Get from request
-        userAgent: 'API',
+        ipAddress,
+        userAgent,
       },
     });
 
@@ -68,6 +81,7 @@ export class AdminService {
     dto: UpdateUserDto,
     adminId: string,
     orgId: string,
+    req?: Request,
   ) {
     // Verify user belongs to same org
     const user = await this.prisma.user.findUnique({
@@ -87,6 +101,7 @@ export class AdminService {
       },
     });
 
+    const { ipAddress, userAgent } = this.getRequestMetadata(req);
     await this.prisma.adminAction.create({
       data: {
         adminId,
@@ -95,15 +110,15 @@ export class AdminService {
         targetId: userId,
         orgId,
         metadata: dto as any,
-        ipAddress: '0.0.0.0',
-        userAgent: 'API',
+        ipAddress,
+        userAgent,
       },
     });
 
     return updated;
   }
 
-  async suspendUser(userId: string, adminId: string, orgId: string) {
+  async suspendUser(userId: string, adminId: string, orgId: string, req?: Request) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user || user.orgId !== orgId) {
@@ -115,6 +130,7 @@ export class AdminService {
       data: { status: 'paused' },
     });
 
+    const { ipAddress, userAgent } = this.getRequestMetadata(req);
     await this.prisma.adminAction.create({
       data: {
         adminId,
@@ -123,15 +139,15 @@ export class AdminService {
         targetId: userId,
         orgId,
         metadata: {},
-        ipAddress: '0.0.0.0',
-        userAgent: 'API',
+        ipAddress,
+        userAgent,
       },
     });
 
     return updated;
   }
 
-  async deleteUser(userId: string, adminId: string, orgId: string) {
+  async deleteUser(userId: string, adminId: string, orgId: string, req?: Request) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user || user.orgId !== orgId) {
@@ -144,6 +160,7 @@ export class AdminService {
       data: { status: 'deleted' },
     });
 
+    const { ipAddress, userAgent } = this.getRequestMetadata(req);
     await this.prisma.adminAction.create({
       data: {
         adminId,
@@ -152,8 +169,8 @@ export class AdminService {
         targetId: userId,
         orgId,
         metadata: {},
-        ipAddress: '0.0.0.0',
-        userAgent: 'API',
+        ipAddress,
+        userAgent,
       },
     });
 
@@ -184,7 +201,7 @@ export class AdminService {
     return org;
   }
 
-  async updateOrganization(orgId: string, dto: any, adminId: string) {
+  async updateOrganization(orgId: string, dto: any, adminId: string, req?: Request) {
     const org = await this.prisma.org.update({
       where: { id: orgId },
       data: {
@@ -194,6 +211,7 @@ export class AdminService {
       },
     });
 
+    const { ipAddress, userAgent } = this.getRequestMetadata(req);
     await this.prisma.adminAction.create({
       data: {
         adminId,
@@ -202,8 +220,8 @@ export class AdminService {
         targetId: orgId,
         orgId,
         metadata: { changes: dto },
-        ipAddress: '0.0.0.0',
-        userAgent: 'API',
+        ipAddress,
+        userAgent,
       },
     });
 
