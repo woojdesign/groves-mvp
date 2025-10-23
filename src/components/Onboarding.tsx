@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sprout, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button, ButtonShimmer } from './ui/button';
@@ -8,11 +9,14 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Progress } from './ui/progress';
 import { GlassCard } from './ui/glass-card';
 import { IconBadge } from './ui/icon-badge';
+import { ErrorBanner } from './ui/error-message';
 import { fadeInUp, slideInRight, transitions, easings } from '@/lib/animations';
+import { submitOnboarding } from '@/lib/apiService';
+import type { OnboardingResponses, ApiError } from '@/types/api';
 
 interface OnboardingProps {
-  userName: string;
-  onComplete: (responses: Record<string, string>) => void;
+  userName?: string;
+  onComplete?: (responses: Record<string, string>) => void;
 }
 
 const prompts = [
@@ -33,10 +37,10 @@ const prompts = [
     question: 'What kind of connection are you open to right now?',
     type: 'radio',
     options: [
-      'Make friends',
-      'Share a hobby',
-      'Swap ideas',
-      'Professional peer'
+      { label: 'Make friends', value: 'friendship' },
+      { label: 'Share a hobby', value: 'collaboration' },
+      { label: 'Swap ideas', value: 'knowledge_exchange' },
+      { label: 'Professional peer', value: 'mentorship' }
     ]
   },
   {
@@ -56,19 +60,64 @@ const prompts = [
 ];
 
 export default function Onboarding({ userName, onComplete }: OnboardingProps) {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [direction, setDirection] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const currentPrompt = prompts[currentStep];
   const progress = ((currentStep + 1) / prompts.length) * 100;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < prompts.length - 1) {
       setDirection(1);
       setCurrentStep(currentStep + 1);
     } else {
-      onComplete(responses);
+      // Final step - submit onboarding
+      await handleSubmit();
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Map responses to API format
+      const onboardingData: OnboardingResponses = {
+        niche_interest: responses.niche_interest || '',
+        project: responses.project || '',
+        connection_type: responses.connection_type as any,
+        rabbit_hole: responses.rabbit_hole || undefined,
+        preferences: responses.preferences || undefined,
+      };
+
+      const result = await submitOnboarding(onboardingData);
+
+      console.log('Onboarding submitted successfully:', result);
+
+      // For backward compatibility with old App.tsx flow (dev mode)
+      if (onComplete) {
+        onComplete(responses);
+      } else {
+        // Navigate to matching animation then dashboard
+        navigate('/matching');
+      }
+    } catch (err) {
+      console.error('Onboarding submission failed:', err);
+      const apiError = err as ApiError;
+
+      if (apiError.statusCode === 409) {
+        setError('You have already completed onboarding.');
+      } else if (apiError.details && apiError.details.length > 0) {
+        setError(apiError.details.map(d => d.message).join(', '));
+      } else {
+        setError(apiError.message || 'Failed to submit onboarding. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,6 +158,12 @@ export default function Onboarding({ userName, onComplete }: OnboardingProps) {
             exit={{ opacity: 0, x: direction * -40 }}
             transition={{ duration: 0.4, ease: easings.premium }}
           >
+            {error && (
+              <div className="mb-6">
+                <ErrorBanner error={error} onDismiss={() => setError(null)} />
+              </div>
+            )}
+
             <GlassCard className="p-6 sm:p-12 lg:p-16">
               <div className="mb-8 sm:mb-12">
                 <h2 className="mb-4 sm:mb-6">
@@ -132,20 +187,24 @@ export default function Onboarding({ userName, onComplete }: OnboardingProps) {
                   onValueChange={(value) => setResponses({ ...responses, [currentPrompt.id]: value })}
                   className="relative space-y-3 sm:space-y-4"
                 >
-                  {currentPrompt.options?.map((option, idx) => (
-                    <motion.div
-                      key={option}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1, ...transitions.normal }}
-                      className="flex items-center space-x-4 sm:space-x-5 p-4 sm:p-5 rounded-2xl hover:bg-accent/8 transition-all cursor-pointer border border-transparent hover:border-border/40 hover:shadow-md hover:shadow-secondary/5 group"
-                    >
-                      <RadioGroupItem value={option} id={option} />
-                      <Label htmlFor={option} className="cursor-pointer flex-1 text-sm sm:text-base group-hover:text-foreground transition-colors">
-                        {option}
-                      </Label>
-                    </motion.div>
-                  ))}
+                  {currentPrompt.options?.map((option, idx) => {
+                    const optionValue = typeof option === 'string' ? option : option.value;
+                    const optionLabel = typeof option === 'string' ? option : option.label;
+                    return (
+                      <motion.div
+                        key={optionValue}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1, ...transitions.normal }}
+                        className="flex items-center space-x-4 sm:space-x-5 p-4 sm:p-5 rounded-2xl hover:bg-accent/8 transition-all cursor-pointer border border-transparent hover:border-border/40 hover:shadow-md hover:shadow-secondary/5 group"
+                      >
+                        <RadioGroupItem value={optionValue} id={optionValue} />
+                        <Label htmlFor={optionValue} className="cursor-pointer flex-1 text-sm sm:text-base group-hover:text-foreground transition-colors">
+                          {optionLabel}
+                        </Label>
+                      </motion.div>
+                    );
+                  })}
                 </RadioGroup>
               )}
             </GlassCard>
@@ -163,13 +222,13 @@ export default function Onboarding({ userName, onComplete }: OnboardingProps) {
 
               <Button
                 onClick={handleNext}
-                disabled={!canProceed}
+                disabled={!canProceed || loading}
                 variant="premium"
                 className="rounded-2xl h-12 sm:h-14 px-8 sm:px-10 text-sm sm:text-base"
               >
                 <span className="relative z-10 flex items-center">
-                  {currentStep === prompts.length - 1 ? 'Complete' : 'Continue'}
-                  <ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />
+                  {loading ? 'Submitting...' : currentStep === prompts.length - 1 ? 'Complete' : 'Continue'}
+                  {!loading && <ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />}
                 </span>
                 <ButtonShimmer />
               </Button>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Sprout, Settings, Pause } from 'lucide-react';
 import { Button } from './ui/button';
@@ -7,47 +7,62 @@ import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { GlassCard } from './ui/glass-card';
 import { IconBadge } from './ui/icon-badge';
+import { LoadingCard } from './ui/loading-spinner';
+import { ErrorMessage } from './ui/error-message';
+import { EmptyState } from './ui/empty-state';
 import { fadeInUp, fadeIn, scaleIn, transitions, easings } from '@/lib/animations';
+import { getMatches } from '@/lib/apiService';
+import type { Match, ApiError } from '@/types/api';
 
 interface DashboardProps {
-  userName: string;
-  onMatchAction: (match: any, action: 'accept' | 'pass') => void;
+  userName?: string;
+  onMatchAction?: (match: any, action: 'accept' | 'pass') => void;
 }
-
-const mockMatches = [
-  {
-    id: 1,
-    name: 'Sam Rivera',
-    role: 'Product Designer',
-    sharedInterest: 'ceramics',
-    context: 'You both mentioned ceramics — how lovely.',
-    interests: ['Pottery', 'Sustainable design', 'Trail running'],
-    image: 'avatar person'
-  },
-  {
-    id: 2,
-    name: 'Jordan Lee',
-    role: 'Engineering Manager',
-    sharedInterest: 'vintage synthesizers',
-    context: 'Both of you are into vintage synthesizers and sound design.',
-    interests: ['Music production', 'Modular synths', 'Coffee roasting'],
-    image: 'avatar person'
-  }
-];
 
 export default function Dashboard({ userName, onMatchAction }: DashboardProps) {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<ApiError | null>(null);
 
-  const currentMatch = mockMatches[currentMatchIndex];
-  const hasMoreMatches = currentMatchIndex < mockMatches.length - 1;
+  const currentMatch = matches[currentMatchIndex];
+  const hasMoreMatches = currentMatchIndex < matches.length - 1;
 
-  const handleAction = (action: 'accept' | 'pass') => {
-    onMatchAction(currentMatch, action);
-    if (hasMoreMatches && action === 'pass') {
+  // Fetch matches on mount
+  useEffect(() => {
+    fetchMatches();
+  }, []);
+
+  const fetchMatches = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await getMatches(10, 'pending');
+      setMatches(response.matches);
+    } catch (err) {
+      console.error('Failed to fetch matches:', err);
+      setError(err as ApiError);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAction = (action: 'accept' | 'pass', mutualMatch: boolean = false) => {
+    // Call parent handler if provided (for backward compatibility)
+    if (onMatchAction) {
+      onMatchAction(currentMatch, action);
+    }
+
+    // If passed or accepted (but not mutual), show next match
+    if (!mutualMatch && hasMoreMatches) {
       setTimeout(() => {
         setCurrentMatchIndex(currentMatchIndex + 1);
-      }, 300);
+      }, 600);
+    } else if (!mutualMatch && !hasMoreMatches) {
+      // Remove the last match from list to show empty state
+      setMatches([]);
     }
   };
 
@@ -69,7 +84,7 @@ export default function Dashboard({ userName, onMatchAction }: DashboardProps) {
                 <Sprout className="relative w-6 h-6 sm:w-8 sm:h-8 text-secondary" strokeWidth={1.5} />
               </div>
               <div className="min-w-0">
-                <h1 className="truncate">Hey, {userName}</h1>
+                <h1 className="truncate">Hey{userName ? `, ${userName}` : ''}</h1>
                 <p className="text-sm sm:text-base text-muted-foreground/80 mt-1 sm:mt-2">We found some lovely people for you to meet</p>
               </div>
             </div>
@@ -102,7 +117,11 @@ export default function Dashboard({ userName, onMatchAction }: DashboardProps) {
         </motion.div>
 
         {/* Match Card */}
-        {currentMatch && !paused ? (
+        {loading ? (
+          <LoadingCard message="Finding your matches..." />
+        ) : error ? (
+          <ErrorMessage error={error} onRetry={fetchMatches} title="Couldn't load matches" />
+        ) : currentMatch && !paused ? (
           <MatchCard match={currentMatch} onAction={handleAction} />
         ) : paused ? (
           <motion.div
@@ -118,18 +137,11 @@ export default function Dashboard({ userName, onMatchAction }: DashboardProps) {
             </GlassCard>
           </motion.div>
         ) : (
-          <motion.div
-            {...scaleIn}
-            transition={transitions.normal}
-          >
-            <GlassCard variant="premium" withGlow={false} className="p-16 text-center">
-            <IconBadge icon={Sprout} size="lg" className="inline-flex mb-8" />
-            <h2 className="mb-4 tracking-tight">You\'re all caught up</h2>
-            <p className="max-w-md mx-auto text-muted-foreground/80 leading-relaxed">
-              We\'ll find more wonderful matches for you soon. Check back in a few days.
-            </p>
-            </GlassCard>
-          </motion.div>
+          <EmptyState
+            icon={Sprout}
+            title="You're all caught up"
+            description="We'll find more wonderful matches for you soon. Check back in a few days."
+          />
         )}
 
         {/* Privacy reminder */}

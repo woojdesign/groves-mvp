@@ -1,30 +1,63 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Sprout, Mail } from 'lucide-react';
 import { Button, ButtonShimmer } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { GlassCard } from './ui/glass-card';
 import { IconBadge } from './ui/icon-badge';
+import { ErrorBanner } from './ui/error-message';
 import { fadeInUp, scaleIn, transitions } from '@/lib/animations';
+import { requestMagicLink } from '@/lib/apiService';
+import type { ApiError } from '@/types/api';
 
 interface WelcomeProps {
-  onJoin: (email: string, name: string) => void;
+  onJoin?: (email: string, name: string) => void;
 }
 
 export default function Welcome({ onJoin }: WelcomeProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && name) {
+    if (!email || !name) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Request magic link from backend
+      await requestMagicLink(email);
+
+      // Show success state
       setSent(true);
-      // Simulate magic link sent, then auto-proceed after animation
-      setTimeout(() => {
-        onJoin(email, name);
-      }, 2000);
+
+      // For backward compatibility with old App.tsx flow (dev mode)
+      if (onJoin) {
+        setTimeout(() => {
+          onJoin(email, name);
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Magic link request failed:', err);
+      const apiError = err as ApiError;
+
+      // Handle specific error cases
+      if (apiError.statusCode === 403) {
+        setError('Your email domain is not authorized. Please use your work email.');
+      } else if (apiError.statusCode === 429) {
+        setError('Too many requests. Please wait a few minutes before trying again.');
+      } else if (apiError.details && apiError.details.length > 0) {
+        setError(apiError.details[0].message);
+      } else {
+        setError(apiError.message || 'Failed to send magic link. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,6 +90,14 @@ export default function Welcome({ onJoin }: WelcomeProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
+            {error && (
+              <AnimatePresence>
+                <div className="mb-6">
+                  <ErrorBanner error={error} onDismiss={() => setError(null)} />
+                </div>
+              </AnimatePresence>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-8">
               <GlassCard className="p-12">
                 <div className="space-y-8">
@@ -72,6 +113,7 @@ export default function Welcome({ onJoin }: WelcomeProps) {
                       onChange={(e) => setName(e.target.value)}
                       className="rounded-2xl h-14 bg-background/60 backdrop-blur-sm border-border/40 hover:border-border/70 focus:border-secondary/50 focus:ring-4 focus:ring-secondary/10 transition-all text-base"
                       required
+                      disabled={loading}
                     />
                   </div>
                   <div>
@@ -86,6 +128,7 @@ export default function Welcome({ onJoin }: WelcomeProps) {
                       onChange={(e) => setEmail(e.target.value)}
                       className="rounded-2xl h-14 bg-background/60 backdrop-blur-sm border-border/40 hover:border-border/70 focus:border-secondary/50 focus:ring-4 focus:ring-secondary/10 transition-all text-base"
                       required
+                      disabled={loading}
                     />
                   </div>
                 </div>
@@ -99,8 +142,11 @@ export default function Welcome({ onJoin }: WelcomeProps) {
                 type="submit"
                 variant="premium"
                 className="w-full rounded-2xl h-16 text-base"
+                disabled={loading}
               >
-                <span className="relative z-10">Join commonplace</span>
+                <span className="relative z-10">
+                  {loading ? 'Sending magic link...' : 'Join commonplace'}
+                </span>
                 <ButtonShimmer />
               </Button>
             </form>
