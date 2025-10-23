@@ -7,6 +7,8 @@ import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
 import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
+import { TenantContextMiddleware } from './common/middleware/tenant-context.middleware';
+import { OrgFilterInterceptor } from './common/interceptors/org-filter.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -44,6 +46,9 @@ async function bootstrap() {
   // Apply request logging to all requests
   app.use(new RequestLoggerMiddleware().use.bind(new RequestLoggerMiddleware()));
 
+  // Apply tenant context middleware (Phase 1: Multi-Tenancy)
+  app.use(new TenantContextMiddleware().use.bind(new TenantContextMiddleware()));
+
   // Enable global validation
   app.useGlobalPipes(
     new ValidationPipe({
@@ -61,6 +66,9 @@ async function bootstrap() {
   // Apply global guards (JWT and CSRF)
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector), new CsrfGuard(reflector));
+
+  // Apply global interceptors (Phase 1: Org Filter)
+  app.useGlobalInterceptors(new OrgFilterInterceptor(reflector));
 
   // Set API prefix
   app.setGlobalPrefix(process.env.API_PREFIX || 'api');

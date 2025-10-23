@@ -14,6 +14,12 @@ const config_1 = require("@nestjs/config");
 const auth_controller_1 = require("./auth.controller");
 const auth_service_1 = require("./auth.service");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
+const saml_strategy_1 = require("./strategies/saml.strategy");
+const oidc_strategy_1 = require("./strategies/oidc.strategy");
+const saml_service_1 = require("./saml/saml.service");
+const saml_controller_1 = require("./saml/saml.controller");
+const oidc_service_1 = require("./oidc/oidc.service");
+const oidc_controller_1 = require("./oidc/oidc.controller");
 const email_module_1 = require("../email/email.module");
 const prisma_module_1 = require("../prisma/prisma.module");
 let AuthModule = class AuthModule {
@@ -42,8 +48,15 @@ exports.AuthModule = AuthModule = __decorate([
             email_module_1.EmailModule,
             prisma_module_1.PrismaModule,
         ],
-        controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
+        controllers: [auth_controller_1.AuthController, saml_controller_1.SamlController, oidc_controller_1.OidcController],
+        providers: [
+            auth_service_1.AuthService,
+            saml_service_1.SamlService,
+            oidc_service_1.OidcService,
+            jwt_strategy_1.JwtStrategy,
+            saml_strategy_1.SamlStrategy,
+            oidc_strategy_1.OidcStrategy,
+        ],
         exports: [auth_service_1.AuthService],
     })
 ], AuthModule);

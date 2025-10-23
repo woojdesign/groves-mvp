@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const core_1 = require("@nestjs/core");
 const throttler_1 = require("@nestjs/throttler");
+const roles_guard_1 = require("./common/guards/roles.guard");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const prisma_module_1 = require("./prisma/prisma.module");
@@ -21,6 +22,7 @@ const profiles_module_1 = require("./profiles/profiles.module");
 const jobs_module_1 = require("./jobs/jobs.module");
 const matching_module_1 = require("./matching/matching.module");
 const intros_module_1 = require("./intros/intros.module");
+const admin_module_1 = require("./admin/admin.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -45,6 +47,7 @@ exports.AppModule = AppModule = __decorate([
             profiles_module_1.ProfilesModule,
             matching_module_1.MatchingModule,
             intros_module_1.IntrosModule,
+            admin_module_1.AdminModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
@@ -52,6 +55,10 @@ exports.AppModule = AppModule = __decorate([
             {
                 provide: core_1.APP_GUARD,
                 useClass: throttler_1.ThrottlerGuard,
+            },
+            {
+                provide: core_1.APP_GUARD,
+                useClass: roles_guard_1.RolesGuard,
             },
         ],
     })

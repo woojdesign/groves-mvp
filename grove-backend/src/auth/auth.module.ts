@@ -5,6 +5,12 @@ import { ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { SamlStrategy } from './strategies/saml.strategy';
+import { OidcStrategy } from './strategies/oidc.strategy';
+import { SamlService } from './saml/saml.service';
+import { SamlController } from './saml/saml.controller';
+import { OidcService } from './oidc/oidc.service';
+import { OidcController } from './oidc/oidc.controller';
 import { EmailModule } from '../email/email.module';
 import { PrismaModule } from '../prisma/prisma.module';
 
@@ -39,8 +45,15 @@ import { PrismaModule } from '../prisma/prisma.module';
     EmailModule,
     PrismaModule,
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  controllers: [AuthController, SamlController, OidcController],
+  providers: [
+    AuthService,
+    SamlService,
+    OidcService,
+    JwtStrategy,
+    SamlStrategy,
+    OidcStrategy,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

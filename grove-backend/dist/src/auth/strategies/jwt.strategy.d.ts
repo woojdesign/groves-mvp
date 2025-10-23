@@ -24,11 +24,15 @@ export declare class JwtStrategy extends JwtStrategy_base {
         id: string;
         name: string;
         status: string;
+        ssoProvider: string | null;
+        ssoMetadata: import("@prisma/client/runtime/library").JsonValue | null;
         createdAt: Date;
         updatedAt: Date;
         email: string;
         orgId: string;
+        role: string;
         lastActive: Date | null;
+        ssoSubject: string | null;
     }>;
 }
 export {};

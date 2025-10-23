@@ -9,6 +9,8 @@ const prisma_exception_filter_1 = require("./common/filters/prisma-exception.fil
 const global_exception_filter_1 = require("./common/filters/global-exception.filter");
 const security_headers_middleware_1 = require("./common/middleware/security-headers.middleware");
 const request_logger_middleware_1 = require("./common/middleware/request-logger.middleware");
+const tenant_context_middleware_1 = require("./common/middleware/tenant-context.middleware");
+const org_filter_interceptor_1 = require("./common/interceptors/org-filter.interceptor");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
@@ -35,6 +37,7 @@ async function bootstrap() {
     });
     app.use(new security_headers_middleware_1.SecurityHeadersMiddleware().use.bind(new security_headers_middleware_1.SecurityHeadersMiddleware()));
     app.use(new request_logger_middleware_1.RequestLoggerMiddleware().use.bind(new request_logger_middleware_1.RequestLoggerMiddleware()));
+    app.use(new tenant_context_middleware_1.TenantContextMiddleware().use.bind(new tenant_context_middleware_1.TenantContextMiddleware()));
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         transform: true,
@@ -42,6 +45,7 @@ async function bootstrap() {
     app.useGlobalFilters(new prisma_exception_filter_1.PrismaExceptionFilter(), new global_exception_filter_1.GlobalExceptionFilter());
     const reflector = app.get(core_1.Reflector);
     app.useGlobalGuards(new jwt_auth_guard_1.JwtAuthGuard(reflector), new csrf_guard_1.CsrfGuard(reflector));
+    app.useGlobalInterceptors(new org_filter_interceptor_1.OrgFilterInterceptor(reflector));
     app.setGlobalPrefix(process.env.API_PREFIX || 'api');
     const port = process.env.PORT || 4000;
     await app.listen(port);

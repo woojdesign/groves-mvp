@@ -18,6 +18,17 @@ model Org {
   name      String
   domain    String   @unique
   status    String   @default("active") // active, inactive
+
+  // SSO configuration (Phase 1: Enterprise SSO)
+  ssoEnabled       Boolean  @default(false) @map("sso_enabled")
+  ssoProvider      String?  @map("sso_provider")      // saml | oidc
+  samlMetadataUrl  String?  @map("saml_metadata_url")
+  samlEntityId     String?  @map("saml_entity_id")
+  oidcIssuer       String?  @map("oidc_issuer")
+  oidcClientId     String?  @map("oidc_client_id")
+  oidcClientSecret String?  @map("oidc_client_secret") // Encrypted
+  ssoMetadata      Json?    @map("sso_metadata")       // Additional config
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -35,7 +46,14 @@ model User {
   name       String
   orgId      String    @map("org_id")
   status     String    @default("active") // active, paused, deleted
+  role       String    @default("user")   // user, org_admin, super_admin (Phase 1: RBAC)
   lastActive DateTime? @map("last_active")
+
+  // SSO fields (Phase 1: Enterprise SSO)
+  ssoProvider  String?  @map("sso_provider")   // saml | oidc | magic_link
+  ssoSubject   String?  @map("sso_subject")    // IdP user ID
+  ssoMetadata  Json?    @map("sso_metadata")   // IdP-specific claims
+
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
 
@@ -52,6 +70,7 @@ model User {
   @@index([orgId])
   @@index([email])
   @@index([status])
+  @@index([ssoProvider, ssoSubject])
   @@map("users")
 }
 
@@ -217,4 +236,26 @@ model AuthToken {
   @@index([email])
   @@index([expiresAt])
   @@map("auth_tokens")
+}
+
+// ============================================
+// 11. ADMIN ACTIONS (Phase 1: RBAC & Audit)
+// ============================================
+model AdminAction {
+  id         String   @id @default(uuid())
+  adminId    String   @map("admin_id")
+  action     String                   // create_user, delete_user, update_org, etc.
+  targetType String   @map("target_type")  // user, org, match, etc.
+  targetId   String?  @map("target_id")
+  orgId      String?  @map("org_id")   // Org context for multi-tenancy
+  metadata   Json?
+  ipAddress  String   @map("ip_address")
+  userAgent  String   @map("user_agent") @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([adminId])
+  @@index([orgId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("admin_actions")
 }
