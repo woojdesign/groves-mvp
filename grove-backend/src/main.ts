@@ -1,5 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { CsrfGuard } from './common/guards/csrf.guard';
@@ -9,6 +10,15 @@ import { SecurityHeadersMiddleware } from './common/middleware/security-headers.
 import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
 import { TenantContextMiddleware } from './common/middleware/tenant-context.middleware';
 import { OrgFilterInterceptor } from './common/interceptors/org-filter.interceptor';
+
+// Initialize Sentry for error tracking
+if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    tracesSampleRate: 0.1,
+  });
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

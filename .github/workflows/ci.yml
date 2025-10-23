@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  frontend:
+    name: Frontend Build & Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: http://localhost:4000/api
+
+      - name: Security audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+  backend:
+    name: Backend Build & Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: grove-backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: grove-backend
+        run: npm ci
+
+      - name: Build backend
+        working-directory: grove-backend
+        run: npm run build
+
+      - name: Backend security audit
+        working-directory: grove-backend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Check Prisma schema
+        working-directory: grove-backend
+        run: npx prisma validate
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install backend dependencies
+        working-directory: grove-backend
+        run: npm ci
+
+      - name: Check TypeScript (frontend)
+        run: npx tsc --noEmit
+        continue-on-error: true
+
+      - name: Check TypeScript (backend)
+        working-directory: grove-backend
+        run: npx tsc --noEmit
+        continue-on-error: true

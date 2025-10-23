@@ -179,3 +179,6 @@ export async function getCurrentUser(): Promise<AuthResponse['user']> {
   const response = await api.get<AuthResponse['user']>('/user/me');
   return response.data;
 }
+
+// Export the api instance for direct use in admin components
+export { api };
