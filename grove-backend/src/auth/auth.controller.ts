@@ -1,12 +1,16 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   HttpCode,
   HttpStatus,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
+import { randomBytes } from 'crypto';
 import { AuthService } from './auth.service';
 import { MagicLinkRequestDto } from './dto/magic-link-request.dto';
 import { VerifyTokenDto } from './dto/verify-token.dto';
@@ -28,10 +32,27 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
   @Post('verify')
   @HttpCode(HttpStatus.OK)
-  async verifyMagicLink(@Body() dto: VerifyTokenDto) {
-    return this.authService.verifyMagicLink(dto.token);
+  async verifyMagicLink(
+    @Body() dto: VerifyTokenDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.verifyMagicLink(dto.token, res);
+  }
+
+  @Public()
+  @Get('csrf-token')
+  @HttpCode(HttpStatus.OK)
+  getCsrfToken(@Res({ passthrough: true }) res: Response) {
+    const token = randomBytes(32).toString('hex');
+    res.cookie('csrf-token', token, {
+      httpOnly: false, // Must be readable by JavaScript
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+    return { csrfToken: token };
   }
 
   @Public()
@@ -44,7 +65,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@CurrentUser() user: any) {
-    return this.authService.logout(user.id);
+  async logout(
+    @CurrentUser() user: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.logout(user.id, res);
   }
 }

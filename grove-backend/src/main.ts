@@ -2,15 +2,47 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { CsrfGuard } from './common/guards/csrf.guard';
+import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
+import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend communication
+  // Enable CORS for frontend communication with strict configuration
+  const allowedOrigins =
+    process.env.ALLOWED_ORIGINS?.split(',') || [
+      'http://localhost:5173',
+      'http://localhost:3000',
+    ];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+    exposedHeaders: ['Set-Cookie'],
   });
+
+  // Apply security headers to all requests
+  app.use(new SecurityHeadersMiddleware().use.bind(new SecurityHeadersMiddleware()));
+
+  // Apply request logging to all requests
+  app.use(new RequestLoggerMiddleware().use.bind(new RequestLoggerMiddleware()));
 
   // Enable global validation
   app.useGlobalPipes(
@@ -20,9 +52,15 @@ async function bootstrap() {
     }),
   );
 
-  // Apply JWT guard globally
+  // Apply global exception filters (order matters: specific to general)
+  app.useGlobalFilters(
+    new PrismaExceptionFilter(),
+    new GlobalExceptionFilter(),
+  );
+
+  // Apply global guards (JWT and CSRF)
   const reflector = app.get(Reflector);
-  app.useGlobalGuards(new JwtAuthGuard(reflector));
+  app.useGlobalGuards(new JwtAuthGuard(reflector), new CsrfGuard(reflector));
 
   // Set API prefix
   app.setGlobalPrefix(process.env.API_PREFIX || 'api');

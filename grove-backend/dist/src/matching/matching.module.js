@@ -36,6 +36,18 @@ exports.MatchingModule = MatchingModule = __decorate([
             composite_filter_1.CompositeFilterStrategy,
             diversity_ranking_strategy_1.DiversityRankingStrategy,
             {
+                provide: 'MATCHING_STRATEGY',
+                useClass: vector_similarity_strategy_1.VectorSimilarityStrategy,
+            },
+            {
+                provide: 'FILTER_STRATEGY',
+                useClass: composite_filter_1.CompositeFilterStrategy,
+            },
+            {
+                provide: 'RANKING_STRATEGY',
+                useClass: diversity_ranking_strategy_1.DiversityRankingStrategy,
+            },
+            {
                 provide: 'MATCHING_ENGINE',
                 useClass: vector_matching_engine_1.VectorMatchingEngine,
             },

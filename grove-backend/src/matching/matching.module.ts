@@ -37,6 +37,19 @@ import { DiversityRankingStrategy } from './strategies/ranking/diversity-ranking
     SameOrgFilter,
     CompositeFilterStrategy,
     DiversityRankingStrategy,
+    // Provide strategies with injection tokens
+    {
+      provide: 'MATCHING_STRATEGY',
+      useClass: VectorSimilarityStrategy,
+    },
+    {
+      provide: 'FILTER_STRATEGY',
+      useClass: CompositeFilterStrategy,
+    },
+    {
+      provide: 'RANKING_STRATEGY',
+      useClass: DiversityRankingStrategy,
+    },
     // Main matching engine
     {
       provide: 'MATCHING_ENGINE',

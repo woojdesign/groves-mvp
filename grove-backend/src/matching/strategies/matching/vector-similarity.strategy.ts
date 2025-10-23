@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { IMatchingStrategy } from '../../interfaces/matching-strategy.interface';
 
@@ -38,16 +39,30 @@ export class VectorSimilarityStrategy implements IMatchingStrategy {
     // Parse the vector from PostgreSQL text format "[x,y,z,...]"
     const sourceVector = this.parseVector(sourceEmbedding[0].embedding);
 
+    // Validate vector components before using in query
+    sourceVector.forEach((v, index) => {
+      if (!Number.isFinite(v)) {
+        throw new Error(
+          `Invalid vector component at index ${index}: must be a finite number`,
+        );
+      }
+    });
+
     // Step 2: Batch query pgvector for cosine similarity
-    // Using parameterized query to prevent SQL injection
+    // Using Prisma.sql for safe interpolation to prevent SQL injection
     // The <=> operator computes cosine distance (0 = identical, 2 = opposite)
     // We convert to similarity score: 1 - distance/2 to get range [0, 1]
+    const vectorString = Prisma.sql`[${Prisma.join(
+      sourceVector.map((v) => Prisma.sql`${v}`),
+      ',',
+    )}]`;
+
     const results = await this.prisma.$queryRaw<
       Array<{ user_id: string; similarity_score: number }>
     >`
       SELECT
         user_id::text as user_id,
-        1 - (embedding <=> ${`[${sourceVector.join(',')}]`}::vector) AS similarity_score
+        1 - (embedding <=> ${vectorString}::vector) AS similarity_score
       FROM embeddings
       WHERE user_id = ANY(${candidateUserIds}::uuid[])
         AND embedding IS NOT NULL

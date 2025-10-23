@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sprout } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Progress } from '@/components/ui/progress';
-import { GlassCard } from '@/components/ui/glass-card';
-import { IconBadge } from '@/components/ui/icon-badge';
-import { fadeInUp, slideInRight, transitions, easings } from '@/lib/animations';
+import { Textarea } from '../components/ui/textarea';
+import { Label } from '../components/ui/label';
+import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
+import { Progress } from '../components/ui/progress';
+import { GlassCard } from '../components/ui/glass-card';
+import { IconBadge } from '../components/ui/icon-badge';
+import { fadeInUp, slideInRight, transitions, easings } from '../lib/animations';
 
 const prompts = [
   {

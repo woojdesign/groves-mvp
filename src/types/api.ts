@@ -20,9 +20,8 @@ export interface User {
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
   user: User;
+  // Tokens are now stored in httpOnly cookies, not returned in response
 }
 
 export interface MagicLinkRequest {

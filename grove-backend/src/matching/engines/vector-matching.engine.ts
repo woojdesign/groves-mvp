@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseMatchingEngine } from './base-matching.engine';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { IMatchingStrategy } from '../interfaces/matching-strategy.interface';
@@ -23,9 +23,9 @@ import type { IRankingStrategy } from '../interfaces/ranking-strategy.interface'
 export class VectorMatchingEngine extends BaseMatchingEngine {
   constructor(
     private readonly prisma: PrismaService,
-    matchingStrategy: IMatchingStrategy,
-    filterStrategy: IFilterStrategy,
-    rankingStrategy: IRankingStrategy,
+    @Inject('MATCHING_STRATEGY') matchingStrategy: IMatchingStrategy,
+    @Inject('FILTER_STRATEGY') filterStrategy: IFilterStrategy,
+    @Inject('RANKING_STRATEGY') rankingStrategy: IRankingStrategy,
   ) {
     super(matchingStrategy, filterStrategy, rankingStrategy);
   }

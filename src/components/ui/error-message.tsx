@@ -9,8 +9,8 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from './button';
 import { GlassCard } from './glass-card';
 import { IconBadge } from './icon-badge';
-import { fadeInUp, scaleIn, transitions } from '@/lib/animations';
-import type { ApiError } from '@/types/api';
+import { fadeInUp, scaleIn, transitions } from '../../lib/animations';
+import type { ApiError } from '../../types/api';
 
 interface ErrorMessageProps {
   error: ApiError | Error | string;

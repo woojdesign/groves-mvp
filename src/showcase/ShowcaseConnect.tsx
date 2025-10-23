@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, Sparkles } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
-import { GlassCard } from '@/components/ui/glass-card';
-import { easings } from '@/lib/animations';
+import { Badge } from '../components/ui/badge';
+import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { GlassCard } from '../components/ui/glass-card';
+import { easings } from '../lib/animations';
 
 const mockMatches = [
   {

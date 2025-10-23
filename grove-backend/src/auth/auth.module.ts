@@ -13,10 +13,28 @@ import { PrismaModule } from '../prisma/prisma.module';
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '15m' },
-      }),
+      useFactory: (config: ConfigService) => {
+        const jwtSecret = config.get<string>('JWT_SECRET');
+
+        // Validate JWT secret strength
+        if (!jwtSecret || jwtSecret.length < 32) {
+          throw new Error(
+            'JWT_SECRET must be at least 32 characters. Generate with: openssl rand -base64 32'
+          );
+        }
+
+        // Prevent using default/example secrets
+        if (jwtSecret.includes('CHANGE_ME') || jwtSecret.includes('your-super-secret')) {
+          throw new Error(
+            'JWT_SECRET cannot use default/example value. Generate with: openssl rand -base64 32'
+          );
+        }
+
+        return {
+          secret: jwtSecret,
+          signOptions: { expiresIn: '15m' },
+        };
+      },
     }),
     EmailModule,
     PrismaModule,

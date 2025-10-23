@@ -10,9 +10,9 @@ import { Progress } from './ui/progress';
 import { GlassCard } from './ui/glass-card';
 import { IconBadge } from './ui/icon-badge';
 import { ErrorBanner } from './ui/error-message';
-import { fadeInUp, slideInRight, transitions, easings } from '@/lib/animations';
-import { submitOnboarding } from '@/lib/apiService';
-import type { OnboardingResponses, ApiError } from '@/types/api';
+import { fadeInUp, slideInRight, transitions, easings } from '../lib/animations';
+import { submitOnboarding } from '../lib/apiService';
+import type { OnboardingResponses, ApiError } from '../types/api';
 
 interface OnboardingProps {
   userName?: string;

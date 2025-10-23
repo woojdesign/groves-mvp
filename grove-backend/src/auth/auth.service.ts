@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { randomBytes } from 'crypto';
@@ -73,9 +74,10 @@ export class AuthService {
     };
   }
 
-  async verifyMagicLink(token: string): Promise<{
-    accessToken: string;
-    refreshToken: string;
+  async verifyMagicLink(
+    token: string,
+    res: Response,
+  ): Promise<{
     user: {
       id: string;
       email: string;
@@ -159,9 +161,27 @@ export class AuthService {
       expiresIn: '7d',
     });
 
+    // Set httpOnly cookies instead of returning tokens
+    const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    this.logger.log(`Successful login: ${user.email}`);
+
+    // Return user data only (NO tokens in response body)
     return {
-      accessToken,
-      refreshToken,
       user: {
         id: user.id,
         email: user.email,
@@ -198,9 +218,12 @@ export class AuthService {
     }
   }
 
-  async logout(userId: string): Promise<{ message: string }> {
-    // For now, just log the event
-    // In production, you might want to maintain a blacklist of tokens
+  async logout(userId: string, res: Response): Promise<{ message: string }> {
+    // Clear httpOnly cookies
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
+    // Log the event
     await this.prisma.event.create({
       data: {
         userId,

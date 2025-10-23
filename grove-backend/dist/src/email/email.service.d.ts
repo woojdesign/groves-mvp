@@ -5,6 +5,7 @@ export declare class EmailService {
     private logger;
     private fromEmail;
     constructor(configService: ConfigService);
+    private validateEmail;
     sendMagicLink(to: string, magicLink: string, expiresIn: string): Promise<void>;
     sendMatchNotification(to: string, userName: string, match: {
         id: string;

@@ -7,7 +7,7 @@ import { Label } from './ui/label';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { GlassCard } from './ui/glass-card';
 import { IconBadge } from './ui/icon-badge';
-import { fadeInUp, scaleIn, transitions, easings } from '@/lib/animations';
+import { fadeInUp, scaleIn, transitions, easings } from '../lib/animations';
 
 interface FeedbackProps {
   match: {

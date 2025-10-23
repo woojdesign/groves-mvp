@@ -7,9 +7,9 @@ import { Label } from './ui/label';
 import { GlassCard } from './ui/glass-card';
 import { IconBadge } from './ui/icon-badge';
 import { ErrorBanner } from './ui/error-message';
-import { fadeInUp, scaleIn, transitions } from '@/lib/animations';
-import { requestMagicLink } from '@/lib/apiService';
-import type { ApiError } from '@/types/api';
+import { fadeInUp, scaleIn, transitions } from '../lib/animations';
+import { requestMagicLink } from '../lib/apiService';
+import type { ApiError } from '../types/api';
 
 interface WelcomeProps {
   onJoin?: (email: string, name: string) => void;

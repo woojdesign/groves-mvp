@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const throttler_1 = require("@nestjs/throttler");
+const crypto_1 = require("crypto");
 const auth_service_1 = require("./auth.service");
 const magic_link_request_dto_1 = require("./dto/magic-link-request.dto");
 const verify_token_dto_1 = require("./dto/verify-token.dto");
@@ -30,14 +31,23 @@ let AuthController = class AuthController {
     async requestMagicLink(dto) {
         return this.authService.requestMagicLink(dto.email);
     }
-    async verifyMagicLink(dto) {
-        return this.authService.verifyMagicLink(dto.token);
+    async verifyMagicLink(dto, res) {
+        return this.authService.verifyMagicLink(dto.token, res);
+    }
+    getCsrfToken(res) {
+        const token = (0, crypto_1.randomBytes)(32).toString('hex');
+        res.cookie('csrf-token', token, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+        return { csrfToken: token };
     }
     async refreshToken(dto) {
         return this.authService.refreshAccessToken(dto.refreshToken);
     }
-    async logout(user) {
-        return this.authService.logout(user.id);
+    async logout(user, res) {
+        return this.authService.logout(user.id, res);
     }
 };
 exports.AuthController = AuthController;
@@ -53,13 +63,24 @@ __decorate([
 ], AuthController.prototype, "requestMagicLink", null);
 __decorate([
     (0, public_decorator_1.Public)(),
+    (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60000 } }),
     (0, common_1.Post)('verify'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [verify_token_dto_1.VerifyTokenDto]),
+    __metadata("design:paramtypes", [verify_token_dto_1.VerifyTokenDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "verifyMagicLink", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('csrf-token'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "getCsrfToken", null);
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('refresh'),
@@ -74,8 +95,9 @@ __decorate([
     (0, common_1.Post)('logout'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "logout", null);
 exports.AuthController = AuthController = __decorate([

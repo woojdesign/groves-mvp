@@ -25,10 +25,19 @@ exports.AuthModule = AuthModule = __decorate([
             passport_1.PassportModule,
             jwt_1.JwtModule.registerAsync({
                 inject: [config_1.ConfigService],
-                useFactory: (config) => ({
-                    secret: config.get('JWT_SECRET'),
-                    signOptions: { expiresIn: '15m' },
-                }),
+                useFactory: (config) => {
+                    const jwtSecret = config.get('JWT_SECRET');
+                    if (!jwtSecret || jwtSecret.length < 32) {
+                        throw new Error('JWT_SECRET must be at least 32 characters. Generate with: openssl rand -base64 32');
+                    }
+                    if (jwtSecret.includes('CHANGE_ME') || jwtSecret.includes('your-super-secret')) {
+                        throw new Error('JWT_SECRET cannot use default/example value. Generate with: openssl rand -base64 32');
+                    }
+                    return {
+                        secret: jwtSecret,
+                        signOptions: { expiresIn: '15m' },
+                    };
+                },
             }),
             email_module_1.EmailModule,
             prisma_module_1.PrismaModule,

@@ -61,7 +61,7 @@ let AuthService = AuthService_1 = class AuthService {
             expiresIn: '15 minutes',
         };
     }
-    async verifyMagicLink(token) {
+    async verifyMagicLink(token, res) {
         this.logger.log(`Verifying magic link token`);
         const authToken = await this.prisma.authToken.findFirst({
             where: {
@@ -119,9 +119,21 @@ let AuthService = AuthService_1 = class AuthService {
         const refreshToken = this.jwtService.sign(payload, {
             expiresIn: '7d',
         });
+        const isProduction = this.configService.get('NODE_ENV') === 'production';
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000,
+        });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        this.logger.log(`Successful login: ${user.email}`);
         return {
-            accessToken,
-            refreshToken,
             user: {
                 id: user.id,
                 email: user.email,
@@ -149,7 +161,9 @@ let AuthService = AuthService_1 = class AuthService {
             throw new common_1.UnauthorizedException('Invalid or expired refresh token');
         }
     }
-    async logout(userId) {
+    async logout(userId, res) {
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
         await this.prisma.event.create({
             data: {
                 userId,

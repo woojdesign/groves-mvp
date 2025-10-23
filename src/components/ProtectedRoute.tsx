@@ -1,23 +1,21 @@
 /**
  * Protected Route Component
  *
- * Wraps routes that require authentication
+ * Wraps routes that require authentication.
+ * With httpOnly cookies, we can't check localStorage.
+ * The API will automatically return 401 if not authenticated,
+ * which will redirect to login via the axios interceptor.
  */
-
-import { Navigate } from 'react-router-dom';
-import { tokenManager } from '@/lib/api';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const isAuthenticated = tokenManager.isAuthenticated();
+  // With httpOnly cookies, authentication is handled automatically
+  // If the user is not authenticated, API calls will return 401
+  // and the axios interceptor will redirect to /
 
-  if (!isAuthenticated) {
-    // Redirect to welcome page if not authenticated
-    return <Navigate to="/" replace />;
-  }
-
+  // We just render the children - the API layer handles auth checks
   return <>{children}</>;
 }

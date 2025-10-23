@@ -28,7 +28,8 @@
       "Bash(npm run build:*)",
       "WebSearch",
       "WebFetch(domain:simonwillison.net)",
-      "Bash(docker-compose exec:*)"
+      "Bash(docker-compose exec:*)",
+      "Bash(docker-compose up:*)"
     ],
     "deny": [],
     "ask": []

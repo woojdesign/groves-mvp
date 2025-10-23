@@ -17,8 +17,8 @@ services:
     ports:
       # Vite dev server (host:container)
       - "3000:3000"
-      # NestJS backend API
-      - "4000:4000"
+      # NestJS backend API (mapped to 4001 on host to avoid conflict)
+      - "4001:4000"
     environment:
       # Set environment variables
       - NODE_ENV=development
@@ -48,7 +48,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: grove_mvp
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

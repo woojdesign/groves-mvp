@@ -10,9 +10,9 @@ import { IconBadge } from './ui/icon-badge';
 import { LoadingCard } from './ui/loading-spinner';
 import { ErrorMessage } from './ui/error-message';
 import { EmptyState } from './ui/empty-state';
-import { fadeInUp, fadeIn, scaleIn, transitions, easings } from '@/lib/animations';
-import { getMatches } from '@/lib/apiService';
-import type { Match, ApiError } from '@/types/api';
+import { fadeInUp, fadeIn, scaleIn, transitions, easings } from '../lib/animations';
+import { getMatches } from '../lib/apiService';
+import type { Match, ApiError } from '../types/api';
 
 interface DashboardProps {
   userName?: string;

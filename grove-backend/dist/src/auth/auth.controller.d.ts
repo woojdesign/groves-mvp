@@ -1,3 +1,4 @@
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { MagicLinkRequestDto } from './dto/magic-link-request.dto';
 import { VerifyTokenDto } from './dto/verify-token.dto';
@@ -9,9 +10,7 @@ export declare class AuthController {
         message: string;
         expiresIn: string;
     }>;
-    verifyMagicLink(dto: VerifyTokenDto): Promise<{
-        accessToken: string;
-        refreshToken: string;
+    verifyMagicLink(dto: VerifyTokenDto, res: Response): Promise<{
         user: {
             id: string;
             email: string;
@@ -19,10 +18,13 @@ export declare class AuthController {
             hasCompletedOnboarding: boolean;
         };
     }>;
+    getCsrfToken(res: Response): {
+        csrfToken: string;
+    };
     refreshToken(dto: RefreshTokenDto): Promise<{
         accessToken: string;
     }>;
-    logout(user: any): Promise<{
+    logout(user: any, res: Response): Promise<{
         message: string;
     }>;
 }

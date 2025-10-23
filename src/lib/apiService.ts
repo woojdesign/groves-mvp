@@ -4,7 +4,7 @@
  * High-level service functions for all API endpoints
  */
 
-import api, { tokenManager } from './api';
+import api from './api';
 import type {
   MagicLinkRequest,
   MagicLinkResponse,
@@ -21,7 +21,7 @@ import type {
   IntrosResponse,
   FeedbackRequest,
   FeedbackResponse,
-} from '@/types/api';
+} from '../types/api';
 
 // ============================================================================
 // Authentication Services
@@ -38,50 +38,34 @@ export async function requestMagicLink(email: string): Promise<MagicLinkResponse
 }
 
 /**
- * Verify magic link token and receive JWT tokens
+ * Verify magic link token and receive JWT tokens via httpOnly cookies
  */
 export async function verifyToken(token: string): Promise<AuthResponse> {
   const response = await api.post<AuthResponse>('/auth/verify', {
     token,
   } as VerifyTokenRequest);
 
-  const { accessToken, refreshToken, user } = response.data;
-
-  // Store tokens
-  tokenManager.setTokens(accessToken, refreshToken);
-
+  // Tokens are now stored in httpOnly cookies automatically
+  // No need to manually store them
   return response.data;
 }
 
 /**
- * Refresh the access token using refresh token
+ * Refresh the access token using refresh token from cookie
  */
 export async function refreshAccessToken(): Promise<RefreshTokenResponse> {
-  const refreshToken = tokenManager.getRefreshToken();
-
-  if (!refreshToken) {
-    throw new Error('No refresh token available');
-  }
-
-  const response = await api.post<RefreshTokenResponse>('/auth/refresh', {
-    refreshToken,
-  } as RefreshTokenRequest);
-
-  const { accessToken } = response.data;
-  tokenManager.setAccessToken(accessToken);
+  // Refresh token is sent automatically via cookie
+  const response = await api.post<RefreshTokenResponse>('/auth/refresh', {});
 
   return response.data;
 }
 
 /**
- * Logout user and clear tokens
+ * Logout user and clear httpOnly cookies
  */
 export async function logout(): Promise<void> {
-  try {
-    await api.post('/auth/logout');
-  } finally {
-    tokenManager.clearTokens();
-  }
+  // Backend will clear httpOnly cookies
+  await api.post('/auth/logout');
 }
 
 // ============================================================================

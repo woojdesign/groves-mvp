@@ -8,13 +8,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { CheckCircle, Mail } from 'lucide-react';
-import { verifyToken } from '@/lib/apiService';
+import { verifyToken } from '../lib/apiService';
 import { LoadingSpinner } from './ui/loading-spinner';
 import { ErrorMessage } from './ui/error-message';
 import { GlassCard } from './ui/glass-card';
 import { IconBadge } from './ui/icon-badge';
-import { scaleIn, transitions } from '@/lib/animations';
-import type { ApiError } from '@/types/api';
+import { scaleIn, transitions } from '../lib/animations';
+import type { ApiError } from '../types/api';
 
 type VerificationState = 'verifying' | 'success' | 'error';
 

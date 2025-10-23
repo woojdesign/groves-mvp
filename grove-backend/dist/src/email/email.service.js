@@ -68,13 +68,20 @@ let EmailService = EmailService_1 = class EmailService {
         this.fromEmail = fromEmail;
         this.client = new postmark.ServerClient(apiKey);
     }
+    validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            throw new Error('Invalid email format');
+        }
+    }
     async sendMagicLink(to, magicLink, expiresIn) {
         try {
+            this.validateEmail(to);
             const template = this.loadTemplate('magic-link');
             const html = template({
-                magicLink,
-                expiresIn,
-                recipientEmail: to,
+                magicLink: Handlebars.escapeExpression(magicLink),
+                expiresIn: Handlebars.escapeExpression(expiresIn),
+                recipientEmail: Handlebars.escapeExpression(to),
             });
             const result = await this.client.sendEmail({
                 From: this.fromEmail,
@@ -93,17 +100,18 @@ let EmailService = EmailService_1 = class EmailService {
     }
     async sendMatchNotification(to, userName, match) {
         try {
+            this.validateEmail(to);
             const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
             const template = this.loadTemplate('match-notification');
             const html = template({
-                userName,
-                matchName: match.name,
+                userName: Handlebars.escapeExpression(userName),
+                matchName: Handlebars.escapeExpression(match.name),
                 score: Math.round(match.score * 100),
-                sharedInterest: match.sharedInterest,
-                reason: match.reason,
-                acceptUrl: `${frontendUrl}/matches/${match.id}/accept`,
-                passUrl: `${frontendUrl}/matches/${match.id}/pass`,
-                recipientEmail: to,
+                sharedInterest: Handlebars.escapeExpression(match.sharedInterest),
+                reason: Handlebars.escapeExpression(match.reason),
+                acceptUrl: Handlebars.escapeExpression(`${frontendUrl}/matches/${match.id}/accept`),
+                passUrl: Handlebars.escapeExpression(`${frontendUrl}/matches/${match.id}/pass`),
+                recipientEmail: Handlebars.escapeExpression(to),
             });
             const result = await this.client.sendEmail({
                 From: this.fromEmail,
@@ -122,14 +130,16 @@ let EmailService = EmailService_1 = class EmailService {
     }
     async sendMutualIntroduction(to, userName, match, sharedInterest, context) {
         try {
+            this.validateEmail(to);
+            this.validateEmail(match.email);
             const template = this.loadTemplate('mutual-introduction');
             const html = template({
-                userName,
-                matchName: match.name,
-                matchEmail: match.email,
-                sharedInterest,
-                context,
-                recipientEmail: to,
+                userName: Handlebars.escapeExpression(userName),
+                matchName: Handlebars.escapeExpression(match.name),
+                matchEmail: Handlebars.escapeExpression(match.email),
+                sharedInterest: Handlebars.escapeExpression(sharedInterest),
+                context: Handlebars.escapeExpression(context),
+                recipientEmail: Handlebars.escapeExpression(to),
             });
             const result = await this.client.sendEmail({
                 From: this.fromEmail,

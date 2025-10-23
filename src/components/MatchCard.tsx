@@ -6,9 +6,9 @@ import { Badge } from './ui/badge';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { GlassCard } from './ui/glass-card';
 import { ErrorBanner } from './ui/error-message';
-import { fadeInUp, scaleIn, transitions, easings } from '@/lib/animations';
-import { acceptMatch, passMatch } from '@/lib/apiService';
-import type { Match, ApiError } from '@/types/api';
+import { fadeInUp, scaleIn, transitions, easings } from '../lib/animations';
+import { acceptMatch, passMatch } from '../lib/apiService';
+import type { Match, ApiError } from '../types/api';
 
 interface MatchCardProps {
   match: Match;

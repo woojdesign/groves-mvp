@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VectorSimilarityStrategy = void 0;
 const common_1 = require("@nestjs/common");
+const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../../../prisma/prisma.service");
 let VectorSimilarityStrategy = class VectorSimilarityStrategy {
     prisma;
@@ -30,10 +31,16 @@ let VectorSimilarityStrategy = class VectorSimilarityStrategy {
             throw new Error(`No embedding found for user ${sourceUserId}. User must complete onboarding first.`);
         }
         const sourceVector = this.parseVector(sourceEmbedding[0].embedding);
+        sourceVector.forEach((v, index) => {
+            if (!Number.isFinite(v)) {
+                throw new Error(`Invalid vector component at index ${index}: must be a finite number`);
+            }
+        });
+        const vectorString = client_1.Prisma.sql `[${client_1.Prisma.join(sourceVector.map((v) => client_1.Prisma.sql `${v}`), ',')}]`;
         const results = await this.prisma.$queryRaw `
       SELECT
         user_id::text as user_id,
-        1 - (embedding <=> ${`[${sourceVector.join(',')}]`}::vector) AS similarity_score
+        1 - (embedding <=> ${vectorString}::vector) AS similarity_score
       FROM embeddings
       WHERE user_id = ANY(${candidateUserIds}::uuid[])
         AND embedding IS NOT NULL
