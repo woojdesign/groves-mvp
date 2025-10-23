@@ -23,14 +23,14 @@ let ProfilesController = class ProfilesController {
     constructor(profilesService) {
         this.profilesService = profilesService;
     }
-    async createProfile(user, dto) {
-        return this.profilesService.createProfile(user.id, dto);
+    async createProfile(user, dto, req) {
+        return this.profilesService.createProfile(user.id, dto, req);
     }
     async getProfile(user) {
         return this.profilesService.getProfile(user.id);
     }
-    async updateProfile(user, dto) {
-        return this.profilesService.updateProfile(user.id, dto);
+    async updateProfile(user, dto, req) {
+        return this.profilesService.updateProfile(user.id, dto, req);
     }
     async getEmbeddingStatus(user) {
         const status = await this.profilesService.getEmbeddingStatus(user.id);
@@ -43,8 +43,9 @@ __decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_profile_dto_1.CreateProfileDto]),
+    __metadata("design:paramtypes", [Object, create_profile_dto_1.CreateProfileDto, Object]),
     __metadata("design:returntype", Promise)
 ], ProfilesController.prototype, "createProfile", null);
 __decorate([
@@ -58,8 +59,9 @@ __decorate([
     (0, common_1.Patch)('profile'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, update_profile_dto_1.UpdateProfileDto]),
+    __metadata("design:paramtypes", [Object, update_profile_dto_1.UpdateProfileDto, Object]),
     __metadata("design:returntype", Promise)
 ], ProfilesController.prototype, "updateProfile", null);
 __decorate([

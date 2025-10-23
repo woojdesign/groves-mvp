@@ -7,7 +7,9 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { MatchingService } from './matching.service';
 import { GenerateMatchesRequestDto } from './dto/generate-matches-request.dto';
 import { MatchCandidateDto } from './dto/match-candidate.dto';
@@ -49,8 +51,9 @@ export class MatchingController {
   async acceptMatch(
     @Param('matchId') matchId: string,
     @CurrentUser() user: { id: string; email: string },
+    @Req() req: Request,
   ): Promise<AcceptMatchResponseDto> {
-    return this.matchingService.acceptMatch(matchId, user.id);
+    return this.matchingService.acceptMatch(matchId, user.id, req);
   }
 
   /**

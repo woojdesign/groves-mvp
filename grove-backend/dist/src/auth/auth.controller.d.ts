@@ -1,4 +1,4 @@
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { MagicLinkRequestDto } from './dto/magic-link-request.dto';
 import { VerifyTokenDto } from './dto/verify-token.dto';
@@ -10,7 +10,7 @@ export declare class AuthController {
         message: string;
         expiresIn: string;
     }>;
-    verifyMagicLink(dto: VerifyTokenDto, res: Response): Promise<{
+    verifyMagicLink(dto: VerifyTokenDto, res: Response, req: Request): Promise<{
         user: {
             id: string;
             email: string;
@@ -24,7 +24,7 @@ export declare class AuthController {
     refreshToken(dto: RefreshTokenDto): Promise<{
         accessToken: string;
     }>;
-    logout(user: any, res: Response): Promise<{
+    logout(user: any, res: Response, req: Request): Promise<{
         message: string;
     }>;
 }

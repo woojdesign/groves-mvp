@@ -18,7 +18,11 @@ export class IntrosService {
    * Create an introduction when both users have accepted.
    * Creates the intro record and sends mutual introduction email.
    */
-  async createIntroduction(matchId: string): Promise<{
+  async createIntroduction(
+    matchId: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<{
     id: string;
     status: string;
   }> {
@@ -65,18 +69,22 @@ export class IntrosService {
     // Send mutual introduction email to BOTH users
     await this.sendMutualIntroductionEmail(match);
 
-    // Create audit log entries
+    // Create audit log entries with IP/UA if available
     await this.prisma.event.createMany({
       data: [
         {
           userId: match.userAId,
           eventType: 'intro_created',
           metadata: { matchId, introId: intro.id },
+          ipAddress: ipAddress || 'system',
+          userAgent: userAgent || 'system',
         },
         {
           userId: match.userBId,
           eventType: 'intro_created',
           metadata: { matchId, introId: intro.id },
+          ipAddress: ipAddress || 'system',
+          userAgent: userAgent || 'system',
         },
       ],
     });

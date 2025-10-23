@@ -20,7 +20,7 @@ let IntrosService = class IntrosService {
         this.prisma = prisma;
         this.emailService = emailService;
     }
-    async createIntroduction(matchId) {
+    async createIntroduction(matchId, ipAddress, userAgent) {
         const match = await this.prisma.match.findUnique({
             where: { id: matchId },
             include: {
@@ -60,11 +60,15 @@ let IntrosService = class IntrosService {
                     userId: match.userAId,
                     eventType: 'intro_created',
                     metadata: { matchId, introId: intro.id },
+                    ipAddress: ipAddress || 'system',
+                    userAgent: userAgent || 'system',
                 },
                 {
                     userId: match.userBId,
                     eventType: 'intro_created',
                     metadata: { matchId, introId: intro.id },
+                    ipAddress: ipAddress || 'system',
+                    userAgent: userAgent || 'system',
                 },
             ],
         });

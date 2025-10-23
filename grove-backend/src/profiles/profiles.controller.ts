@@ -6,7 +6,9 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -22,8 +24,9 @@ export class ProfilesController {
   async createProfile(
     @CurrentUser() user: User,
     @Body() dto: CreateProfileDto,
+    @Req() req: Request,
   ) {
-    return this.profilesService.createProfile(user.id, dto);
+    return this.profilesService.createProfile(user.id, dto, req);
   }
 
   @Get('profile')
@@ -35,8 +38,9 @@ export class ProfilesController {
   async updateProfile(
     @CurrentUser() user: User,
     @Body() dto: UpdateProfileDto,
+    @Req() req: Request,
   ) {
-    return this.profilesService.updateProfile(user.id, dto);
+    return this.profilesService.updateProfile(user.id, dto, req);
   }
 
   @Get('profile/embedding-status')

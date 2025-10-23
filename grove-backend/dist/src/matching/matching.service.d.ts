@@ -1,3 +1,4 @@
+import type { Request } from 'express';
 import type { IMatchingEngine } from './interfaces';
 import { GenerateMatchesRequestDto } from './dto/generate-matches-request.dto';
 import { MatchCandidateDto } from './dto/match-candidate.dto';
@@ -14,6 +15,6 @@ export declare class MatchingService {
     constructor(matchingEngine: IMatchingEngine, prisma: PrismaService, introsService: IntrosService, emailService: EmailService);
     getMatchesForUser(userId: string, options?: GenerateMatchesRequestDto): Promise<MatchCandidateDto[]>;
     private extractSharedInterests;
-    acceptMatch(matchId: string, userId: string): Promise<AcceptMatchResponseDto>;
+    acceptMatch(matchId: string, userId: string, req: Request): Promise<AcceptMatchResponseDto>;
     passMatch(matchId: string, userId: string): Promise<PassMatchResponseDto>;
 }

@@ -1,3 +1,4 @@
+import type { Request } from 'express';
 import { MatchingService } from './matching.service';
 import { GenerateMatchesRequestDto } from './dto/generate-matches-request.dto';
 import { MatchCandidateDto } from './dto/match-candidate.dto';
@@ -13,7 +14,7 @@ export declare class MatchingController {
     acceptMatch(matchId: string, user: {
         id: string;
         email: string;
-    }): Promise<AcceptMatchResponseDto>;
+    }, req: Request): Promise<AcceptMatchResponseDto>;
     passMatch(matchId: string, user: {
         id: string;
         email: string;

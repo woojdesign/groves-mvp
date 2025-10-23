@@ -31,8 +31,8 @@ let AuthController = class AuthController {
     async requestMagicLink(dto) {
         return this.authService.requestMagicLink(dto.email);
     }
-    async verifyMagicLink(dto, res) {
-        return this.authService.verifyMagicLink(dto.token, res);
+    async verifyMagicLink(dto, res, req) {
+        return this.authService.verifyMagicLink(dto.token, res, req);
     }
     getCsrfToken(res) {
         const token = (0, crypto_1.randomBytes)(32).toString('hex');
@@ -46,8 +46,8 @@ let AuthController = class AuthController {
     async refreshToken(dto) {
         return this.authService.refreshAccessToken(dto.refreshToken);
     }
-    async logout(user, res) {
-        return this.authService.logout(user.id, res);
+    async logout(user, res, req) {
+        return this.authService.logout(user.id, res, req);
     }
 };
 exports.AuthController = AuthController;
@@ -68,8 +68,9 @@ __decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Res)({ passthrough: true })),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [verify_token_dto_1.VerifyTokenDto, Object]),
+    __metadata("design:paramtypes", [verify_token_dto_1.VerifyTokenDto, Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "verifyMagicLink", null);
 __decorate([
@@ -96,8 +97,9 @@ __decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Res)({ passthrough: true })),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "logout", null);
 exports.AuthController = AuthController = __decorate([

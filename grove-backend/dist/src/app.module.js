@@ -23,6 +23,7 @@ const jobs_module_1 = require("./jobs/jobs.module");
 const matching_module_1 = require("./matching/matching.module");
 const intros_module_1 = require("./intros/intros.module");
 const admin_module_1 = require("./admin/admin.module");
+const gdpr_module_1 = require("./gdpr/gdpr.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -48,6 +49,7 @@ exports.AppModule = AppModule = __decorate([
             matching_module_1.MatchingModule,
             intros_module_1.IntrosModule,
             admin_module_1.AdminModule,
+            gdpr_module_1.GdprModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

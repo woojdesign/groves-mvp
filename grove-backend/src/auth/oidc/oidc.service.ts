@@ -12,7 +12,7 @@ export class OidcService {
     private jwtService: JwtService,
   ) {}
 
-  async validateOidcUser(profile: any, orgDomain: string) {
+  async validateOidcUser(profile: any, orgDomain: string, ipAddress?: string, userAgent?: string) {
     this.logger.log(`OIDC authentication for: ${profile.email}`);
 
     const email = profile.email || profile.emails?.[0]?.value;
@@ -66,6 +66,8 @@ export class OidcService {
           userId: user.id,
           eventType: 'user_created_oidc',
           metadata: { email, ssoProvider: 'oidc' },
+          ipAddress: ipAddress || 'sso-system',
+          userAgent: userAgent || 'oidc-provider',
         },
       });
     } else {
@@ -90,6 +92,8 @@ export class OidcService {
         userId: user.id,
         eventType: 'login',
         metadata: { method: 'oidc', ssoProvider: 'oidc' },
+        ipAddress: ipAddress || 'sso-system',
+        userAgent: userAgent || 'oidc-provider',
       },
     });
 

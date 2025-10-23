@@ -28,7 +28,9 @@ let ProfilesService = ProfilesService_1 = class ProfilesService {
         this.embeddingsService = embeddingsService;
         this.embeddingQueue = embeddingQueue;
     }
-    async createProfile(userId, dto) {
+    async createProfile(userId, dto, req) {
+        const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+        const userAgent = req.get('user-agent') || 'unknown';
         const existing = await this.prisma.profile.findUnique({
             where: { userId },
         });
@@ -50,6 +52,8 @@ let ProfilesService = ProfilesService_1 = class ProfilesService {
                 userId,
                 eventType: 'profile_created',
                 metadata: { connectionType: dto.connectionType },
+                ipAddress,
+                userAgent,
             },
         });
         await this.embeddingQueue.add({
@@ -78,7 +82,9 @@ let ProfilesService = ProfilesService_1 = class ProfilesService {
         }
         return this.mapToProfileResponse(profile);
     }
-    async updateProfile(userId, dto) {
+    async updateProfile(userId, dto, req) {
+        const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+        const userAgent = req.get('user-agent') || 'unknown';
         const profile = await this.prisma.profile.findUnique({
             where: { userId },
         });
@@ -94,6 +100,8 @@ let ProfilesService = ProfilesService_1 = class ProfilesService {
                 userId,
                 eventType: 'profile_updated',
                 metadata: { fields: Object.keys(dto) },
+                ipAddress,
+                userAgent,
             },
         });
         if (dto.nicheInterest || dto.project || dto.rabbitHole !== undefined) {

@@ -6,7 +6,7 @@ export declare class OidcService {
     private jwtService;
     private logger;
     constructor(prisma: PrismaService, jwtService: JwtService);
-    validateOidcUser(profile: any, orgDomain: string): Promise<{
+    validateOidcUser(profile: any, orgDomain: string, ipAddress?: string, userAgent?: string): Promise<{
         profile: {
             id: string;
             createdAt: Date;

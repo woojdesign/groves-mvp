@@ -61,8 +61,10 @@ let AuthService = AuthService_1 = class AuthService {
             expiresIn: '15 minutes',
         };
     }
-    async verifyMagicLink(token, res) {
+    async verifyMagicLink(token, res, req) {
         this.logger.log(`Verifying magic link token`);
+        const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+        const userAgent = req.get('user-agent') || 'unknown';
         const authToken = await this.prisma.authToken.findFirst({
             where: {
                 token,
@@ -110,6 +112,8 @@ let AuthService = AuthService_1 = class AuthService {
                 userId: user.id,
                 eventType: 'login',
                 metadata: { method: 'magic_link' },
+                ipAddress,
+                userAgent,
             },
         });
         const payload = { sub: user.id, email: user.email };
@@ -161,7 +165,9 @@ let AuthService = AuthService_1 = class AuthService {
             throw new common_1.UnauthorizedException('Invalid or expired refresh token');
         }
     }
-    async logout(userId, res) {
+    async logout(userId, res, req) {
+        const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+        const userAgent = req.get('user-agent') || 'unknown';
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
         await this.prisma.event.create({
@@ -169,6 +175,8 @@ let AuthService = AuthService_1 = class AuthService {
                 userId,
                 eventType: 'logout',
                 metadata: {},
+                ipAddress,
+                userAgent,
             },
         });
         return { message: 'Logged out successfully' };

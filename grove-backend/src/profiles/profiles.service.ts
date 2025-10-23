@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
+import type { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmbeddingsService } from '../embeddings/embeddings.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -24,7 +25,11 @@ export class ProfilesService {
     private embeddingQueue: Queue<EmbeddingJobPayload>,
   ) {}
 
-  async createProfile(userId: string, dto: CreateProfileDto) {
+  async createProfile(userId: string, dto: CreateProfileDto, req: Request) {
+    // Extract IP and user-agent from request
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
+
     // Check if profile already exists
     const existing = await this.prisma.profile.findUnique({
       where: { userId },
@@ -46,12 +51,14 @@ export class ProfilesService {
       },
     });
 
-    // Log event
+    // Log event with IP and user-agent
     await this.prisma.event.create({
       data: {
         userId,
         eventType: 'profile_created',
         metadata: { connectionType: dto.connectionType },
+        ipAddress,
+        userAgent,
       },
     });
 
@@ -98,7 +105,12 @@ export class ProfilesService {
   async updateProfile(
     userId: string,
     dto: UpdateProfileDto,
+    req: Request,
   ): Promise<{ profile: ProfileResponseDto; embeddingStatus: string }> {
+    // Extract IP and user-agent from request
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
+
     const profile = await this.prisma.profile.findUnique({
       where: { userId },
     });
@@ -112,12 +124,14 @@ export class ProfilesService {
       data: dto,
     });
 
-    // Log event
+    // Log event with IP and user-agent
     await this.prisma.event.create({
       data: {
         userId,
         eventType: 'profile_updated',
         metadata: { fields: Object.keys(dto) },
+        ipAddress,
+        userAgent,
       },
     });
 

@@ -6,7 +6,7 @@ export declare class SamlService {
     private jwtService;
     private logger;
     constructor(prisma: PrismaService, jwtService: JwtService);
-    validateSamlUser(profile: any, orgDomain: string): Promise<{
+    validateSamlUser(profile: any, orgDomain: string, ipAddress?: string, userAgent?: string): Promise<{
         profile: {
             id: string;
             createdAt: Date;

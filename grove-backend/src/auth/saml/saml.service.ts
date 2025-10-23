@@ -12,7 +12,7 @@ export class SamlService {
     private jwtService: JwtService,
   ) {}
 
-  async validateSamlUser(profile: any, orgDomain: string) {
+  async validateSamlUser(profile: any, orgDomain: string, ipAddress?: string, userAgent?: string) {
     this.logger.log(`SAML assertion received for: ${profile.email}`);
 
     // Extract user attributes from SAML assertion
@@ -64,12 +64,14 @@ export class SamlService {
       });
       this.logger.log(`Created new user via SAML JIT: ${email}`);
 
-      // Log event
+      // Log event with IP/UA
       await this.prisma.event.create({
         data: {
           userId: user.id,
           eventType: 'user_created_saml',
           metadata: { email, ssoProvider: 'saml' },
+          ipAddress: ipAddress || 'sso-system',
+          userAgent: userAgent || 'saml-idp',
         },
       });
     } else {
@@ -91,12 +93,14 @@ export class SamlService {
       throw new UnauthorizedException('User account is deleted');
     }
 
-    // Log login event
+    // Log login event with IP/UA
     await this.prisma.event.create({
       data: {
         userId: user.id,
         eventType: 'login',
         metadata: { method: 'saml', ssoProvider: 'saml' },
+        ipAddress: ipAddress || 'sso-system',
+        userAgent: userAgent || 'saml-idp',
       },
     });
 

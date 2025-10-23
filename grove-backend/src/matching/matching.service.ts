@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import type { Request } from 'express';
 import type { IMatchingEngine } from './interfaces';
 import { GenerateMatchesRequestDto } from './dto/generate-matches-request.dto';
 import { MatchCandidateDto } from './dto/match-candidate.dto';
@@ -180,7 +181,12 @@ export class MatchingService {
   async acceptMatch(
     matchId: string,
     userId: string,
+    req: Request,
   ): Promise<AcceptMatchResponseDto> {
+    // Extract IP and user-agent from request
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
+
     // Get the match
     const match = await this.prisma.match.findUnique({
       where: { id: matchId },
@@ -229,8 +235,8 @@ export class MatchingService {
         updatedIntro.userAStatus === 'accepted' &&
         updatedIntro.userBStatus === 'accepted'
       ) {
-        // Mutual match! Update intro and send email
-        const intro = await this.introsService.createIntroduction(matchId);
+        // Mutual match! Update intro and send email with IP/UA
+        const intro = await this.introsService.createIntroduction(matchId, ipAddress, userAgent);
 
         // Update match status
         await this.prisma.match.update({
@@ -238,12 +244,14 @@ export class MatchingService {
           data: { status: 'accepted' },
         });
 
-        // Create audit log
+        // Create audit log with IP/UA
         await this.prisma.event.create({
           data: {
             userId,
             eventType: 'match_mutual',
             metadata: { matchId, introId: intro.id },
+            ipAddress,
+            userAgent,
           },
         });
 
@@ -264,6 +272,8 @@ export class MatchingService {
           userId,
           eventType: 'match_accepted',
           metadata: { matchId },
+          ipAddress,
+          userAgent,
         },
       });
 
@@ -285,12 +295,14 @@ export class MatchingService {
       },
     });
 
-    // Create audit log
+    // Create audit log with IP/UA
     await this.prisma.event.create({
       data: {
         userId,
         eventType: 'match_accepted',
         metadata: { matchId },
+        ipAddress,
+        userAgent,
       },
     });
 

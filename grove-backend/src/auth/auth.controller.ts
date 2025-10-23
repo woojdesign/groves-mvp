@@ -7,8 +7,9 @@ import {
   HttpStatus,
   UseGuards,
   Res,
+  Req,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { randomBytes } from 'crypto';
 import { AuthService } from './auth.service';
@@ -38,8 +39,9 @@ export class AuthController {
   async verifyMagicLink(
     @Body() dto: VerifyTokenDto,
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
   ) {
-    return this.authService.verifyMagicLink(dto.token, res);
+    return this.authService.verifyMagicLink(dto.token, res, req);
   }
 
   @Public()
@@ -68,7 +70,8 @@ export class AuthController {
   async logout(
     @CurrentUser() user: any,
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
   ) {
-    return this.authService.logout(user.id, res);
+    return this.authService.logout(user.id, res, req);
   }
 }

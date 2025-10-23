@@ -22,7 +22,7 @@ let OidcService = OidcService_1 = class OidcService {
         this.prisma = prisma;
         this.jwtService = jwtService;
     }
-    async validateOidcUser(profile, orgDomain) {
+    async validateOidcUser(profile, orgDomain, ipAddress, userAgent) {
         this.logger.log(`OIDC authentication for: ${profile.email}`);
         const email = profile.email || profile.emails?.[0]?.value;
         const name = profile.displayName || profile.name || email.split('@')[0];
@@ -67,6 +67,8 @@ let OidcService = OidcService_1 = class OidcService {
                     userId: user.id,
                     eventType: 'user_created_oidc',
                     metadata: { email, ssoProvider: 'oidc' },
+                    ipAddress: ipAddress || 'sso-system',
+                    userAgent: userAgent || 'oidc-provider',
                 },
             });
         }
@@ -90,6 +92,8 @@ let OidcService = OidcService_1 = class OidcService {
                 userId: user.id,
                 eventType: 'login',
                 metadata: { method: 'oidc', ssoProvider: 'oidc' },
+                ipAddress: ipAddress || 'sso-system',
+                userAgent: userAgent || 'oidc-provider',
             },
         });
         return user;

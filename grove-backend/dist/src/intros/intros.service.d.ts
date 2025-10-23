@@ -5,7 +5,7 @@ export declare class IntrosService {
     private readonly prisma;
     private readonly emailService;
     constructor(prisma: PrismaService, emailService: EmailService);
-    createIntroduction(matchId: string): Promise<{
+    createIntroduction(matchId: string, ipAddress?: string, userAgent?: string): Promise<{
         id: string;
         status: string;
     }>;

@@ -14,6 +14,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { MatchingModule } from './matching/matching.module';
 import { IntrosModule } from './intros/intros.module';
 import { AdminModule } from './admin/admin.module';
+import { GdprModule } from './gdpr/gdpr.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AdminModule } from './admin/admin.module';
     MatchingModule,
     IntrosModule,
     AdminModule,
+    GdprModule,
   ],
   controllers: [AppController],
   providers: [

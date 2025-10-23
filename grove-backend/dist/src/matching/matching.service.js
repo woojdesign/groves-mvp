@@ -131,7 +131,9 @@ let MatchingService = class MatchingService {
     extractSharedInterests(reasons) {
         return reasons;
     }
-    async acceptMatch(matchId, userId) {
+    async acceptMatch(matchId, userId, req) {
+        const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+        const userAgent = req.get('user-agent') || 'unknown';
         const match = await this.prisma.match.findUnique({
             where: { id: matchId },
             include: {
@@ -162,7 +164,7 @@ let MatchingService = class MatchingService {
             });
             if (updatedIntro.userAStatus === 'accepted' &&
                 updatedIntro.userBStatus === 'accepted') {
-                const intro = await this.introsService.createIntroduction(matchId);
+                const intro = await this.introsService.createIntroduction(matchId, ipAddress, userAgent);
                 await this.prisma.match.update({
                     where: { id: matchId },
                     data: { status: 'accepted' },
@@ -172,6 +174,8 @@ let MatchingService = class MatchingService {
                         userId,
                         eventType: 'match_mutual',
                         metadata: { matchId, introId: intro.id },
+                        ipAddress,
+                        userAgent,
                     },
                 });
                 return {
@@ -189,6 +193,8 @@ let MatchingService = class MatchingService {
                     userId,
                     eventType: 'match_accepted',
                     metadata: { matchId },
+                    ipAddress,
+                    userAgent,
                 },
             });
             return {
@@ -210,6 +216,8 @@ let MatchingService = class MatchingService {
                 userId,
                 eventType: 'match_accepted',
                 metadata: { matchId },
+                ipAddress,
+                userAgent,
             },
         });
         return {

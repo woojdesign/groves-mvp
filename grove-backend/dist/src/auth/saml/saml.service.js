@@ -22,7 +22,7 @@ let SamlService = SamlService_1 = class SamlService {
         this.prisma = prisma;
         this.jwtService = jwtService;
     }
-    async validateSamlUser(profile, orgDomain) {
+    async validateSamlUser(profile, orgDomain, ipAddress, userAgent) {
         this.logger.log(`SAML assertion received for: ${profile.email}`);
         const email = profile.email || profile.nameID;
         const name = profile.displayName || profile.name || email.split('@')[0];
@@ -67,6 +67,8 @@ let SamlService = SamlService_1 = class SamlService {
                     userId: user.id,
                     eventType: 'user_created_saml',
                     metadata: { email, ssoProvider: 'saml' },
+                    ipAddress: ipAddress || 'sso-system',
+                    userAgent: userAgent || 'saml-idp',
                 },
             });
         }
@@ -90,6 +92,8 @@ let SamlService = SamlService_1 = class SamlService {
                 userId: user.id,
                 eventType: 'login',
                 metadata: { method: 'saml', ssoProvider: 'saml' },
+                ipAddress: ipAddress || 'sso-system',
+                userAgent: userAgent || 'saml-idp',
             },
         });
         return user;

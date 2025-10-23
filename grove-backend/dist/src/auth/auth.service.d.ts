@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 export declare class AuthService {
@@ -14,7 +14,7 @@ export declare class AuthService {
         message: string;
         expiresIn: string;
     }>;
-    verifyMagicLink(token: string, res: Response): Promise<{
+    verifyMagicLink(token: string, res: Response, req: Request): Promise<{
         user: {
             id: string;
             email: string;
@@ -25,7 +25,7 @@ export declare class AuthService {
     refreshAccessToken(refreshToken: string): Promise<{
         accessToken: string;
     }>;
-    logout(userId: string, res: Response): Promise<{
+    logout(userId: string, res: Response, req: Request): Promise<{
         message: string;
     }>;
 }

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { randomBytes } from 'crypto';
@@ -77,6 +77,7 @@ export class AuthService {
   async verifyMagicLink(
     token: string,
     res: Response,
+    req: Request,
   ): Promise<{
     user: {
       id: string;
@@ -86,6 +87,10 @@ export class AuthService {
     };
   }> {
     this.logger.log(`Verifying magic link token`);
+
+    // Extract IP and user-agent from request
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
 
     // Find the token in database
     const authToken = await this.prisma.authToken.findFirst({
@@ -143,12 +148,14 @@ export class AuthService {
       data: { lastActive: new Date() },
     });
 
-    // Create audit log entry
+    // Create audit log entry with IP and user-agent
     await this.prisma.event.create({
       data: {
         userId: user.id,
         eventType: 'login',
         metadata: { method: 'magic_link' },
+        ipAddress,
+        userAgent,
       },
     });
 
@@ -218,17 +225,23 @@ export class AuthService {
     }
   }
 
-  async logout(userId: string, res: Response): Promise<{ message: string }> {
+  async logout(userId: string, res: Response, req: Request): Promise<{ message: string }> {
+    // Extract IP and user-agent from request
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
+
     // Clear httpOnly cookies
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
 
-    // Log the event
+    // Log the event with IP and user-agent
     await this.prisma.event.create({
       data: {
         userId,
         eventType: 'logout',
         metadata: {},
+        ipAddress,
+        userAgent,
       },
     });
 

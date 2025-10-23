@@ -12,59 +12,59 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MatchingController = void 0;
+exports.GdprController = void 0;
 const common_1 = require("@nestjs/common");
-const matching_service_1 = require("./matching.service");
-const generate_matches_request_dto_1 = require("./dto/generate-matches-request.dto");
+const gdpr_service_1 = require("./gdpr.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
-let MatchingController = class MatchingController {
-    matchingService;
-    constructor(matchingService) {
-        this.matchingService = matchingService;
+const record_consent_dto_1 = require("./dto/record-consent.dto");
+let GdprController = class GdprController {
+    gdprService;
+    constructor(gdprService) {
+        this.gdprService = gdprService;
     }
-    async getMatches(user, query) {
-        return this.matchingService.getMatchesForUser(user.id, query);
+    async exportData(user, req) {
+        return this.gdprService.exportUserData(user.id, req);
     }
-    async acceptMatch(matchId, user, req) {
-        return this.matchingService.acceptMatch(matchId, user.id, req);
+    async deleteAccount(user, req) {
+        return this.gdprService.deleteUserData(user.id, req);
     }
-    async passMatch(matchId, user) {
-        return this.matchingService.passMatch(matchId, user.id);
+    async recordConsent(user, dto, req) {
+        return this.gdprService.recordConsent(user.id, dto.consentType, dto.version, req);
     }
 };
-exports.MatchingController = MatchingController;
+exports.GdprController = GdprController;
 __decorate([
-    (0, common_1.Get)(),
+    (0, common_1.Get)('export'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Query)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, generate_matches_request_dto_1.GenerateMatchesRequestDto]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], MatchingController.prototype, "getMatches", null);
+], GdprController.prototype, "exportData", null);
 __decorate([
-    (0, common_1.Post)(':matchId/accept'),
+    (0, common_1.Delete)(),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Param)('matchId')),
-    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], GdprController.prototype, "deleteAccount", null);
+__decorate([
+    (0, common_1.Post)('consent'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [Object, record_consent_dto_1.RecordConsentDto, Object]),
     __metadata("design:returntype", Promise)
-], MatchingController.prototype, "acceptMatch", null);
-__decorate([
-    (0, common_1.Post)(':matchId/pass'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Param)('matchId')),
-    __param(1, (0, current_user_decorator_1.CurrentUser)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
-], MatchingController.prototype, "passMatch", null);
-exports.MatchingController = MatchingController = __decorate([
-    (0, common_1.Controller)('matches'),
+], GdprController.prototype, "recordConsent", null);
+exports.GdprController = GdprController = __decorate([
+    (0, common_1.Controller)('users/me'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __metadata("design:paramtypes", [matching_service_1.MatchingService])
-], MatchingController);
-//# sourceMappingURL=matching.controller.js.map
+    __metadata("design:paramtypes", [gdpr_service_1.GdprService])
+], GdprController);
+//# sourceMappingURL=gdpr.controller.js.map
