@@ -5,66 +5,33 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var PrismaService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PrismaService = exports.tenantContext = void 0;
+exports.PrismaService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
-const async_hooks_1 = require("async_hooks");
-exports.tenantContext = new async_hooks_1.AsyncLocalStorage();
-let PrismaService = class PrismaService extends client_1.PrismaClient {
+let PrismaService = PrismaService_1 = class PrismaService extends client_1.PrismaClient {
+    logger = new common_1.Logger(PrismaService_1.name);
     async onModuleInit() {
         await this.$connect();
         console.log('✅ Database connected');
-        this.$use(async (params, next) => {
-            const context = exports.tenantContext.getStore();
-            if (!context) {
-                return next(params);
-            }
-            const { orgId } = context;
-            const tenantModels = [
-                'User',
-                'Profile',
-                'Match',
-                'Embedding',
-                'Feedback',
-                'SafetyFlag',
-            ];
-            if (tenantModels.includes(params.model || '')) {
-                if (params.action === 'findUnique' || params.action === 'findFirst') {
-                    params.args.where = {
-                        ...params.args.where,
-                        org: { id: orgId },
-                    };
-                }
-                if (params.action === 'findMany') {
-                    if (!params.args)
-                        params.args = {};
-                    if (!params.args.where)
-                        params.args.where = {};
-                    params.args.where = {
-                        ...params.args.where,
-                        org: { id: orgId },
-                    };
-                }
-                if (params.action === 'create' || params.action === 'update') {
-                    if (params.args.data && !params.args.data.orgId) {
-                        params.args.data.orgId = orgId;
-                    }
-                }
-            }
-            return next(params);
-        });
+        if (process.env.NODE_ENV === 'development') {
+            this.$use(async (params, next) => {
+                const before = Date.now();
+                const result = await next(params);
+                const after = Date.now();
+                this.logger.debug(`Query ${params.model}.${params.action} took ${after - before}ms`);
+                return result;
+            });
+        }
     }
     async onModuleDestroy() {
         await this.$disconnect();
         console.log('👋 Database disconnected');
     }
-    async withOrgContext(orgId, userId, fn) {
-        return exports.tenantContext.run({ orgId, userId }, fn);
-    }
 };
 exports.PrismaService = PrismaService;
-exports.PrismaService = PrismaService = __decorate([
+exports.PrismaService = PrismaService = PrismaService_1 = __decorate([
     (0, common_1.Injectable)()
 ], PrismaService);
 //# sourceMappingURL=prisma.service.js.map

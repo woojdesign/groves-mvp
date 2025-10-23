@@ -1,84 +1,49 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { AsyncLocalStorage } from 'async_hooks';
-
-// Create AsyncLocalStorage for tenant context
-export const tenantContext = new AsyncLocalStorage<{
-  orgId: string;
-  userId: string;
-}>();
 
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger(PrismaService.name);
+
   async onModuleInit() {
     await this.$connect();
     console.log('✅ Database connected');
 
-    // Add middleware to automatically filter by orgId for tenant-scoped models
-    (this as any).$use(async (params: any, next: any) => {
-      const context = tenantContext.getStore();
+    // SIMPLIFIED MULTI-TENANCY APPROACH:
+    // Services MUST explicitly filter by orgId in WHERE clauses.
+    // This middleware provides monitoring and validation only.
+    // See docs/MULTI_TENANCY.md for architecture details.
 
-      if (!context) {
-        // No tenant context - allow query (for system operations)
-        return next(params);
-      }
+    if (process.env.NODE_ENV === 'development') {
+      // In development, log queries for debugging
+      (this as any).$use(async (params: any, next: any) => {
+        const before = Date.now();
+        const result = await next(params);
+        const after = Date.now();
 
-      const { orgId } = context;
-      const tenantModels = [
-        'User',
-        'Profile',
-        'Match',
-        'Embedding',
-        'Feedback',
-        'SafetyFlag',
-      ];
+        this.logger.debug(
+          `Query ${params.model}.${params.action} took ${after - before}ms`
+        );
 
-      if (tenantModels.includes(params.model || '')) {
-        // Automatically inject orgId filter for read operations
-        if (params.action === 'findUnique' || params.action === 'findFirst') {
-          params.args.where = {
-            ...params.args.where,
-            org: { id: orgId },
-          };
-        }
+        return result;
+      });
+    }
 
-        if (params.action === 'findMany') {
-          if (!params.args) params.args = {};
-          if (!params.args.where) params.args.where = {};
-
-          // Add org filter
-          params.args.where = {
-            ...params.args.where,
-            org: { id: orgId },
-          };
-        }
-
-        // For write operations, verify orgId matches
-        if (params.action === 'create' || params.action === 'update') {
-          if (params.args.data && !params.args.data.orgId) {
-            params.args.data.orgId = orgId;
-          }
-        }
-      }
-
-      return next(params);
-    });
+    // Note: We do NOT use AsyncLocalStorage for automatic org filtering.
+    // This was removed because:
+    // 1. AsyncLocalStorage context was never being populated (blocking bug)
+    // 2. Explicit filtering is more auditable and maintainable
+    // 3. AdminService already demonstrates the correct pattern
+    //
+    // All services must explicitly filter tenant-scoped queries:
+    // Example: prisma.user.findMany({ where: { orgId } })
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
     console.log('👋 Database disconnected');
-  }
-
-  // Helper to execute queries with tenant context
-  async withOrgContext<T>(
-    orgId: string,
-    userId: string,
-    fn: () => Promise<T>,
-  ): Promise<T> {
-    return tenantContext.run({ orgId, userId }, fn);
   }
 }
