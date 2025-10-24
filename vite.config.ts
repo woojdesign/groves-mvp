@@ -1,13 +1,21 @@
+// Vite configuration for Grove MVP frontend
+// https://vitejs.dev/config/
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import path from 'path';
 
-  import { defineConfig } from 'vite';
-  import react from '@vitejs/plugin-react-swc';
-  import path from 'path';
+export default defineConfig({
+  // React plugin with SWC for Fast Refresh and optimized builds
+  plugins: [react()],
 
-  export default defineConfig({
-    plugins: [react()],
-    resolve: {
-      extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
-      alias: {
+  // Module resolution configuration
+  resolve: {
+    // File extensions to resolve automatically
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+
+    // Path aliases for imports
+    // Most of these are for shadcn/ui components to resolve version conflicts
+    alias: {
         'vaul@1.1.2': 'vaul',
         'sonner@2.0.3': 'sonner',
         'recharts@2.15.2': 'recharts',
@@ -46,16 +54,21 @@
         '@radix-ui/react-aspect-ratio@1.1.2': '@radix-ui/react-aspect-ratio',
         '@radix-ui/react-alert-dialog@1.1.6': '@radix-ui/react-alert-dialog',
         '@radix-ui/react-accordion@1.2.3': '@radix-ui/react-accordion',
+        // Absolute imports using @ prefix (e.g., @/components/Button)
         '@': path.resolve(__dirname, './src'),
       },
     },
+
+    // Build configuration for production
     build: {
-      target: 'esnext',
-      outDir: 'dist',
+      target: 'esnext',           // Modern browser target for optimal performance
+      outDir: 'dist',             // Output directory for production build
     },
+
+    // Development server configuration
     server: {
-      port: 5173,
-      host: '0.0.0.0', // Listen on all interfaces (required for Docker)
-      open: false, // Don't auto-open browser in container
+      port: 5173,                 // Frontend dev server port
+      host: '0.0.0.0',            // Listen on all interfaces (required for Docker)
+      open: false,                // Don't auto-open browser in container
     },
   });
