@@ -22,20 +22,24 @@ export class PrismaService
     // This middleware provides monitoring and validation only.
     // See docs/MULTI_TENANCY.md for architecture details.
 
-    if (process.env.NODE_ENV === 'development') {
-      // In development, log queries for debugging
-      (this as any).$use(async (params: any, next: any) => {
-        const before = Date.now();
-        const result = await next(params);
-        const after = Date.now();
+    // TODO: Migrate to Prisma Client Extensions ($extends) - $use() was removed in Prisma 5+
+    // Temporarily disabled to allow server startup with Prisma 6.x
+    // See: https://www.prisma.io/docs/concepts/components/prisma-client/client-extensions
 
-        this.logger.debug(
-          `Query ${params.model}.${params.action} took ${after - before}ms`
-        );
+    // if (process.env.NODE_ENV === 'development') {
+    //   // In development, log queries for debugging
+    //   (this as any).$use(async (params: any, next: any) => {
+    //     const before = Date.now();
+    //     const result = await next(params);
+    //     const after = Date.now();
 
-        return result;
-      });
-    }
+    //     this.logger.debug(
+    //       `Query ${params.model}.${params.action} took ${after - before}ms`
+    //     );
+
+    //     return result;
+    //   });
+    // }
 
     // Note: We do NOT use AsyncLocalStorage for automatic org filtering.
     // This was removed because:
@@ -47,7 +51,9 @@ export class PrismaService
     // Example: prisma.user.findMany({ where: { orgId } })
 
     // Field-level encryption middleware
-    this.setupEncryptionMiddleware();
+    // TODO: Re-enable after migrating to $extends()
+    // this.setupEncryptionMiddleware();
+    this.logger.warn('Prisma middleware temporarily disabled - needs migration to Client Extensions');
   }
 
   /**
