@@ -349,6 +349,14 @@ This is part of the Grove MVP implementation. See the main project documentation
 
 **Next Phase**: Phase 2 - Authentication (Magic Link)
 
+## Documentation
+
+For complete project documentation, see:
+- [Project README](/README.md) - Main project overview
+- [Documentation Index](/docs/README.md) - Full documentation navigation
+- [API Specification](/docs/api/specification.md) - API reference
+- [Architecture Overview](/docs/development/architecture.md) - System architecture
+
 ## License
 
 Proprietary - Grove MVP Project

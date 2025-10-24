@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
-export declare class EmailService {
+import { IEmailService } from './email.service.interface';
+export declare class EmailService implements IEmailService {
     private configService;
     private client;
     private logger;

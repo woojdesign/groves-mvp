@@ -11,9 +11,9 @@ services:
       # Prevent node_modules from being overwritten by host
       # This keeps container's Linux-compiled native modules separate
       - /workspace/node_modules
-      # Mount Claude Code config to persist authentication
-      # This way you only need to login once
-      - ~/.config/claude:/home/node/.config/claude
+      # Named volume for entire node home directory (persists Claude auth, session, and config)
+      # This includes .claude/ directory AND .claude.json file
+      - claude-home:/home/node
     ports:
       # Vite dev server (host:container)
       - "5173:5173"
@@ -73,3 +73,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  claude-home:

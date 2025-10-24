@@ -59,14 +59,8 @@ let EmailService = EmailService_1 = class EmailService {
         this.configService = configService;
         const apiKey = this.configService.get('POSTMARK_API_KEY');
         const fromEmail = this.configService.get('POSTMARK_FROM_EMAIL');
-        if (!apiKey) {
-            throw new Error('POSTMARK_API_KEY is not defined');
-        }
-        if (!fromEmail) {
-            throw new Error('POSTMARK_FROM_EMAIL is not defined');
-        }
-        this.fromEmail = fromEmail;
-        this.client = new postmark.ServerClient(apiKey);
+        this.fromEmail = fromEmail || 'noreply@grove.dev';
+        this.client = new postmark.ServerClient(apiKey || '');
     }
     validateEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

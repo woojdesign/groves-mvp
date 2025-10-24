@@ -16,7 +16,7 @@ exports.MatchingService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const intros_service_1 = require("../intros/intros.service");
-const email_service_1 = require("../email/email.service");
+const email_service_interface_1 = require("../email/email.service.interface");
 let MatchingService = class MatchingService {
     matchingEngine;
     prisma;
@@ -260,8 +260,8 @@ exports.MatchingService = MatchingService;
 exports.MatchingService = MatchingService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('MATCHING_ENGINE')),
+    __param(3, (0, common_1.Inject)(email_service_interface_1.EMAIL_SERVICE)),
     __metadata("design:paramtypes", [Object, prisma_service_1.PrismaService,
-        intros_service_1.IntrosService,
-        email_service_1.EmailService])
+        intros_service_1.IntrosService, Object])
 ], MatchingService);
 //# sourceMappingURL=matching.service.js.map

@@ -84,7 +84,7 @@ Contact information (full name and email) is only shared when BOTH users accept 
 
 ## 7. Privacy and Data Protection
 
-Your use of the Service is also governed by our [Privacy Policy](/docs/PRIVACY_POLICY.md), which describes how we collect, use, and protect your personal information. Key points:
+Your use of the Service is also governed by our [Privacy Policy](/docs/compliance/privacy-policy.md), which describes how we collect, use, and protect your personal information. Key points:
 
 - We collect profile information, usage data, and technical logs
 - We use AI (OpenAI) to generate embeddings for matching

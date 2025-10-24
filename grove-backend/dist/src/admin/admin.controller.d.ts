@@ -126,11 +126,11 @@ export declare class AdminController {
             id: string;
             createdAt: Date;
             orgId: string | null;
-            action: string;
             metadata: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string;
             userAgent: string;
             adminId: string;
+            action: string;
             targetType: string;
             targetId: string | null;
         }[];

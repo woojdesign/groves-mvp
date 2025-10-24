@@ -44,7 +44,7 @@ exports.AppModule = AppModule = __decorate([
             ]),
             prisma_module_1.PrismaModule,
             health_module_1.HealthModule,
-            auth_module_1.AuthModule,
+            auth_module_1.AuthModule.registerAsync(),
             email_module_1.EmailModule,
             jobs_module_1.JobsModule,
             profiles_module_1.ProfilesModule,

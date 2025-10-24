@@ -99,9 +99,13 @@ location.reload()
 
 ---
 
-## 📚 Full Documentation
+## 📚 Further Reading
 
-See `FRONTEND_BACKEND_INTEGRATION.md` for complete details.
+For comprehensive documentation:
+- [Complete Documentation](/docs/README.md) - Full documentation index
+- [System Architecture](/docs/development/architecture.md) - Technical architecture overview
+- [API Specification](/docs/api/specification.md) - Complete API reference
+- [Deployment Guides](/docs/deployment/) - Production deployment
 
 ---
 

@@ -29,7 +29,9 @@
       "WebSearch",
       "WebFetch(domain:simonwillison.net)",
       "Bash(docker-compose exec:*)",
-      "Bash(docker-compose up:*)"
+      "Bash(docker-compose up:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(docker run:*)"
     ],
     "deny": [],
     "ask": []
