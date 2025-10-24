@@ -32,7 +32,7 @@ import { EncryptionModule } from './encryption/encryption.module';
     ]),
     PrismaModule,
     HealthModule,
-    AuthModule,
+    AuthModule.registerAsync(),
     EmailModule,
     JobsModule,
     ProfilesModule,
