@@ -4,9 +4,10 @@ import * as postmark from 'postmark';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
+import { IEmailService } from './email.service.interface';
 
 @Injectable()
-export class EmailService {
+export class EmailService implements IEmailService {
   private client: postmark.ServerClient;
   private logger = new Logger(EmailService.name);
   private fromEmail: string;
@@ -15,15 +16,9 @@ export class EmailService {
     const apiKey = this.configService.get<string>('POSTMARK_API_KEY');
     const fromEmail = this.configService.get<string>('POSTMARK_FROM_EMAIL');
 
-    if (!apiKey) {
-      throw new Error('POSTMARK_API_KEY is not defined');
-    }
-    if (!fromEmail) {
-      throw new Error('POSTMARK_FROM_EMAIL is not defined');
-    }
-
-    this.fromEmail = fromEmail;
-    this.client = new postmark.ServerClient(apiKey);
+    // Validation removed - handled by factory in email.module.ts
+    this.fromEmail = fromEmail || 'noreply@grove.dev';
+    this.client = new postmark.ServerClient(apiKey || '');
   }
 
   /**

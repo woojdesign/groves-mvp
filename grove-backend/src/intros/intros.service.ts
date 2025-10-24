@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
+import { EMAIL_SERVICE } from '../email/email.service.interface';
+import type { IEmailService } from '../email/email.service.interface';
 import { IntroResponseDto } from './dto/intro-response.dto';
 
 /**
@@ -11,7 +12,7 @@ import { IntroResponseDto } from './dto/intro-response.dto';
 export class IntrosService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly emailService: EmailService,
+    @Inject(EMAIL_SERVICE) private readonly emailService: IEmailService,
   ) {}
 
   /**

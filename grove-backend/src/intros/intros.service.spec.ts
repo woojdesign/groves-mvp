@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { IntrosService } from './intros.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
+import { EMAIL_SERVICE } from '../email/email.service.interface';
 import { NotFoundException } from '@nestjs/common';
 
 describe('IntrosService', () => {
   let service: IntrosService;
   let prisma: PrismaService;
-  let emailService: EmailService;
+  let emailService: any;
 
   const mockPrismaService = {
     intro: {
@@ -37,7 +37,7 @@ describe('IntrosService', () => {
           useValue: mockPrismaService,
         },
         {
-          provide: EmailService,
+          provide: EMAIL_SERVICE,
           useValue: mockEmailService,
         },
       ],
@@ -45,7 +45,7 @@ describe('IntrosService', () => {
 
     service = module.get<IntrosService>(IntrosService);
     prisma = module.get<PrismaService>(PrismaService);
-    emailService = module.get<EmailService>(EmailService);
+    emailService = module.get(EMAIL_SERVICE);
 
     // Reset all mocks
     jest.clearAllMocks();

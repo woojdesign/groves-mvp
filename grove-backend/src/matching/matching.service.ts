@@ -5,7 +5,8 @@ import { GenerateMatchesRequestDto } from './dto/generate-matches-request.dto';
 import { MatchCandidateDto } from './dto/match-candidate.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { IntrosService } from '../intros/intros.service';
-import { EmailService } from '../email/email.service';
+import { EMAIL_SERVICE } from '../email/email.service.interface';
+import type { IEmailService } from '../email/email.service.interface';
 import { AcceptMatchResponseDto } from '../intros/dto/accept-match-response.dto';
 import { PassMatchResponseDto } from '../intros/dto/pass-match-response.dto';
 
@@ -20,7 +21,7 @@ export class MatchingService {
     @Inject('MATCHING_ENGINE') private readonly matchingEngine: IMatchingEngine,
     private readonly prisma: PrismaService,
     private readonly introsService: IntrosService,
-    private readonly emailService: EmailService,
+    @Inject(EMAIL_SERVICE) private readonly emailService: IEmailService,
   ) {}
 
   /**

@@ -3,7 +3,7 @@ import { MatchingService } from '../matching.service';
 import { MockMatchingEngine } from '../engines/mock-matching.engine';
 import { PrismaService } from '../../prisma/prisma.service';
 import { IntrosService } from '../../intros/intros.service';
-import { EmailService } from '../../email/email.service';
+import { EMAIL_SERVICE } from '../../email/email.service.interface';
 
 describe('MatchingService', () => {
   let service: MatchingService;
@@ -59,7 +59,7 @@ describe('MatchingService', () => {
           useValue: mockIntrosService,
         },
         {
-          provide: EmailService,
+          provide: EMAIL_SERVICE,
           useValue: mockEmailService,
         },
       ],

@@ -3,12 +3,14 @@ import {
   Logger,
   UnauthorizedException,
   ForbiddenException,
+  Inject,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
+import { EMAIL_SERVICE } from '../email/email.service.interface';
+import type { IEmailService } from '../email/email.service.interface';
 import { randomBytes } from 'crypto';
 
 @Injectable()
@@ -18,7 +20,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private emailService: EmailService,
+    @Inject(EMAIL_SERVICE) private emailService: IEmailService,
     private configService: ConfigService,
   ) {}
 

@@ -4,12 +4,12 @@ import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
+import { EMAIL_SERVICE } from '../email/email.service.interface';
 
 describe('AuthService', () => {
   let service: AuthService;
   let prisma: PrismaService;
-  let emailService: EmailService;
+  let emailService: any;
   let jwtService: JwtService;
 
   const mockPrismaService = {
@@ -56,7 +56,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: PrismaService, useValue: mockPrismaService },
-        { provide: EmailService, useValue: mockEmailService },
+        { provide: EMAIL_SERVICE, useValue: mockEmailService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
@@ -64,7 +64,7 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     prisma = module.get<PrismaService>(PrismaService);
-    emailService = module.get<EmailService>(EmailService);
+    emailService = module.get(EMAIL_SERVICE);
     jwtService = module.get<JwtService>(JwtService);
 
     // Reset mocks between tests
