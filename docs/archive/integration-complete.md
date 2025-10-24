@@ -1,3 +1,10 @@
+> **⚠️ ARCHIVED DOCUMENT**
+> This document is a historical integration completion report.
+> Kept for historical reference only.
+> Last Updated: 2025-10-23
+
+---
+
 # Grove Frontend-Backend Integration - COMPLETE
 
 ## Integration Summary
@@ -409,7 +416,7 @@ The integration is **production-ready** pending end-to-end testing with the runn
 
 For questions or issues:
 1. Check `FRONTEND_BACKEND_INTEGRATION.md` for detailed documentation
-2. Review API specification in `/workspace/API_SPECIFICATION.md`
+2. Review API specification in `/docs/api/specification.md`
 3. Check browser DevTools Network tab for API request/response details
 4. Clear localStorage if experiencing auth issues: `localStorage.clear()`
 

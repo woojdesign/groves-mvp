@@ -1,3 +1,10 @@
+> **⚠️ ARCHIVED DOCUMENT**
+> This document has been superseded by [Docker Autonomous Guide](/docs/operations/docker-autonomous.md).
+> Kept for historical reference only.
+> Last Updated: 2025-10-22
+
+---
+
 # Docker Setup for Safe Autonomous Claude Code Execution
 
 ## Overview

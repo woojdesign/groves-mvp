@@ -1,3 +1,10 @@
+> **⚠️ ARCHIVED DOCUMENT**
+> This document is a historical integration report.
+> Kept for historical reference only.
+> Last Updated: 2025-10-23
+
+---
+
 # Grove Frontend-Backend Integration
 
 ## Overview

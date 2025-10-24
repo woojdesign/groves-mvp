@@ -1,3 +1,10 @@
+> **⚠️ ARCHIVED DOCUMENT**
+> This document is a historical progress summary.
+> Kept for historical reference only.
+> Last Updated: 2025-10-23
+
+---
+
 # Grove MVP Backend - Implementation Progress Summary
 
 **Date**: 2025-10-22
@@ -417,7 +424,7 @@ All documentation maintained in `/workspace/`:
 **Guides**:
 - README.md (backend setup)
 - SETUP.md (step-by-step guide)
-- API_SPECIFICATION.md (endpoint documentation)
+- /docs/api/specification.md (endpoint documentation)
 
 ---
 
