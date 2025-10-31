@@ -60,7 +60,7 @@ async function main() {
       },
     );
 
-    console.log(`  ✓ Queued: ${profile.user.email} - ${profile.nicheInterest.slice(0, 50)}...`);
+    console.log(`  ✓ Queued: ${profile.user.email} - ${profile.interests.slice(0, 50)}...`);
   }
 
   console.log(`\n✨ Successfully queued ${profilesWithoutEmbeddings.length} embedding generation jobs!`);

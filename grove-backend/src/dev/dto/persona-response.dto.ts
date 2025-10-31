@@ -2,10 +2,10 @@ export interface PersonaResponse {
   id: string;
   name: string;
   email: string;
-  nicheInterest: string;
+  interests: string;
   project: string;
   connectionType: string;
-  rabbitHole?: string;
+  deepDive?: string;
   preferences?: string;
   embeddingStatus: 'generated' | 'pending' | 'failed';
   createdAt: Date;

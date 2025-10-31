@@ -37,20 +37,20 @@ describe('ProfilesService', () => {
 
   const mockUserId = 'user-123';
   const mockProfileDto: CreateProfileDto = {
-    nicheInterest: 'Urban beekeeping and teaching people about pollinators in cities',
+    interests: 'Urban beekeeping and teaching people about pollinators in cities',
     project: 'Building a community garden database to track crop yields across neighborhoods',
     connectionType: 'collaboration',
-    rabbitHole: 'Recently went deep on permaculture principles',
+    deepDive: 'Recently went deep on permaculture principles',
     preferences: 'I prefer async communication first',
   };
 
   const mockProfile = {
     id: 'profile-123',
     userId: mockUserId,
-    nicheInterest: mockProfileDto.nicheInterest,
+    interests: mockProfileDto.interests,
     project: mockProfileDto.project,
     connectionType: mockProfileDto.connectionType,
-    rabbitHole: mockProfileDto.rabbitHole,
+    deepDive: mockProfileDto.deepDive,
     preferences: mockProfileDto.preferences,
     createdAt: new Date('2025-10-22T10:00:00Z'),
     updatedAt: new Date('2025-10-22T10:00:00Z'),
@@ -100,10 +100,10 @@ describe('ProfilesService', () => {
       expect(result.profile).toEqual({
         id: mockProfile.id,
         userId: mockProfile.userId,
-        nicheInterest: mockProfile.nicheInterest,
+        interests: mockProfile.interests,
         project: mockProfile.project,
         connectionType: mockProfile.connectionType,
-        rabbitHole: mockProfile.rabbitHole,
+        deepDive: mockProfile.deepDive,
         preferences: mockProfile.preferences,
         createdAt: mockProfile.createdAt,
         updatedAt: mockProfile.updatedAt,
@@ -116,10 +116,10 @@ describe('ProfilesService', () => {
       expect(mockPrismaService.profile.create).toHaveBeenCalledWith({
         data: {
           userId: mockUserId,
-          nicheInterest: mockProfileDto.nicheInterest,
+          interests: mockProfileDto.interests,
           project: mockProfileDto.project,
           connectionType: mockProfileDto.connectionType,
-          rabbitHole: mockProfileDto.rabbitHole,
+          deepDive: mockProfileDto.deepDive,
           preferences: mockProfileDto.preferences,
         },
       });
@@ -171,10 +171,10 @@ describe('ProfilesService', () => {
       expect(result).toEqual({
         id: mockProfile.id,
         userId: mockProfile.userId,
-        nicheInterest: mockProfile.nicheInterest,
+        interests: mockProfile.interests,
         project: mockProfile.project,
         connectionType: mockProfile.connectionType,
-        rabbitHole: mockProfile.rabbitHole,
+        deepDive: mockProfile.deepDive,
         preferences: mockProfile.preferences,
         createdAt: mockProfile.createdAt,
         updatedAt: mockProfile.updatedAt,
@@ -220,10 +220,10 @@ describe('ProfilesService', () => {
       expect(result.profile).toEqual({
         id: updatedProfile.id,
         userId: updatedProfile.userId,
-        nicheInterest: updatedProfile.nicheInterest,
+        interests: updatedProfile.interests,
         project: updatedProfile.project,
         connectionType: updatedProfile.connectionType,
-        rabbitHole: updatedProfile.rabbitHole,
+        deepDive: updatedProfile.deepDive,
         preferences: updatedProfile.preferences,
         createdAt: updatedProfile.createdAt,
         updatedAt: updatedProfile.updatedAt,

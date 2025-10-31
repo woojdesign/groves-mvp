@@ -7,6 +7,7 @@ import { OpenaiModule } from '../openai/openai.module';
 import { ProfilesModule } from '../profiles/profiles.module';
 import { MatchingModule } from '../matching/matching.module';
 import { JobsModule } from '../jobs/jobs.module';
+import { DiversityTestingModule } from './diversity-testing/diversity-testing.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { JobsModule } from '../jobs/jobs.module';
     ProfilesModule,
     MatchingModule,
     JobsModule,
+    DiversityTestingModule,
   ],
   controllers: [DevController],
   providers: [DevService, SeedDataService],

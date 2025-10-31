@@ -24,7 +24,7 @@ async function main() {
 
   if (user.profile) {
     console.log('\n📝 Profile:');
-    console.log('  Interest:', user.profile.nicheInterest.slice(0, 80) + '...');
+    console.log('  Interest:', user.profile.interests.slice(0, 80) + '...');
     console.log('  Project:', user.profile.project.slice(0, 80) + '...');
   }
 

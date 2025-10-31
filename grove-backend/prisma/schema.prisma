@@ -84,10 +84,10 @@ model User {
 model Profile {
   id             String   @id @default(uuid())
   userId         String   @unique @map("user_id")
-  nicheInterest  String   @map("niche_interest") @db.Text
+  interests      String   @map("interests") @db.Text
   project        String   @db.Text
   connectionType String   @map("connection_type")
-  rabbitHole     String?  @map("rabbit_hole") @db.Text
+  deepDive       String?  @map("deep_dive") @db.Text
   preferences    String?  @db.Text
 
   // Dev Dashboard: Test data flag (Phase 1: Data Isolation)

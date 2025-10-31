@@ -53,20 +53,20 @@ export type ConnectionType = 'collaboration' | 'mentorship' | 'friendship' | 'kn
 
 export interface OnboardingResponses {
   name: string;
-  nicheInterest: string;
+  interests: string;
   project: string;
   connectionType: ConnectionType;
-  rabbitHole?: string;
+  deepDive?: string;
   preferences?: string;
 }
 
 export interface Profile {
   id: string;
   userId: string;
-  nicheInterest: string;
+  interests: string;
   project: string;
   connectionType: ConnectionType;
-  rabbitHole?: string;
+  deepDive?: string;
   preferences?: string;
   createdAt: string;
   updatedAt: string;
@@ -78,10 +78,10 @@ export interface OnboardingResponse {
 }
 
 export interface UpdateProfileRequest {
-  nicheInterest?: string;
+  interests?: string;
   project?: string;
   connectionType?: ConnectionType;
-  rabbitHole?: string;
+  deepDive?: string;
   preferences?: string;
 }
 

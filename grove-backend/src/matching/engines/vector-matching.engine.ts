@@ -89,8 +89,8 @@ export class VectorMatchingEngine extends BaseMatchingEngine {
 
     // 2. Extract shared topics from interests and projects
     const sharedTopics = this.extractSharedTopics(
-      sourceProfile.nicheInterest + ' ' + sourceProfile.project,
-      candidateProfile.nicheInterest + ' ' + candidateProfile.project,
+      sourceProfile.interests + ' ' + sourceProfile.project,
+      candidateProfile.interests + ' ' + candidateProfile.project,
     );
 
     if (sharedTopics.length > 0) {
@@ -98,14 +98,14 @@ export class VectorMatchingEngine extends BaseMatchingEngine {
     }
 
     // 3. Check for rabbit hole alignment
-    if (sourceProfile.rabbitHole && candidateProfile.rabbitHole) {
-      const rabbitHoleTopics = this.extractSharedTopics(
-        sourceProfile.rabbitHole,
-        candidateProfile.rabbitHole,
+    if (sourceProfile.deepDive && candidateProfile.deepDive) {
+      const deepDiveTopics = this.extractSharedTopics(
+        sourceProfile.deepDive,
+        candidateProfile.deepDive,
       );
 
-      if (rabbitHoleTopics.length > 0) {
-        reasons.push(`Both exploring ${rabbitHoleTopics[0]}`);
+      if (deepDiveTopics.length > 0) {
+        reasons.push(`Both exploring ${deepDiveTopics[0]}`);
       }
     }
 

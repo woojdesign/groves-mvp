@@ -6,7 +6,7 @@ async function main() {
   const profiles = await prisma.profile.findMany({
     select: {
       userId: true,
-      nicheInterest: true,
+      interests: true,
       user: {
         select: {
           email: true,
@@ -20,7 +20,7 @@ async function main() {
   console.log('\n📊 Profile Embedding Status:');
   profiles.forEach((profile) => {
     const embeddingStatus = profile.user.embedding ? '✅ Yes' : '❌ No';
-    console.log(`  ${profile.user.email}: ${embeddingStatus} - ${profile.nicheInterest.slice(0, 50)}...`);
+    console.log(`  ${profile.user.email}: ${embeddingStatus} - ${profile.interests.slice(0, 50)}...`);
   });
 
   const totalProfiles = await prisma.profile.count();

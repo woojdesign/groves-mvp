@@ -49,10 +49,10 @@ export class ProfilesService {
     const profile = await this.prisma.profile.create({
       data: {
         userId,
-        nicheInterest: dto.nicheInterest,
+        interests: dto.interests,
         project: dto.project,
         connectionType: dto.connectionType,
-        rabbitHole: dto.rabbitHole,
+        deepDive: dto.deepDive,
         preferences: dto.preferences,
       },
     });
@@ -142,17 +142,17 @@ export class ProfilesService {
         eventType: 'profile_updated',
         metadata: {
           before: {
-            nicheInterest: beforeState.nicheInterest,
+            interests: beforeState.interests,
             project: beforeState.project,
             connectionType: beforeState.connectionType,
-            rabbitHole: beforeState.rabbitHole,
+            deepDive: beforeState.deepDive,
             preferences: beforeState.preferences,
           },
           after: {
-            nicheInterest: updated.nicheInterest,
+            interests: updated.interests,
             project: updated.project,
             connectionType: updated.connectionType,
-            rabbitHole: updated.rabbitHole,
+            deepDive: updated.deepDive,
             preferences: updated.preferences,
           },
           changes,
@@ -163,7 +163,7 @@ export class ProfilesService {
     });
 
     // Trigger embedding regeneration if semantic fields changed
-    if (dto.nicheInterest || dto.project || dto.rabbitHole !== undefined) {
+    if (dto.interests || dto.project || dto.deepDive !== undefined) {
       this.logger.log(
         `Profile semantic fields updated for user ${userId}, triggering embedding regeneration`,
       );
@@ -259,10 +259,10 @@ export class ProfilesService {
     return {
       id: profile.id,
       userId: profile.userId,
-      nicheInterest: profile.nicheInterest,
+      interests: profile.interests,
       project: profile.project,
       connectionType: profile.connectionType,
-      rabbitHole: profile.rabbitHole,
+      deepDive: profile.deepDive,
       preferences: profile.preferences,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
@@ -275,7 +275,7 @@ export class ProfilesService {
    */
   private getChangedFields(before: any, after: any): string[] {
     const changes: string[] = [];
-    const fieldsToCheck = ['nicheInterest', 'project', 'connectionType', 'rabbitHole', 'preferences'];
+    const fieldsToCheck = ['interests', 'project', 'connectionType', 'deepDive', 'preferences'];
 
     for (const field of fieldsToCheck) {
       // Deep comparison for objects (like preferences)

@@ -117,23 +117,23 @@ export class OpenaiService {
 
   /**
    * Preprocess and concatenate profile fields into a single text string
-   * @param nicheInterest - The user's niche interest
+   * @param interests - The user's niche interest
    * @param project - The user's current project
-   * @param rabbitHole - Optional rabbit hole the user is exploring
+   * @param deepDive - Optional rabbit hole the user is exploring
    * @returns Formatted text ready for embedding generation
    */
   preprocessProfileText(
-    nicheInterest: string,
+    interests: string,
     project: string,
-    rabbitHole?: string,
+    deepDive?: string,
   ): string {
     const parts = [
-      `Interest: ${nicheInterest.trim()}`,
+      `Interest: ${interests.trim()}`,
       `Project: ${project.trim()}`,
     ];
 
-    if (rabbitHole && rabbitHole.trim()) {
-      parts.push(`Exploring: ${rabbitHole.trim()}`);
+    if (deepDive && deepDive.trim()) {
+      parts.push(`Exploring: ${deepDive.trim()}`);
     }
 
     return parts.join('. ');
@@ -193,62 +193,62 @@ export class OpenaiService {
     const templates = [
       {
         name: 'Marcus Johnson',
-        nicheInterest: 'I watch a lot of cooking shows and try to recreate the recipes. Hit or miss results but it\'s fun!',
+        interests: 'I watch a lot of cooking shows and try to recreate the recipes. Hit or miss results but it\'s fun!',
         project: 'Working through basics like knife skills and trying to nail down a good pasta carbonara',
         connectionType: 'friendship',
         preferences: 'Casual coffee chats work great for me',
       },
       {
         name: 'Emily Rodriguez',
-        nicheInterest: 'Getting into film photography with a thrifted Canon AE-1. Love the unpredictability.',
+        interests: 'Getting into film photography with a thrifted Canon AE-1. Love the unpredictability.',
         project: 'Shooting a roll of film every month and learning to develop at home',
         connectionType: 'friendship',
         preferences: 'Down for photo walks on weekends',
       },
       {
         name: 'David Chen',
-        nicheInterest: 'Building mechanical keyboards with custom switches. Deep into the ergo split keyboard world.',
+        interests: 'Building mechanical keyboards with custom switches. Deep into the ergo split keyboard world.',
         project: 'Designing my first split keyboard with hot-swappable switches and QMK firmware',
         connectionType: 'collaboration',
-        rabbitHole: 'Learning about switch characteristics, PCB design, and optimal thumb cluster layouts',
+        deepDive: 'Learning about switch characteristics, PCB design, and optimal thumb cluster layouts',
         preferences: 'Love geeking out over keyboards! Remote chats anytime.',
       },
       {
         name: 'Sofia Martinez',
-        nicheInterest: 'I collect vintage vinyl records, mostly 70s and 80s rock. The hunt for rare albums is addicting.',
+        interests: 'I collect vintage vinyl records, mostly 70s and 80s rock. The hunt for rare albums is addicting.',
         project: 'Building a proper listening setup with decent speakers and finally organizing my collection',
         connectionType: 'knowledge_exchange',
-        rabbitHole: 'Learning about pressing quality and different editions',
+        deepDive: 'Learning about pressing quality and different editions',
         preferences: 'Happy to swap recommendations! Evenings work best.',
       },
       {
         name: 'James Wilson',
-        nicheInterest: 'I play video games casually, mostly indie games and roguelikes. Nothing too intense.',
+        interests: 'I play video games casually, mostly indie games and roguelikes. Nothing too intense.',
         project: 'Trying to beat Hades without looking up guides',
         connectionType: 'friendship',
         preferences: 'Remote hangouts, flexible on time',
       },
       {
         name: 'Yuki Tanaka',
-        nicheInterest: 'I\'ve been getting into baking sourdough on weekends. Still figuring out the whole starter thing.',
+        interests: 'I\'ve been getting into baking sourdough on weekends. Still figuring out the whole starter thing.',
         project: 'Trying to get consistent results with my weekend loaves',
         connectionType: 'knowledge_exchange',
-        rabbitHole: 'Reading about different flour types and hydration percentages',
+        deepDive: 'Reading about different flour types and hydration percentages',
         preferences: 'Weekend coffee chats work best!',
       },
       {
         name: 'Carlos Santos',
-        nicheInterest: 'Running 5Ks and slowly working up to a 10K. Not fast but consistent.',
+        interests: 'Running 5Ks and slowly working up to a 10K. Not fast but consistent.',
         project: 'Training for my first official 10K race in the spring',
         connectionType: 'friendship',
         preferences: 'Morning runs or coffee after work',
       },
       {
         name: 'Priya Singh',
-        nicheInterest: 'Reading fantasy novels, especially Brandon Sanderson. I go through books way too fast.',
+        interests: 'Reading fantasy novels, especially Brandon Sanderson. I go through books way too fast.',
         project: 'Working through my massive TBR pile and trying not to buy more books (failing)',
         connectionType: 'friendship',
-        rabbitHole: 'Tracking series timelines and fan theories',
+        deepDive: 'Tracking series timelines and fan theories',
         preferences: 'Book club vibes, lunch or coffee works',
       },
     ];

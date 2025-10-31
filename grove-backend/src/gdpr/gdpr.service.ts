@@ -121,10 +121,10 @@ export class GdprService {
       profile: user.profile
         ? {
             id: user.profile.id,
-            nicheInterest: user.profile.nicheInterest,
+            interests: user.profile.interests,
             project: user.profile.project,
             connectionType: user.profile.connectionType,
-            rabbitHole: user.profile.rabbitHole,
+            deepDive: user.profile.deepDive,
             preferences: user.profile.preferences,
             createdAt: user.profile.createdAt,
             updatedAt: user.profile.updatedAt,

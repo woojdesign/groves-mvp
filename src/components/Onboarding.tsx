@@ -27,9 +27,9 @@ const prompts = [
     type: 'text'
   },
   {
-    id: 'niche_interest',
-    question: 'What\'s a niche interest you could talk about for an hour?',
-    placeholder: 'Maybe vintage synthesizers, urban foraging, or the history of fonts...',
+    id: 'interests',
+    question: 'Tell us about your interests - things you\'re finding interesting these days.',
+    placeholder: 'Maybe vintage synthesizers, urban foraging, the history of fonts...',
     type: 'textarea'
   },
   {
@@ -50,8 +50,8 @@ const prompts = [
     ]
   },
   {
-    id: 'rabbit_hole',
-    question: 'Optional fun: a recent rabbit hole or obsession.',
+    id: 'deepDive',
+    question: 'What\'s something you\'re diving deep into right now?',
     placeholder: 'That thing you\'ve been researching at 2am...',
     type: 'textarea',
     optional: true
@@ -91,13 +91,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       setLoading(true);
       setError(null);
 
-      // Map responses to API format (convert snake_case to camelCase)
+      // Map responses to API format
       const onboardingData: OnboardingResponses = {
         name: responses.name || '',
-        nicheInterest: responses.niche_interest || '',
+        interests: responses.interests || '',
         project: responses.project || '',
         connectionType: responses.connection_type as any,
-        rabbitHole: responses.rabbit_hole || undefined,
+        deepDive: responses.deepDive || undefined,
         preferences: responses.preferences || undefined,
       };
 

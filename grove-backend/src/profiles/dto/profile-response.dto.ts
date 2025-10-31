@@ -1,10 +1,10 @@
 export class ProfileResponseDto {
   id: string;
   userId: string;
-  nicheInterest: string;
+  interests: string;
   project: string;
   connectionType: string;
-  rabbitHole?: string;
+  deepDive?: string;
   preferences?: string;
   createdAt: Date;
   updatedAt: Date;

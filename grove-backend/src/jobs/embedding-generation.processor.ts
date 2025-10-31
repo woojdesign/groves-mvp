@@ -42,9 +42,9 @@ export class EmbeddingGenerationProcessor {
 
       // Step 2: Preprocess profile text
       const text = this.openaiService.preprocessProfileText(
-        profile.nicheInterest,
+        profile.interests,
         profile.project,
-        profile.rabbitHole || undefined,
+        profile.deepDive || undefined,
       );
 
       this.logger.debug(`Profile text prepared: "${text.substring(0, 100)}..."`);

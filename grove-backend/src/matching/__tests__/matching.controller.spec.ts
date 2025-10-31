@@ -38,7 +38,7 @@ describe('MatchingController', () => {
     it('should return matches for authenticated user', async () => {
       const mockMatches: MatchCandidateDto[] = [
         {
-          candidateId: 'user-1',
+          candidate: 'user-1',
           name: 'Alice Johnson',
           score: 0.92,
           reason: 'Similar values and goals. Complementary skill sets.',
@@ -46,7 +46,7 @@ describe('MatchingController', () => {
           confidence: 0.87,
         },
         {
-          candidateId: 'user-2',
+          candidate: 'user-2',
           name: 'Bob Smith',
           score: 0.88,
           reason: 'Different backgrounds for diversity.',

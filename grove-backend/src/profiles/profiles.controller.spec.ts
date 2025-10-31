@@ -22,20 +22,20 @@ describe('ProfilesController', () => {
   };
 
   const mockProfileDto: CreateProfileDto = {
-    nicheInterest: 'Urban beekeeping and teaching people about pollinators in cities',
+    interests: 'Urban beekeeping and teaching people about pollinators in cities',
     project: 'Building a community garden database to track crop yields across neighborhoods',
     connectionType: 'collaboration',
-    rabbitHole: 'Recently went deep on permaculture principles',
+    deepDive: 'Recently went deep on permaculture principles',
     preferences: 'I prefer async communication first',
   };
 
   const mockProfileResponse = {
     id: 'profile-123',
     userId: mockUser.id,
-    nicheInterest: mockProfileDto.nicheInterest,
+    interests: mockProfileDto.interests,
     project: mockProfileDto.project,
     connectionType: mockProfileDto.connectionType,
-    rabbitHole: mockProfileDto.rabbitHole,
+    deepDive: mockProfileDto.deepDive,
     preferences: mockProfileDto.preferences,
     createdAt: new Date('2025-10-22T10:00:00Z'),
     updatedAt: new Date('2025-10-22T10:00:00Z'),

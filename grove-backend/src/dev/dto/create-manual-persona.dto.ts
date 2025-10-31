@@ -23,7 +23,7 @@ export class CreateManualPersonaDto {
   @IsNotEmpty()
   @MinLength(20)
   @MaxLength(500)
-  nicheInterest: string;
+  interests: string;
 
   @IsString()
   @IsNotEmpty()
@@ -39,7 +39,7 @@ export class CreateManualPersonaDto {
   @IsString()
   @IsOptional()
   @MaxLength(500)
-  rabbitHole?: string;
+  deepDive?: string;
 
   @IsString()
   @IsOptional()

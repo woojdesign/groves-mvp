@@ -20,10 +20,10 @@ export class CreateProfileDto {
   @IsNotEmpty()
   @MinLength(20, {
     message:
-      'Please share a bit more about your niche interest (at least 20 characters)',
+      'Please share a bit more about your interests (at least 20 characters)',
   })
   @MaxLength(500)
-  nicheInterest: string;
+  interests: string;
 
   @IsString()
   @IsNotEmpty()
@@ -44,7 +44,7 @@ export class CreateProfileDto {
   @IsString()
   @IsOptional()
   @MaxLength(500)
-  rabbitHole?: string;
+  deepDive?: string;
 
   @IsString()
   @IsOptional()

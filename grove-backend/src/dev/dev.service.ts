@@ -247,7 +247,7 @@ export class DevService {
         const fallbackPersonas = subNames.map((name, idx) => ({
           name: name.fullName,
           email: `dev-persona-${Math.floor(10000 + Math.random() * 90000)}@test.grove.test`,
-          nicheInterest: `I'm interested in ${subInterests[idx] || 'various hobbies'}`,
+          interests: `I'm interested in ${subInterests[idx] || 'various hobbies'}`,
           project: 'Exploring this interest in my free time',
           connectionType: 'friendship' as const,
           preferences: 'Flexible on meeting times',
@@ -276,7 +276,7 @@ export class DevService {
     ];
 
     for (const persona of personas) {
-      const text = persona.nicheInterest?.toLowerCase() || '';
+      const text = persona.interests?.toLowerCase() || '';
       for (const pattern of patterns) {
         const match = text.match(pattern);
         if (match && match[1]) {
@@ -315,10 +315,10 @@ export class DevService {
       return personas.map((p, i) => ({
         name: p.name || names[i]?.fullName || `Person ${i}`,
         email: p.email || `dev-persona-${Math.floor(10000 + Math.random() * 90000)}@test.grove.test`,
-        nicheInterest: p.nicheInterest || interests[i] || 'General interests',
+        interests: p.interests || interests[i] || 'General interests',
         project: p.project || 'Working on personal projects',
         connectionType: p.connectionType || 'friendship',
-        rabbitHole: p.rabbitHole,
+        deepDive: p.deepDive,
         preferences: p.preferences,
       }));
     } catch (error) {
@@ -407,10 +407,10 @@ TONE VARIETY (mix these naturally - use DIFFERENT structures for each person):
 Return a JSON array with ${names.length} objects, each with:
 - name: Use EXACT name from list above
 - email: dev-persona-[unique-5-digit-number]@test.grove.test
-- nicheInterest: First-person description with UNIQUE voice (50-200 chars, conversational and specific)
+- interests: First-person description of their interests (plural encouraged!) with UNIQUE voice (50-200 chars, conversational and specific). Can mention multiple interests naturally.
 - project: What they're currently working on - be specific! (50-200 chars)
 - connectionType: "collaboration" | "mentorship" | "friendship" | "knowledge_exchange"
-- rabbitHole: (optional) What they're diving deep into - add this for engaged/deep intensity
+- deepDive: (optional) What they're diving deep into right now - add this for engaged/deep intensity
 - preferences: (optional) Meeting preferences - be specific about times/formats
 
 Example format - notice the EXTREME LENGTH VARIANCE (brief → very long):
@@ -419,40 +419,40 @@ Example format - notice the EXTREME LENGTH VARIANCE (brief → very long):
     {
       "name": "Sarah Chen",
       "email": "dev-persona-67215@test.grove.test",
-      "nicheInterest": "Hiking.",
+      "interests": "Hiking and photography.",
       "project": "Local trails",
       "connectionType": "friendship"
     },
     {
       "name": "Marcus Johnson",
       "email": "dev-persona-48392@test.grove.test",
-      "nicheInterest": "Weekend cook. Trying new pasta recipes lately.",
+      "interests": "I like cooking and watching food documentaries. Trying new pasta recipes lately.",
       "project": "Perfecting carbonara",
       "connectionType": "friendship"
     },
     {
       "name": "Lisa Park",
       "email": "dev-persona-52817@test.grove.test",
-      "nicheInterest": "Started guitar a few months ago. Still working on basic chords but enjoying the learning process.",
+      "interests": "Started guitar and songwriting a few months ago. Still working on basic chords but enjoying the learning process.",
       "project": "Working through beginner song book",
       "connectionType": "knowledge_exchange"
     },
     {
       "name": "David Kim",
       "email": "dev-persona-83921@test.grove.test",
-      "nicheInterest": "I've been restoring a 1967 Mustang in my garage for the past 3 years. It's been an incredible journey learning mechanical systems from scratch, sourcing authentic parts, and understanding the engineering philosophy of that era. What started as a curiosity about classic cars has become a deep dive into automotive history.",
+      "interests": "I've been into classic cars and automotive history for years. Restoring a 1967 Mustang in my garage has been an incredible journey learning mechanical systems from scratch, sourcing authentic parts, and understanding the engineering philosophy of that era. Also enjoy vintage racing documentaries.",
       "project": "Currently rebuilding the engine block and tracking down an original carburetor. Also documenting the entire process for other enthusiasts.",
       "connectionType": "mentorship",
-      "rabbitHole": "Deep diving into period-correct restoration techniques and connecting with the vintage Mustang community",
+      "deepDive": "Deep diving into period-correct restoration techniques and connecting with the vintage Mustang community",
       "preferences": "Love to meet on weekends at car shows or over coffee to talk shop. Always happy to help newcomers to the hobby."
     },
     {
       "name": "Priya Sharma",
       "email": "dev-persona-82471@test.grove.test",
-      "nicheInterest": "Birdwatching has completely changed how I experience nature. What started three years ago as a casual weekend activity has evolved into this beautiful practice of patience, observation, and connection with the environment. I've documented over 150 species across different habitats - from urban parks to remote wetlands. There's something meditative about waiting in stillness for that perfect moment when a rare species appears. I'm particularly fascinated by migration patterns and have been tracking seasonal changes in our local bird populations. Would love to connect with others who share this passion or are curious about getting started.",
+      "interests": "Birdwatching has completely changed how I experience nature. What started three years ago as a casual weekend activity has evolved into this beautiful practice of patience, observation, and connection with the environment. I've documented over 150 species across different habitats - from urban parks to remote wetlands. There's something meditative about waiting in stillness for that perfect moment when a rare species appears. I'm particularly fascinated by migration patterns and have been tracking seasonal changes in our local bird populations. Would love to connect with others who share this passion or are curious about getting started.",
       "project": "Currently working on a photo journal documenting year-round bird diversity in urban environments and mentoring newcomers through our local Audubon chapter",
       "connectionType": "collaboration",
-      "rabbitHole": "Studying the impact of climate change on migratory bird patterns and participating in citizen science projects",
+      "deepDive": "Studying the impact of climate change on migratory bird patterns and participating in citizen science projects",
       "preferences": "Happy to do early morning birding walks, virtual coffee chats about field techniques, or just share tips and sightings. I'm usually free on weekends and some weekday mornings."
     }
   ]
@@ -499,14 +499,15 @@ EXAMPLES OF GOOD FIRST-PERSON WRITING:
 - "I've been getting into baking sourdough on weekends. Still figuring out the starter thing."
 - "Building mechanical keyboards with custom switches. Deep into the ergo split keyboard world."
 - "I watch a lot of cooking shows and try to recreate recipes. Hit or miss results!"
+- "I really like mechanical engineering - it's really useful in working on cars. But on the side I spend a bunch of time birdwatching because nature is important."
 
 Return a JSON object with these fields:
 - name: Full name (DIVERSE names, avoid "A" clustering, mix ethnicities)
 - email: Unique email (use format: dev-persona-[5-digit-random]@test.grove.test)
-- nicheInterest: Primary interest in FIRST PERSON (50-500 chars)
+- interests: Interests (plural encouraged!) in FIRST PERSON - can naturally mention multiple things they're finding interesting (50-500 chars)
 - project: Current project/goal in FIRST PERSON (50-500 chars)
 - connectionType: One of: "collaboration", "mentorship", "friendship", "knowledge_exchange"
-- rabbitHole: (optional) What they're exploring in FIRST PERSON (max 500 chars)
+- deepDive: (optional) What they're exploring in FIRST PERSON (max 500 chars)
 - preferences: (optional) Meeting preferences in FIRST PERSON (max 500 chars)
 
 Make it feel authentic - real people have varied interests and commitment levels. Not everyone is passionate about sustainability or tech.`;
@@ -525,10 +526,10 @@ Make it feel authentic - real people have varied interests and commitment levels
       return {
         name: persona.name || `Generated ${uuid}`,
         email: persona.email || `dev-persona-${uuid}@test.grove.test`,
-        nicheInterest: persona.nicheInterest || 'AI-generated interest',
+        interests: persona.interests || 'AI-generated interest',
         project: persona.project || 'AI-generated project',
         connectionType: persona.connectionType || 'collaboration',
-        rabbitHole: persona.rabbitHole,
+        deepDive: persona.deepDive,
         preferences: persona.preferences,
       };
     } catch (error) {
@@ -538,10 +539,10 @@ Make it feel authentic - real people have varied interests and commitment levels
       return {
         name: `Test Persona ${uuid}`,
         email: `dev-persona-${uuid}@test.grove.test`,
-        nicheInterest: 'Custom generated interest from prompt',
+        interests: 'Custom generated interest from prompt',
         project: 'Custom generated project',
         connectionType: 'collaboration',
-        rabbitHole: 'Custom rabbit hole',
+        deepDive: 'Custom rabbit hole',
         preferences: 'Flexible schedule',
       };
     }
@@ -561,10 +562,10 @@ Make it feel authentic - real people have varied interests and commitment levels
       return {
         name: persona.name || `Generated ${uuid}`,
         email: persona.email || `dev-persona-${uuid}@test.grove.test`,
-        nicheInterest: persona.nicheInterest || 'AI-generated interest',
+        interests: persona.interests || 'AI-generated interest',
         project: persona.project || 'AI-generated project',
         connectionType: persona.connectionType || 'collaboration',
-        rabbitHole: persona.rabbitHole,
+        deepDive: persona.deepDive,
         preferences: persona.preferences,
       };
     } catch (error) {
@@ -574,10 +575,10 @@ Make it feel authentic - real people have varied interests and commitment levels
       return {
         name: mockPersona.name,
         email: mockPersona.email,
-        nicheInterest: mockPersona.nicheInterest,
+        interests: mockPersona.interests,
         project: mockPersona.project,
         connectionType: mockPersona.connectionType,
-        rabbitHole: mockPersona.rabbitHole,
+        deepDive: mockPersona.deepDive,
         preferences: mockPersona.preferences,
       };
     }
@@ -619,10 +620,10 @@ Make it feel authentic - real people have varied interests and commitment levels
       const profile = await this.prisma.profile.create({
         data: {
           userId: user.id,
-          nicheInterest: persona.nicheInterest,
+          interests: persona.interests,
           project: persona.project,
           connectionType: persona.connectionType,
-          rabbitHole: persona.rabbitHole,
+          deepDive: persona.deepDive,
           preferences: persona.preferences,
           isTestData: true, // Critical: Mark as test data
         },
@@ -651,10 +652,10 @@ Make it feel authentic - real people have varied interests and commitment levels
         id: user.id,
         name: user.name,
         email: user.email,
-        nicheInterest: profile.nicheInterest,
+        interests: profile.interests,
         project: profile.project,
         connectionType: profile.connectionType,
-        rabbitHole: profile.rabbitHole || undefined,
+        deepDive: profile.deepDive || undefined,
         preferences: profile.preferences || undefined,
         embeddingStatus: embedding ? 'generated' : 'pending',
         createdAt: user.createdAt,
@@ -688,10 +689,10 @@ Make it feel authentic - real people have varied interests and commitment levels
       id: user.id,
       name: user.name,
       email: user.email,
-      nicheInterest: user.profile?.nicheInterest || '',
+      interests: user.profile?.interests || '',
       project: user.profile?.project || '',
       connectionType: user.profile?.connectionType || '',
-      rabbitHole: user.profile?.rabbitHole || undefined,
+      deepDive: user.profile?.deepDive || undefined,
       preferences: user.profile?.preferences || undefined,
       embeddingStatus: user.embedding ? 'generated' : 'pending',
       createdAt: user.createdAt,
@@ -773,7 +774,7 @@ Make it feel authentic - real people have varied interests and commitment levels
         userId: match.user_id,
         name: match.name,
         email: match.email,
-        nicheInterest: match.niche_interest,
+        interests: match.niche_interest,
         similarityScore: Number(match.similarity_score.toFixed(4)),
       })),
     };
@@ -850,10 +851,10 @@ Make it feel authentic - real people have varied interests and commitment levels
       personas: personas.map((p) => ({
         name: p.name,
         email: p.email,
-        nicheInterest: p.nicheInterest,
+        interests: p.interests,
         project: p.project,
         connectionType: p.connectionType,
-        rabbitHole: p.rabbitHole,
+        deepDive: p.deepDive,
         preferences: p.preferences,
         embeddingStatus: p.embeddingStatus,
         createdAt: p.createdAt,
