@@ -9,6 +9,47 @@ export class GdprService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
+   * Get current user information
+   * Returns basic user data including role and onboarding status
+   */
+  async getCurrentUser(userId: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        orgId: true,
+        status: true,
+        createdAt: true,
+        lastActive: true,
+        profile: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      orgId: user.orgId,
+      status: user.status,
+      hasCompletedOnboarding: !!user.profile,
+      createdAt: user.createdAt,
+      lastActive: user.lastActive,
+    };
+  }
+
+  /**
    * Export all user data (GDPR Article 15 - Right to Access)
    * Returns complete user data in JSON format
    */

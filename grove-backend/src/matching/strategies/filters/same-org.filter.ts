@@ -3,9 +3,12 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { IFilterStrategy } from '../../interfaces/filter-strategy.interface';
 
 /**
- * Filters out users from the same organization as the source user.
- * Purpose: Promote cross-organizational connections and diversity.
- * MVP constraint: Users should only be matched with people from different orgs.
+ * Filters to ONLY include users from the same organization as the source user.
+ * Purpose: For MVP, matches should be within the same organization only.
+ * This prevents cross-organizational matching and keeps connections internal.
+ *
+ * Note: Original spec mentioned preventing "same team" matches, but organization
+ * is the correct scope for now. Team-level filtering can be added later.
  */
 @Injectable()
 export class SameOrgFilter implements IFilterStrategy {
@@ -40,9 +43,9 @@ export class SameOrgFilter implements IFilterStrategy {
       },
     });
 
-    // Filter out users from the same organization
+    // Filter to ONLY users from the SAME organization
     return candidateUsers
-      .filter((candidate) => candidate.orgId !== sourceUser.orgId)
+      .filter((candidate) => candidate.orgId === sourceUser.orgId)
       .map((candidate) => candidate.id);
   }
 

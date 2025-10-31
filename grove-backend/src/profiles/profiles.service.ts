@@ -39,6 +39,12 @@ export class ProfilesService {
       throw new ConflictException('User has already completed onboarding');
     }
 
+    // Update user name
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { name: dto.name },
+    });
+
     // Create profile
     const profile = await this.prisma.profile.create({
       data: {

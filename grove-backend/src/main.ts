@@ -1,9 +1,8 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { CsrfGuard } from './common/guards/csrf.guard';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
@@ -50,6 +49,9 @@ async function bootstrap() {
     exposedHeaders: ['Set-Cookie'],
   });
 
+  // Parse cookies from incoming requests (CRITICAL for JWT authentication)
+  app.use(cookieParser());
+
   // Apply security headers to all requests
   app.use(new SecurityHeadersMiddleware().use.bind(new SecurityHeadersMiddleware()));
 
@@ -73,11 +75,8 @@ async function bootstrap() {
     new GlobalExceptionFilter(),
   );
 
-  // Apply global guards (JWT and CSRF)
-  const reflector = app.get(Reflector);
-  app.useGlobalGuards(new JwtAuthGuard(reflector), new CsrfGuard(reflector));
-
   // Apply global interceptors (Phase 1: Org Filter)
+  const reflector = app.get(Reflector);
   app.useGlobalInterceptors(new OrgFilterInterceptor(reflector));
 
   // Set API prefix

@@ -17,10 +17,10 @@ import { AdminDashboardPage } from "./admin/pages/AdminDashboardPage.tsx";
 import { UsersPage } from "./admin/pages/UsersPage.tsx";
 import { AuditLogsPage } from "./admin/pages/AuditLogsPage.tsx";
 import { SettingsPage } from "./admin/pages/SettingsPage.tsx";
+import { DevDashboardPage } from "./admin/dev/DevDashboardPage.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import { initCsrf } from "./lib/api.ts";
 import "./index.css";
-import "./styles/components.css";
 
 // Initialize Sentry for error tracking
 if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
@@ -91,6 +91,7 @@ initCsrf().then(() => {
           <Route path="users" element={<UsersPage />} />
           <Route path="audit-logs" element={<AuditLogsPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="dev" element={<DevDashboardPage />} />
         </Route>
       </Routes>
       <Toaster />

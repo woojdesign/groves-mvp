@@ -40,7 +40,7 @@ export default function Dashboard({ userName, onMatchAction }: DashboardProps) {
       setError(null);
 
       const response = await getMatches(10, 'pending');
-      setMatches(response.matches);
+      setMatches(response?.matches || []);
     } catch (err) {
       console.error('Failed to fetch matches:', err);
       setError(err as ApiError);

@@ -37,8 +37,21 @@ export class MatchingController {
   async getMatches(
     @CurrentUser() user: { id: string; email: string },
     @Query() query: GenerateMatchesRequestDto,
-  ): Promise<MatchCandidateDto[]> {
-    return this.matchingService.getMatchesForUser(user.id, query);
+    @Req() req: Request,
+  ): Promise<{ matches: MatchCandidateDto[]; total: number; hasMore: boolean }> {
+    // Disable caching for matches endpoint since they can change
+    const response = req.res;
+    if (response) {
+      response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      response.setHeader('Pragma', 'no-cache');
+      response.setHeader('Expires', '0');
+    }
+    const matches = await this.matchingService.getMatchesForUser(user.id, query);
+    return {
+      matches,
+      total: matches.length,
+      hasMore: false, // For MVP, we return all matches at once
+    };
   }
 
   /**

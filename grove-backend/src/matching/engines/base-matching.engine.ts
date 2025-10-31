@@ -34,26 +34,31 @@ export abstract class BaseMatchingEngine implements IMatchingEngine {
 
     // Step 1: Get candidate pool (implemented by subclass)
     const allCandidates = await this.getCandidatePool(request.userId);
+    console.log(`[BaseMatchingEngine] Step 1: Got ${allCandidates.length} candidates from pool`);
 
     // Step 2: Apply filters (prior matches, blocked users, etc.)
     const filteredCandidates = await this.filterStrategy.filter(
       request.userId,
       allCandidates,
     );
+    console.log(`[BaseMatchingEngine] Step 2: After filtering, ${filteredCandidates.length} candidates remain`);
 
     // Step 3: Compute similarity scores
     const similarityScores = await this.matchingStrategy.computeSimilarity(
       request.userId,
       filteredCandidates,
     );
+    console.log(`[BaseMatchingEngine] Step 3: Computed ${similarityScores.size} similarity scores`);
 
     // Step 4: Filter by minimum similarity threshold
+    const threshold = request.minSimilarityScore ?? 0.5;
     const candidates = Array.from(similarityScores.entries())
-      .filter(([_, score]) => score >= (request.minSimilarityScore ?? 0.7))
+      .filter(([_, score]) => score >= threshold)
       .map(([userId, score]) => ({
         userId,
         similarityScore: score,
       }));
+    console.log(`[BaseMatchingEngine] Step 4: After threshold filter (>=${threshold}), ${candidates.length} candidates remain`);
 
     // Step 5: Re-rank for diversity
     const rankedCandidates = await this.rankingStrategy.rerank(

@@ -78,9 +78,7 @@ export async function logout(): Promise<void> {
 export async function submitOnboarding(
   responses: OnboardingResponses
 ): Promise<OnboardingResponse> {
-  const response = await api.post<OnboardingResponse>('/onboarding', {
-    responses,
-  });
+  const response = await api.post<OnboardingResponse>('/onboarding', responses);
   return response.data;
 }
 

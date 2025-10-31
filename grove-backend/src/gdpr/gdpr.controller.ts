@@ -21,6 +21,16 @@ export class GdprController {
   constructor(private readonly gdprService: GdprService) {}
 
   /**
+   * GET /api/users/me
+   * Get current user information
+   */
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getCurrentUser(@CurrentUser() user: { id: string }) {
+    return this.gdprService.getCurrentUser(user.id);
+  }
+
+  /**
    * GET /api/users/me/export
    * Export all user data (GDPR Article 15 - Right to Access)
    */

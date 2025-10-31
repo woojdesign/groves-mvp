@@ -27,7 +27,7 @@ export class VectorSimilarityStrategy implements IMatchingStrategy {
     >`
       SELECT embedding::text as embedding
       FROM embeddings
-      WHERE user_id = ${sourceUserId}::uuid
+      WHERE user_id::text = ${sourceUserId}
     `;
 
     if (sourceEmbedding.length === 0 || !sourceEmbedding[0].embedding) {
@@ -52,19 +52,23 @@ export class VectorSimilarityStrategy implements IMatchingStrategy {
     // Using Prisma.sql for safe interpolation to prevent SQL injection
     // The <=> operator computes cosine distance (0 = identical, 2 = opposite)
     // We convert to similarity score: 1 - distance/2 to get range [0, 1]
-    const vectorString = Prisma.sql`[${Prisma.join(
-      sourceVector.map((v) => Prisma.sql`${v}`),
+    // Build the vector as a string literal
+    const vectorStringLiteral = `[${sourceVector.join(',')}]`;
+
+    // Build IN clause with proper UUID casting
+    const uuidConditions = Prisma.join(
+      candidateUserIds.map((id) => Prisma.sql`${id}`),
       ',',
-    )}]`;
+    );
 
     const results = await this.prisma.$queryRaw<
       Array<{ user_id: string; similarity_score: number }>
     >`
       SELECT
         user_id::text as user_id,
-        1 - (embedding <=> ${vectorString}::vector) AS similarity_score
+        1 - (embedding <=> ${vectorStringLiteral}::vector) AS similarity_score
       FROM embeddings
-      WHERE user_id = ANY(${candidateUserIds}::uuid[])
+      WHERE user_id::text IN (${uuidConditions})
         AND embedding IS NOT NULL
       ORDER BY similarity_score DESC
     `;

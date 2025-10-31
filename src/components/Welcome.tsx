@@ -17,14 +17,13 @@ interface WelcomeProps {
 
 export default function Welcome({ onJoin }: WelcomeProps) {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !name) return;
+    if (!email) return;
 
     try {
       setLoading(true);
@@ -39,7 +38,7 @@ export default function Welcome({ onJoin }: WelcomeProps) {
       // For backward compatibility with old App.tsx flow (dev mode)
       if (onJoin) {
         setTimeout(() => {
-          onJoin(email, name);
+          onJoin(email, '');
         }, 2000);
       }
     } catch (err) {
@@ -100,37 +99,20 @@ export default function Welcome({ onJoin }: WelcomeProps) {
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <GlassCard className="p-12">
-                <div className="space-y-8">
-                  <div>
-                    <Label htmlFor="name" className="mb-4 block text-foreground/80 text-sm tracking-wide uppercase text-[11px] font-medium">
-                      Your name
-                    </Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Alex Chen"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="rounded-2xl h-14 bg-background/60 backdrop-blur-sm border-border/40 hover:border-border/70 focus:border-secondary/50 focus:ring-4 focus:ring-secondary/10 transition-all text-base"
-                      required
-                      disabled={loading}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email" className="mb-4 block text-foreground/80 text-sm tracking-wide uppercase text-[11px] font-medium">
-                      Work email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="alex@yourcompany.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="rounded-2xl h-14 bg-background/60 backdrop-blur-sm border-border/40 hover:border-border/70 focus:border-secondary/50 focus:ring-4 focus:ring-secondary/10 transition-all text-base"
-                      required
-                      disabled={loading}
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="email" className="mb-4 block text-foreground/80 text-sm tracking-wide uppercase text-[11px] font-medium">
+                    Work email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="alex@yourcompany.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="rounded-2xl h-14 bg-background/60 backdrop-blur-sm border-border/40 hover:border-border/70 focus:border-secondary/50 focus:ring-4 focus:ring-secondary/10 transition-all text-base"
+                    required
+                    disabled={loading}
+                  />
                 </div>
 
                 <p className="text-xs text-muted-foreground/70 mt-8 leading-relaxed tracking-wide">
@@ -145,7 +127,7 @@ export default function Welcome({ onJoin }: WelcomeProps) {
                 disabled={loading}
               >
                 <span className="relative z-10">
-                  {loading ? 'Sending magic link...' : 'Join commonplace'}
+                  {loading ? 'Sending magic link...' : 'Continue with email'}
                 </span>
                 <ButtonShimmer />
               </Button>

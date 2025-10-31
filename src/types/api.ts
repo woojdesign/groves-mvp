@@ -52,10 +52,11 @@ export interface RefreshTokenResponse {
 export type ConnectionType = 'collaboration' | 'mentorship' | 'friendship' | 'knowledge_exchange';
 
 export interface OnboardingResponses {
-  niche_interest: string;
+  name: string;
+  nicheInterest: string;
   project: string;
-  connection_type: ConnectionType;
-  rabbit_hole?: string;
+  connectionType: ConnectionType;
+  rabbitHole?: string;
   preferences?: string;
 }
 

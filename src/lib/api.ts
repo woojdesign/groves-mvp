@@ -71,14 +71,63 @@ api.interceptors.request.use(
 // Response Interceptor - Handle authentication errors
 // ============================================================================
 
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (value?: any) => void; reject: (reason?: any) => void }> = [];
+
+const processQueue = (error: any = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
+    }
+  });
+
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiError>) => {
-    // Handle 401 Unauthorized - Session expired, redirect to login
-    if (error.response?.status === 401) {
-      // Clear any client-side state if needed
-      window.location.href = '/';
-      return Promise.reject(error);
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    // Handle 401 Unauthorized - Try to refresh token first
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If already refreshing, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            return api(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Try to refresh the access token
+        await axios.post(`${config.apiBaseUrl}/auth/refresh`, {}, {
+          withCredentials: true,
+        });
+
+        // Refresh successful, process queued requests
+        processQueue();
+        isRefreshing = false;
+
+        // Retry the original request
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed, clear queue and redirect to login
+        processQueue(refreshError);
+        isRefreshing = false;
+        window.location.href = '/';
+        return Promise.reject(refreshError);
+      }
     }
 
     // Handle 403 Forbidden - Could be CSRF token issue

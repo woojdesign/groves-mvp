@@ -3,6 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { RolesGuard } from './common/guards/roles.guard';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { CsrfGuard } from './common/guards/csrf.guard';
+import { EnvironmentGuard } from './common/guards/environment.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -16,6 +19,7 @@ import { IntrosModule } from './intros/intros.module';
 import { AdminModule } from './admin/admin.module';
 import { GdprModule } from './gdpr/gdpr.module';
 import { EncryptionModule } from './encryption/encryption.module';
+import { DevModule } from './dev/dev.module';
 
 @Module({
   imports: [
@@ -40,10 +44,19 @@ import { EncryptionModule } from './encryption/encryption.module';
     IntrosModule,
     AdminModule,
     GdprModule,
+    DevModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
@@ -51,6 +64,10 @@ import { EncryptionModule } from './encryption/encryption.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: EnvironmentGuard,
     },
   ],
 })

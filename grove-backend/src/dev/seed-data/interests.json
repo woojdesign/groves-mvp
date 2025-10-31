@@ -1,0 +1,102 @@
+{
+  "creative_artistic": [
+    "Painting", "Sketching", "Digital art", "Photography", "Film photography",
+    "Videography", "Filmmaking", "Animation", "Graphic design", "Typography",
+    "Interior design", "Fashion design", "Textile arts", "Ceramics", "Pottery",
+    "Sculpture", "Jewelry making", "Calligraphy", "Origami", "Architecture",
+    "Stage design", "Furniture design", "Tattoo art", "Cosplay", "Makeup artistry"
+  ],
+  "music_performing": [
+    "Playing guitar", "Playing piano", "Playing drums", "Singing", "Songwriting",
+    "DJing", "Music production", "Classical music appreciation", "Opera",
+    "Jazz improvisation", "Music collecting (vinyl)", "Ballet", "Contemporary dance",
+    "Acting", "Theatre production", "Stand-up comedy", "Spoken word",
+    "Musical theatre", "Choir singing", "Beatboxing"
+  ],
+  "intellectual_academic": [
+    "Philosophy", "Psychology", "Neuroscience", "Sociology", "Anthropology",
+    "History", "Political science", "Economics", "Linguistics", "Literature analysis",
+    "Poetry", "Science communication", "Mathematics", "Statistics", "Logic puzzles",
+    "Astronomy", "Quantum physics", "Archaeology", "Library science", "Theology"
+  ],
+  "tech_digital": [
+    "Web development", "Game development", "Artificial intelligence", "Machine learning",
+    "Cybersecurity", "Open-source software", "UX design", "UI prototyping", "3D printing",
+    "Raspberry Pi projects", "Robotics", "Virtual reality", "Augmented reality",
+    "Blockchain", "Smart home automation", "Electronics tinkering", "Cloud computing",
+    "DevOps", "Mobile app design", "Retro computing"
+  ],
+  "gaming_entertainment": [
+    "PC gaming", "Console gaming", "Board games", "Tabletop RPGs", "Dungeons & Dragons",
+    "Trading card games", "Escape rooms", "Game modding", "Speedrunning", "Indie games",
+    "VR gaming", "Simulation games", "eSports", "Game streaming", "Mobile games",
+    "Strategy games", "Puzzle games", "Retro gaming", "Interactive fiction", "Game collecting"
+  ],
+  "reading_writing": [
+    "Sci-fi novels", "Fantasy novels", "Historical fiction", "Literary fiction",
+    "Graphic novels", "Manga", "Short stories", "Creative writing", "Journaling",
+    "Blogging", "Essay writing", "Technical writing", "Screenwriting", "Memoir writing",
+    "Book collecting", "Reading challenges", "Fan fiction", "Poetry writing",
+    "Editing and proofreading", "Zine publishing"
+  ],
+  "physical_outdoor": [
+    "Running", "Hiking", "Camping", "Rock climbing", "Surfing", "Cycling",
+    "Mountain biking", "Kayaking", "Sailing", "Scuba diving", "Swimming",
+    "Skateboarding", "Snowboarding", "Skiing", "Martial arts", "Yoga", "Pilates",
+    "CrossFit", "Gym training", "Dance fitness"
+  ],
+  "food_lifestyle": [
+    "Cooking", "Baking", "Coffee brewing", "Mixology", "Wine tasting",
+    "Craft beer brewing", "Fermentation", "Vegan cooking", "Street food exploration",
+    "Food photography", "Restaurant reviewing", "Meal prepping", "Nutrition tracking",
+    "Culinary history", "Foraging", "Herbalism", "Tea culture", "Cheese making",
+    "Grilling/barbecue", "Food truck culture"
+  ],
+  "nature_environment": [
+    "Gardening", "Indoor plants", "Composting", "Beekeeping", "Birdwatching",
+    "Wildlife conservation", "Environmental activism", "Hiking trails exploration",
+    "National park visits", "Marine ecology", "Climate research", "Reforestation volunteering",
+    "Permaculture", "Landscape photography", "Mushroom foraging", "Meteorology",
+    "Geology", "Astronomy stargazing", "Ocean cleanup", "Ecotourism"
+  ],
+  "travel_culture": [
+    "Backpacking", "Van life", "Luxury travel", "Urban exploration", "World cuisines",
+    "Language learning", "Travel journaling", "Travel vlogging", "Photography trips",
+    "Cultural anthropology", "Historical sites", "Road trips", "Festivals around the world",
+    "Architecture tours", "Couchsurfing", "Hosteling", "Pilgrimages",
+    "Remote working abroad", "Travel hacking (miles/points)", "Map collecting"
+  ],
+  "wellness_mindfulness": [
+    "Meditation", "Breathwork", "Tai chi", "Sound baths", "Journaling for mindfulness",
+    "Forest bathing", "Float therapy", "Aromatherapy", "Cold plunges", "Sauna culture",
+    "Therapy and self-growth", "Astrology", "Tarot", "Energy healing", "Minimalism",
+    "Digital detoxing", "Stoicism", "Dream analysis", "Gratitude journaling",
+    "Visualization exercises"
+  ],
+  "social_community": [
+    "Volunteering", "Mentorship", "Political organizing", "Debate clubs", "Activism",
+    "Public speaking", "Podcasting", "Event hosting", "Toastmasters", "Meetup organizing",
+    "Social entrepreneurship", "Nonprofit work", "Community gardening", "Fundraising events",
+    "Cultural exchange programs", "Local journalism", "Faith communities",
+    "Alumni associations", "Cooperative living", "Online community building"
+  ],
+  "professional_entrepreneurial": [
+    "Startups", "Venture capital", "Product management", "Freelancing",
+    "Remote work culture", "No-code tools", "Productivity systems", "Personal finance",
+    "Real estate", "Investing", "Stock trading", "Crypto investing", "Marketing analytics",
+    "Brand building", "Business storytelling", "Leadership coaching", "Career development",
+    "UX research", "Data visualization", "Project management"
+  ],
+  "craft_diy": [
+    "Woodworking", "Leathercraft", "Sewing", "Knitting", "Crochet", "Embroidery",
+    "Quilting", "Candle making", "Soap making", "Resin art", "Miniature building",
+    "Dollhouse design", "Model trains", "Cosplay prop making", "Bookbinding",
+    "Papermaking", "Mosaic art", "Stained glass", "3D modeling", "Laser cutting"
+  ],
+  "pop_culture_media": [
+    "Film criticism", "Classic cinema", "TV show analysis", "Podcast listening",
+    "YouTube culture", "TikTok trends", "Pop music fandoms", "K-pop",
+    "Comic conventions", "Anime", "Celebrity gossip", "Reality TV",
+    "Streaming series marathons", "Meme culture", "Internet history"
+  ]
+}

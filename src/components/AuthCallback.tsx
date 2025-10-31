@@ -91,7 +91,7 @@ export default function AuthCallback() {
           <motion.div {...scaleIn} transition={{ delay: 0.2, ...transitions.normal }}>
             <GlassCard variant="premium" withGlow={false} className="p-12 text-center">
               <IconBadge icon={CheckCircle} size="lg" className="inline-flex mb-6 bg-secondary/15 text-secondary" />
-              <p className="mb-3 text-lg">Welcome back{userName ? `, ${userName}` : ''}!</p>
+              <p className="mb-3 text-lg">{userName ? `Welcome back, ${userName}!` : 'Welcome!'}</p>
               <p className="text-sm text-muted-foreground/80 leading-relaxed">
                 Redirecting you now...
               </p>

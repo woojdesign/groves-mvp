@@ -26,17 +26,18 @@ export class EmbeddingsService {
       // Use raw SQL to insert/update embedding with ON CONFLICT
       // This handles both new embeddings and updates to existing ones
       const result = await this.prisma.$executeRaw`
-        INSERT INTO embeddings (id, user_id, vector, created_at, updated_at)
+        INSERT INTO embeddings (id, user_id, embedding, interests_text, created_at, updated_at)
         VALUES (
           gen_random_uuid(),
           ${userId}::uuid,
           ${vectorString}::vector,
+          '',
           NOW(),
           NOW()
         )
         ON CONFLICT (user_id)
         DO UPDATE SET
-          vector = ${vectorString}::vector,
+          embedding = ${vectorString}::vector,
           updated_at = NOW()
         RETURNING id, user_id, created_at, updated_at
       `;

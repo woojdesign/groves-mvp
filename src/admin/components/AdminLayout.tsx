@@ -5,7 +5,8 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Shield
+  Shield,
+  Beaker
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Separator } from '../../components/ui/separator';
@@ -18,6 +19,9 @@ export function AdminLayout() {
     { path: '/admin/users', label: 'Users', icon: Users },
     { path: '/admin/audit-logs', label: 'Audit Logs', icon: Activity },
     { path: '/admin/settings', label: 'Organization', icon: Settings },
+    ...(import.meta.env.MODE !== 'production' ? [
+      { path: '/admin/dev', label: 'Dev Dashboard', icon: Beaker },
+    ] : []),
   ];
 
   const isActive = (path: string) => {
@@ -41,9 +45,19 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 border-r bg-card">
+      <aside
+        style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          height: '100vh',
+          width: '256px',
+          zIndex: 50,
+        }}
+        className="border-r bg-card"
+      >
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="flex h-16 items-center gap-2 border-b px-6">
@@ -94,10 +108,8 @@ export function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 min-h-screen">
-        <div className="container mx-auto p-6">
-          <Outlet />
-        </div>
+      <main style={{ marginLeft: '256px', width: 'calc(100% - 256px)', padding: '1.5rem' }}>
+        <Outlet />
       </main>
     </div>
   );

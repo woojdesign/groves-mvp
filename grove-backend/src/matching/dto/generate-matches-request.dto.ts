@@ -18,7 +18,7 @@ export class GenerateMatchesRequestDto {
   @Type(() => Number)
   @Min(0)
   @Max(1)
-  minSimilarityScore?: number = 0.7;
+  minSimilarityScore?: number = 0.5;
 
   @IsOptional()
   @IsNumber()

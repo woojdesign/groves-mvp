@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sprout, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button, ButtonShimmer } from './ui/button';
+import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
@@ -15,11 +16,16 @@ import { submitOnboarding } from '../lib/apiService';
 import type { OnboardingResponses, ApiError } from '../types/api';
 
 interface OnboardingProps {
-  userName?: string;
   onComplete?: (responses: Record<string, string>) => void;
 }
 
 const prompts = [
+  {
+    id: 'name',
+    question: 'What\'s your name?',
+    placeholder: 'Alex Chen',
+    type: 'text'
+  },
   {
     id: 'niche_interest',
     question: 'What\'s a niche interest you could talk about for an hour?',
@@ -59,7 +65,7 @@ const prompts = [
   }
 ];
 
-export default function Onboarding({ userName, onComplete }: OnboardingProps) {
+export default function Onboarding({ onComplete }: OnboardingProps) {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, string>>({});
@@ -85,12 +91,13 @@ export default function Onboarding({ userName, onComplete }: OnboardingProps) {
       setLoading(true);
       setError(null);
 
-      // Map responses to API format
+      // Map responses to API format (convert snake_case to camelCase)
       const onboardingData: OnboardingResponses = {
-        niche_interest: responses.niche_interest || '',
+        name: responses.name || '',
+        nicheInterest: responses.niche_interest || '',
         project: responses.project || '',
-        connection_type: responses.connection_type as any,
-        rabbit_hole: responses.rabbit_hole || undefined,
+        connectionType: responses.connection_type as any,
+        rabbitHole: responses.rabbit_hole || undefined,
         preferences: responses.preferences || undefined,
       };
 
@@ -142,7 +149,7 @@ export default function Onboarding({ userName, onComplete }: OnboardingProps) {
           <div className="flex items-center gap-3 sm:gap-5">
             <IconBadge icon={Sprout} size="sm" className="sm:w-14 sm:h-14" />
             <div>
-              <p className="text-sm sm:text-base text-muted-foreground/90">Welcome, {userName}</p>
+              <p className="text-sm sm:text-base text-muted-foreground/90">Welcome to commonplace! Let's set up your profile.</p>
               <p className="text-xs sm:text-sm text-muted-foreground/60 mt-1 tracking-wide">Step {currentStep + 1} of {prompts.length}</p>
             </div>
           </div>
@@ -174,7 +181,14 @@ export default function Onboarding({ userName, onComplete }: OnboardingProps) {
                 )}
               </div>
 
-              {currentPrompt.type === 'textarea' ? (
+              {currentPrompt.type === 'text' ? (
+                <Input
+                  value={responses[currentPrompt.id] || ''}
+                  onChange={(e) => setResponses({ ...responses, [currentPrompt.id]: e.target.value })}
+                  placeholder={currentPrompt.placeholder}
+                  className="rounded-2xl h-14 bg-background/60 backdrop-blur-sm border-border/40 hover:border-border/70 focus:border-secondary/50 focus:ring-4 focus:ring-secondary/10 transition-all text-base"
+                />
+              ) : currentPrompt.type === 'textarea' ? (
                 <Textarea
                   value={responses[currentPrompt.id] || ''}
                   onChange={(e) => setResponses({ ...responses, [currentPrompt.id]: e.target.value })}

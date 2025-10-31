@@ -10,6 +10,14 @@ import {
 export class CreateProfileDto {
   @IsString()
   @IsNotEmpty()
+  @MinLength(1, {
+    message: 'Please provide your name',
+  })
+  @MaxLength(100)
+  name: string;
+
+  @IsString()
+  @IsNotEmpty()
   @MinLength(20, {
     message:
       'Please share a bit more about your niche interest (at least 20 characters)',

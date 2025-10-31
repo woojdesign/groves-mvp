@@ -54,6 +54,9 @@ model User {
   ssoSubject   String?  @map("sso_subject")    // IdP user ID
   ssoMetadata  Json?    @map("sso_metadata")   // IdP-specific claims
 
+  // Dev Dashboard: Test data flag (Phase 1: Data Isolation)
+  isTestData   Boolean  @default(false) @map("is_test_data")
+
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
 
@@ -71,6 +74,7 @@ model User {
   @@index([email])
   @@index([status])
   @@index([ssoProvider, ssoSubject])
+  @@index([isTestData])
   @@map("users")
 }
 
@@ -85,11 +89,16 @@ model Profile {
   connectionType String   @map("connection_type")
   rabbitHole     String?  @map("rabbit_hole") @db.Text
   preferences    String?  @db.Text
+
+  // Dev Dashboard: Test data flag (Phase 1: Data Isolation)
+  isTestData     Boolean  @default(false) @map("is_test_data")
+
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([isTestData])
   @@map("profiles")
 }
 

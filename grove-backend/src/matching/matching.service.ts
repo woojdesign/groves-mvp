@@ -33,6 +33,8 @@ export class MatchingService {
     userId: string,
     options: GenerateMatchesRequestDto = {},
   ): Promise<MatchCandidateDto[]> {
+    console.log(`[MatchingService] Getting matches for user ${userId} with options:`, options);
+
     // Check if user has existing pending matches that haven't expired
     const existingMatches = await this.prisma.match.findMany({
       where: {
@@ -48,34 +50,40 @@ export class MatchingService {
       take: options.limit || 10,
     });
 
+    console.log(`[MatchingService] Found ${existingMatches.length} existing matches`);
+
     // If we have existing matches, return them
     if (existingMatches.length > 0) {
+      console.log(`[MatchingService] Returning existing matches`);
       return existingMatches.map((match) => {
-        const candidate =
+        const candidateUser =
           match.userAId === userId ? match.userB : match.userA;
         return {
           id: match.id,
-          candidateId: candidate.id,
-          name: candidate.name,
+          candidate: {
+            id: candidateUser.id,
+            name: candidateUser.name,
+          },
+          sharedInterest: match.sharedInterest || 'shared interests',
+          context: match.context || '',
+          interests: match.sharedInterest ? [match.sharedInterest] : [],
           score: match.similarityScore,
-          reason: match.context || '',
-          sharedInterests: match.sharedInterest
-            ? [match.sharedInterest]
-            : [],
-          confidence: match.similarityScore,
           status: match.status,
-          expiresAt: match.expiresAt?.toISOString(),
+          createdAt: match.createdAt.toISOString(),
+          expiresAt: match.expiresAt?.toISOString() || '',
         } as MatchCandidateDto;
       });
     }
 
     // No existing matches - generate new ones using the matching engine
+    console.log(`[MatchingService] No existing matches, generating new ones...`);
     const result = await this.matchingEngine.generateMatches({
       userId,
       limit: options.limit,
       minSimilarityScore: options.minSimilarityScore,
       diversityWeight: options.diversityWeight,
     });
+    console.log(`[MatchingService] Generated ${result.matches.length} new matches`);
 
     // Store matches in database with 7-day expiration
     const expiresAt = new Date();
@@ -150,14 +158,17 @@ export class MatchingService {
 
         return {
           id: storedMatch.id,
-          candidateId: match.candidateUserId,
-          name: candidate?.name || 'Unknown User',
+          candidate: {
+            id: match.candidateUserId,
+            name: candidate?.name || 'Unknown User',
+          },
+          sharedInterest: match.reasons[0] || 'shared interests',
+          context: match.reasons.join('. '),
+          interests: this.extractSharedInterests(match.reasons),
           score: match.similarityScore,
-          reason: match.reasons.join('. '),
-          sharedInterests: this.extractSharedInterests(match.reasons),
-          confidence: match.finalScore,
           status: storedMatch.status,
-          expiresAt: storedMatch.expiresAt?.toISOString(),
+          createdAt: storedMatch.createdAt.toISOString(),
+          expiresAt: storedMatch.expiresAt?.toISOString() || '',
         } as MatchCandidateDto;
       }),
     );
