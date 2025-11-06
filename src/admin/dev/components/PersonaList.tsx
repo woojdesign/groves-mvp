@@ -148,8 +148,8 @@ export function PersonaList({ personas, loading, onRefresh, onDelete }: PersonaL
                     {persona.email}
                   </TableCell>
                   <TableCell className="max-w-xs">
-                    <p className="text-sm truncate" title={persona.nicheInterest}>
-                      {persona.nicheInterest}
+                    <p className="text-sm truncate" title={persona.interests}>
+                      {persona.interests}
                     </p>
                   </TableCell>
                   <TableCell>
@@ -225,7 +225,7 @@ export function PersonaList({ personas, loading, onRefresh, onDelete }: PersonaL
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">{match.email}</p>
-                          <p className="text-sm mt-2">{match.nicheInterest}</p>
+                          <p className="text-sm mt-2">{match.interests}</p>
                         </div>
                       </div>
                     </CardContent>

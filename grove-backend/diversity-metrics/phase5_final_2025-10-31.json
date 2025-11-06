@@ -1,0 +1,81 @@
+{
+  "personaCount": 93,
+  "timestamp": "2025-10-31T15:08:50.397Z",
+  "similarity": {
+    "avgPairwiseSimilarity": 0.3795,
+    "minSimilarity": 0.108,
+    "maxSimilarity": 1,
+    "medianSimilarity": 0.3721,
+    "similarityStdDev": 0.0826,
+    "clusteredPairs": 10,
+    "totalPairs": 4278,
+    "clusterPercentage": 0.23,
+    "passed": true
+  },
+  "length": {
+    "avgLength": 337.2,
+    "minLength": 2,
+    "maxLength": 924,
+    "medianLength": 332,
+    "stdDev": 229.8,
+    "distribution": {
+      "brief": 24.7,
+      "short": 4.3,
+      "medium": 19.4,
+      "long": 14,
+      "veryLong": 37.6
+    },
+    "passed": true
+  },
+  "ngrams": {
+    "uniqueTrigrams": 4212,
+    "totalTrigrams": 4398,
+    "trigramDiversity": 0.9577,
+    "top10RepeatedTrigrams": [
+      {
+        "trigram": "the intersection of",
+        "count": 11
+      },
+      {
+        "trigram": "my research interests",
+        "count": 8
+      },
+      {
+        "trigram": "as a child",
+        "count": 6
+      },
+      {
+        "trigram": "i delve into",
+        "count": 6
+      },
+      {
+        "trigram": "the impact of",
+        "count": 5
+      },
+      {
+        "trigram": "im curious about",
+        "count": 5
+      },
+      {
+        "trigram": "the thrill of",
+        "count": 4
+      },
+      {
+        "trigram": "particular emphasis on",
+        "count": 4
+      },
+      {
+        "trigram": "machine learning algorithms",
+        "count": 4
+      },
+      {
+        "trigram": "the role of",
+        "count": 4
+      }
+    ],
+    "highRepetitionCount": 4,
+    "passed": false
+  },
+  "overallPassed": false,
+  "summary": "Overall: FAILED\n\nEmbedding Similarity: PASS\n  - Average: 0.3795 PASS\n  - Clustered pairs: 0.23% PASS\n  - Std dev: 0.0826 (target: > 0.15)\n\nLength Distribution: PASS\n  - Std dev: 229.8 PASS\n  - Distribution: 24.7% brief, 4.3% short, 19.4% medium, 14% long, 37.6% very long\n\nN-gram Diversity: FAIL\n  - Trigram diversity: 0.9577 PASS\n  - High repetition count: 4 (target: 0)\n\nTop repeated trigrams:\n  - \"the intersection of\" (11 times)\n  - \"my research interests\" (8 times)\n  - \"as a child\" (6 times)\n  - \"i delve into\" (6 times)\n  - \"the impact of\" (5 times)"
+}

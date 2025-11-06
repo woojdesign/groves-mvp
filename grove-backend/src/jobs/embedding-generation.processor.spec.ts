@@ -63,9 +63,9 @@ describe('EmbeddingGenerationProcessor', () => {
       const mockProfile = {
         id: profileId,
         userId,
-        nicheInterest: 'AI and machine learning',
+        interests: 'AI and machine learning',
         project: 'Building a recommendation system',
-        rabbitHole: 'Graph neural networks',
+        deepDive: 'Graph neural networks',
         connectionType: 'collaboration',
         preferences: null,
         createdAt: new Date(),
@@ -101,9 +101,9 @@ describe('EmbeddingGenerationProcessor', () => {
         where: { id: profileId },
       });
       expect(mockOpenaiService.preprocessProfileText).toHaveBeenCalledWith(
-        mockProfile.nicheInterest,
+        mockProfile.interests,
         mockProfile.project,
-        mockProfile.rabbitHole,
+        mockProfile.deepDive,
       );
       expect(mockOpenaiService.generateEmbedding).toHaveBeenCalled();
       expect(mockEmbeddingsService.createEmbedding).toHaveBeenCalledWith(
@@ -136,9 +136,9 @@ describe('EmbeddingGenerationProcessor', () => {
       const mockProfile = {
         id: profileId,
         userId,
-        nicheInterest: 'AI and machine learning',
+        interests: 'AI and machine learning',
         project: 'Building a recommendation system',
-        rabbitHole: null,
+        deepDive: null,
         connectionType: 'collaboration',
         preferences: null,
         createdAt: new Date(),

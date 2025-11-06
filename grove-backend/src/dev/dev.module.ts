@@ -8,6 +8,7 @@ import { ProfilesModule } from '../profiles/profiles.module';
 import { MatchingModule } from '../matching/matching.module';
 import { JobsModule } from '../jobs/jobs.module';
 import { DiversityTestingModule } from './diversity-testing/diversity-testing.module';
+import { MetaPersonasModule } from './meta-personas/meta-personas.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { DiversityTestingModule } from './diversity-testing/diversity-testing.mo
     MatchingModule,
     JobsModule,
     DiversityTestingModule,
+    MetaPersonasModule,
   ],
   controllers: [DevController],
   providers: [DevService, SeedDataService],

@@ -1,0 +1,81 @@
+{
+  "personaCount": 100,
+  "timestamp": "2025-10-31T14:27:25.634Z",
+  "similarity": {
+    "avgPairwiseSimilarity": 0.4327,
+    "minSimilarity": 0.1801,
+    "maxSimilarity": 1,
+    "medianSimilarity": 0.4057,
+    "similarityStdDev": 0.1159,
+    "clusteredPairs": 2,
+    "totalPairs": 4950,
+    "clusterPercentage": 0.04,
+    "passed": false
+  },
+  "length": {
+    "avgLength": 248.3,
+    "minLength": 2,
+    "maxLength": 743,
+    "medianLength": 110.5,
+    "stdDev": 220.6,
+    "distribution": {
+      "brief": 48,
+      "short": 3,
+      "medium": 2,
+      "long": 20,
+      "veryLong": 27
+    },
+    "passed": true
+  },
+  "ngrams": {
+    "uniqueTrigrams": 3321,
+    "totalTrigrams": 3524,
+    "trigramDiversity": 0.9424,
+    "top10RepeatedTrigrams": [
+      {
+        "trigram": "working on personal",
+        "count": 40
+      },
+      {
+        "trigram": "on personal projects",
+        "count": 40
+      },
+      {
+        "trigram": "personal projects i",
+        "count": 6
+      },
+      {
+        "trigram": "im working on",
+        "count": 5
+      },
+      {
+        "trigram": "i am currently",
+        "count": 5
+      },
+      {
+        "trigram": "im developing a",
+        "count": 5
+      },
+      {
+        "trigram": "the integration of",
+        "count": 5
+      },
+      {
+        "trigram": "currently developing a",
+        "count": 5
+      },
+      {
+        "trigram": "the impact of",
+        "count": 4
+      },
+      {
+        "trigram": "my expertise lies",
+        "count": 4
+      }
+    ],
+    "highRepetitionCount": 3,
+    "passed": false
+  },
+  "overallPassed": false,
+  "summary": "Overall: FAILED\n\nEmbedding Similarity: FAIL\n  - Average: 0.4327 (target: < 0.40)\n  - Clustered pairs: 0.04% PASS\n  - Std dev: 0.1159 (target: > 0.15)\n\nLength Distribution: PASS\n  - Std dev: 220.6 PASS\n  - Distribution: 48% brief, 3% short, 2% medium, 20% long, 27% very long\n\nN-gram Diversity: FAIL\n  - Trigram diversity: 0.9424 PASS\n  - High repetition count: 3 (target: 0)\n\nTop repeated trigrams:\n  - \"working on personal\" (40 times)\n  - \"on personal projects\" (40 times)\n  - \"personal projects i\" (6 times)\n  - \"im working on\" (5 times)\n  - \"i am currently\" (5 times)"
+}

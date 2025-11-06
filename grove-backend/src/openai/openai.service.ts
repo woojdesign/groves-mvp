@@ -142,9 +142,10 @@ export class OpenaiService {
   /**
    * Generate persona content using GPT-4
    * @param prompt - The prompt to generate persona content
+   * @param systemPrompt - Optional custom system prompt (for meta-persona architecture)
    * @returns Generated persona as JSON object
    */
-  async generatePersonaContent(prompt: string): Promise<any> {
+  async generatePersonaContent(prompt: string, systemPrompt?: string): Promise<any> {
     // Return mock persona if OpenAI is not configured
     if (!this.isConfigured) {
       this.logger.debug('Using mock persona for development (OpenAI not configured)');
@@ -152,14 +153,18 @@ export class OpenaiService {
     }
 
     try {
-      this.logger.debug('Generating persona content with GPT-4o');
+      this.logger.debug(`Generating persona content with GPT-4o${systemPrompt ? ' (custom system prompt)' : ''}`);
+
+      // Use custom system prompt if provided, otherwise use default
+      const defaultSystemPrompt = 'You are a helpful assistant that generates realistic employee profiles for a connection-matching platform. Always respond with valid JSON only, no markdown formatting.';
+      const finalSystemPrompt = systemPrompt || defaultSystemPrompt;
 
       const response = await this.openai.chat.completions.create({
         model: 'gpt-4o', // gpt-4o supports JSON mode, gpt-4 does not
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that generates realistic employee profiles for a connection-matching platform. Always respond with valid JSON only, no markdown formatting.',
+            content: finalSystemPrompt,
           },
           {
             role: 'user',

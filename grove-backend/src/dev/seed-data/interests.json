@@ -98,5 +98,139 @@
     "YouTube culture", "TikTok trends", "Pop music fandoms", "K-pop",
     "Comic conventions", "Anime", "Celebrity gossip", "Reality TV",
     "Streaming series marathons", "Meme culture", "Internet history"
+  ],
+  "web3_blockchain": [
+    "NFT art creation", "DAO governance", "DeFi protocols", "Smart contract development",
+    "Metaverse building", "Crypto art collecting", "Token economics", "Blockchain gaming",
+    "Decentralized identity", "Web3 governance", "Yield farming", "Layer 2 scaling",
+    "Decentralized finance", "Web3 community building", "Crypto security"
+  ],
+  "mental_health_therapy": [
+    "EMDR therapy", "Cognitive behavioral therapy", "Trauma-informed care",
+    "Inner child healing", "Shadow integration", "Internal Family Systems",
+    "Somatic experiencing", "Attachment theory", "Therapeutic journaling",
+    "Parts work", "PTSD recovery", "Complex trauma healing",
+    "Polyvagal theory", "Emotional regulation", "Self-compassion practices"
+  ],
+  "urban_planning": [
+    "Transit-oriented development", "Zoning reform", "15-minute cities",
+    "Public space design", "Pedestrian infrastructure", "Bike lanes",
+    "Mixed-use development", "Urban forestry", "Smart cities",
+    "Tactical urbanism", "Complete streets", "Infill development",
+    "Affordable housing policy", "Urban density", "Walkability metrics"
+  ],
+  "educational_technology": [
+    "Learning management systems", "Adaptive learning", "Microlearning",
+    "Gamification", "Educational assessment", "Instructional design",
+    "E-learning", "MOOCs", "EdTech startups", "Digital literacy",
+    "Remote teaching", "Learning analytics"
+  ],
+  "climate_sustainability": [
+    "Carbon footprint tracking", "Renewable energy", "Zero waste living",
+    "Circular economy", "Regenerative agriculture", "Climate adaptation",
+    "Green building", "Sustainable fashion", "Carbon capture",
+    "Climate policy", "Electric vehicles", "Energy efficiency",
+    "Sustainable investing", "Climate justice", "Low-carbon lifestyles"
+  ],
+  "neuroscience_braintech": [
+    "Brain-computer interfaces", "Neuroplasticity", "Cognitive enhancement",
+    "Sleep science", "Neurofeedback", "fMRI research",
+    "Consciousness studies", "Memory formation", "Neurodiversity",
+    "Brain health", "Neurotransmitters", "Cognitive psychology",
+    "Brain imaging", "Neural networks", "Neuroeducation"
+  ],
+  "data_science_analytics": [
+    "Data visualization", "Machine learning operations", "A/B testing",
+    "Statistical modeling", "Predictive analytics", "Data engineering",
+    "Data governance", "Big data", "Data storytelling",
+    "Business intelligence", "SQL mastery", "Python for data",
+    "R programming", "Tableau dashboards", "Data ethics"
+  ],
+  "space_exploration": [
+    "Rocket science", "Commercial spaceflight", "Mars colonization",
+    "Satellite technology", "Astrophotography", "Space policy",
+    "Asteroid mining", "Space tourism", "Exoplanets",
+    "Space sustainability", "Lunar exploration", "Space debris",
+    "Orbital mechanics", "Space law", "Astrobiology"
+  ],
+  "regenerative_living": [
+    "Permaculture design", "Food forests", "Homesteading",
+    "Rainwater harvesting", "Composting systems", "Natural building",
+    "Off-grid living", "Seed saving", "Soil regeneration",
+    "Self-sufficiency", "Aquaponics", "Biodynamic farming",
+    "Traditional crafts", "Energy independence", "Waste reduction"
+  ],
+  "creative_coding": [
+    "Generative art", "Creative AI", "Shader programming",
+    "Procedural generation", "Live coding", "Visual music",
+    "Interactive installations", "Creative tools", "Algorithmic composition",
+    "Code art", "Processing", "TouchDesigner"
+  ],
+  "longevity_biohacking": [
+    "Intermittent fasting", "Cold exposure", "Longevity supplements",
+    "Biological age testing", "Senolytic therapy", "NAD+ optimization",
+    "Continuous glucose monitoring", "Sleep optimization", "Hormone optimization",
+    "Autophagy", "Caloric restriction", "Red light therapy",
+    "Peptide therapy", "Mitochondrial health", "Healthspan extension"
+  ],
+  "community_building": [
+    "Cohousing", "Intentional communities", "Community organizing",
+    "Participatory budgeting", "Town halls", "Neighborhood associations",
+    "Community gardens", "Local currencies", "Mutual aid",
+    "Cooperative economics", "Community land trusts", "Civic engagement",
+    "Community resilience", "Placemaking", "Social capital building"
+  ],
+  "alternative_healing": [
+    "Herbalism", "Acupuncture", "Ayurveda",
+    "Traditional Chinese Medicine", "Homeopathy", "Energy work",
+    "Crystal healing", "Sound healing", "Shamanic practices",
+    "Integrative medicine", "Reiki", "Bodywork",
+    "Functional medicine", "Plant medicine", "Holistic wellness"
+  ],
+  "financial_independence": [
+    "FIRE movement", "Index investing", "Dividend investing",
+    "Real estate investing", "Geoarbitrage", "Side hustles",
+    "Passive income", "Tax optimization", "Early retirement",
+    "Financial literacy", "Frugality", "Expense tracking",
+    "Retirement planning", "Financial freedom", "Wealth building"
+  ],
+  "language_conlangs": [
+    "Constructed languages", "Esperanto", "Language learning methods",
+    "Polyglot community", "Etymology", "Historical linguistics",
+    "Language documentation", "Endangered languages", "Linguistic typology",
+    "Writing systems", "Phonetics", "Conlang creation",
+    "Language exchange", "Translation studies", "Morphology"
+  ],
+  "future_studies": [
+    "Futurism", "Scenario planning", "Transhumanism",
+    "Singularity", "Existential risk", "Long-term thinking",
+    "Future of work", "Emerging technologies", "Social forecasting",
+    "Speculative design", "Technology ethics", "Post-humanism"
+  ],
+  "mycology_fungi": [
+    "Mushroom cultivation", "Mushroom foraging", "Fungal ecology",
+    "Mycelium networks", "Medicinal mushrooms", "Mycoremediation",
+    "Fungi identification", "Mushroom photography", "Fungal biodiversity",
+    "Mushroom gastronomy", "Fungi conservation", "Fungal biotechnology",
+    "Mushroom dyeing", "Mycoculture", "Fungal taxonomy"
+  ],
+  "accessible_design": [
+    "Web accessibility", "Universal design", "Assistive technology",
+    "Inclusive design", "Disability rights", "WCAG compliance",
+    "Screen readers", "Accessible gaming", "Adaptive equipment",
+    "Neurodiversity accommodation", "Accessible travel", "Inclusive education"
+  ],
+  "contemplative_practices": [
+    "Vipassana meditation", "Zen practice", "Contemplative prayer",
+    "Lectio Divina", "Walking meditation", "Loving-kindness meditation",
+    "Body scan", "Yoga nidra", "Mindful movement",
+    "Contemplative arts", "Sacred reading", "Silence retreats"
+  ],
+  "repair_culture": [
+    "Right to repair", "Electronics repair", "Clothing repair",
+    "Tool repair", "Repair cafes", "Upcycling",
+    "Mending", "Restoration", "Maintenance culture",
+    "Anti-planned-obsolescence", "DIY repairs", "Circular design",
+    "Reuse initiatives", "Repair tutorials", "Fix-it communities"
   ]
 }

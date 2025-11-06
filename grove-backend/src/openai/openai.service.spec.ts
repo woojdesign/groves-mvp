@@ -31,7 +31,7 @@ describe('OpenaiService', () => {
   });
 
   describe('preprocessProfileText', () => {
-    it('should concatenate nicheInterest and project', () => {
+    it('should concatenate interests and project', () => {
       const result = service.preprocessProfileText(
         'AI and machine learning',
         'Building a recommendation system',
@@ -42,7 +42,7 @@ describe('OpenaiService', () => {
       );
     });
 
-    it('should include rabbitHole if provided', () => {
+    it('should include deepDive if provided', () => {
       const result = service.preprocessProfileText(
         'AI and machine learning',
         'Building a recommendation system',
@@ -54,7 +54,7 @@ describe('OpenaiService', () => {
       );
     });
 
-    it('should handle empty rabbitHole', () => {
+    it('should handle empty deepDive', () => {
       const result = service.preprocessProfileText(
         'AI and machine learning',
         'Building a recommendation system',

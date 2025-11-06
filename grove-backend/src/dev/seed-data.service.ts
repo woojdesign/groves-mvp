@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -17,6 +17,7 @@ interface SeedDataConfig {
  */
 @Injectable()
 export class SeedDataService {
+  private readonly logger = new Logger(SeedDataService.name);
   private seedData: SeedDataConfig;
 
   constructor() {
@@ -172,5 +173,34 @@ export class SeedDataService {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+  }
+
+  /**
+   * Get the category that an interest belongs to
+   * Used for topic distribution tracking
+   */
+  getCategoryForInterest(interest: string): string {
+    for (const [category, interests] of Object.entries(this.seedData.interests)) {
+      if (interests.includes(interest)) {
+        return category;
+      }
+    }
+    this.logger.warn(`Interest "${interest}" not found in any category`);
+    return 'unknown';
+  }
+
+  /**
+   * Get topic distribution statistics for a set of interests
+   * Returns category name → count mapping
+   */
+  getTopicDistribution(interests: string[]): Record<string, number> {
+    const distribution: Record<string, number> = {};
+
+    for (const interest of interests) {
+      const category = this.getCategoryForInterest(interest);
+      distribution[category] = (distribution[category] || 0) + 1;
+    }
+
+    return distribution;
   }
 }

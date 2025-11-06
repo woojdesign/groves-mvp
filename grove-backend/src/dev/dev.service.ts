@@ -13,6 +13,18 @@ import {
   GeneratePersonasResponse,
 } from './dto/persona-response.dto';
 import { EmbeddingJobPayload } from '../jobs/embedding-generation.processor';
+import { MetaPersonaService, MetaPersona } from './meta-personas/meta-persona.service';
+
+/**
+ * Enhanced conditioning attributes for persona generation
+ */
+interface PersonaConditions {
+  metaPersona: MetaPersona;
+  interest: string;
+  lifeStageSuggestion: 'starting-out' | 'established' | 'transitioning';
+  expertiseLevel: 'beginner' | 'intermediate' | 'advanced';
+  geographicHint: 'urban' | 'suburban' | 'rural' | 'mixed';
+}
 
 /**
  * DevService - Business logic for test persona generation and management
@@ -32,6 +44,7 @@ export class DevService {
     private prisma: PrismaService,
     private openaiService: OpenaiService,
     private seedDataService: SeedDataService,
+    private metaPersonaService: MetaPersonaService,
     @InjectQueue('embedding-generation')
     private embeddingQueue: Queue<EmbeddingJobPayload>,
   ) {}
@@ -261,6 +274,171 @@ export class DevService {
   }
 
   /**
+   * Helper: Generate multiple personas using meta-persona architecture for maximum diversity
+   */
+  async generatePersonaBatchWithMetaPersonas(
+    count: number,
+    intensityLevel: 'casual' | 'engaged' | 'deep' | 'mixed',
+    categories?: string[],
+    batchId?: string,
+  ): Promise<CreateManualPersonaDto[]> {
+    this.logger.log(`Generating batch of ${count} personas with META-PERSONA architecture`);
+
+    // Optimal sub-batch size for quality (10 personas per API call)
+    const SUB_BATCH_SIZE = 10;
+
+    // Get all diverse names and interests from seed data upfront
+    const allNames = this.seedDataService.getRandomNames(count);
+    const allInterests = this.seedDataService.getRandomInterests(count, categories);
+
+    // Get balanced meta-persona distribution for the entire batch
+    const metaPersonaAssignments = this.metaPersonaService.getBalancedDistribution(count);
+
+    // Log meta-persona distribution
+    const stats = this.metaPersonaService.getDistributionStats(metaPersonaAssignments);
+    this.logger.log(`Meta-persona distribution: ${JSON.stringify(stats)}`);
+
+    // Track topic distribution
+    const topicDistribution = this.seedDataService.getTopicDistribution(allInterests);
+    this.logger.log(`Topic distribution (${Object.keys(topicDistribution).length} categories used):`);
+
+    // Sort by usage count descending and show top 15
+    const sortedTopics = Object.entries(topicDistribution)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 15);
+
+    for (const [category, usageCount] of sortedTopics) {
+      const percentage = ((usageCount / count) * 100).toFixed(1);
+      this.logger.log(`  - ${category}: ${usageCount} (${percentage}%)`);
+    }
+
+    // Warn if any category is overused (> 15% threshold)
+    const maxAllowed = Math.ceil(count * 0.15); // 15% of total
+    for (const [category, usageCount] of Object.entries(topicDistribution)) {
+      if (usageCount > maxAllowed) {
+        this.logger.warn(
+          `Category "${category}" overused: ${usageCount}/${count} (${((usageCount/count)*100).toFixed(1)}% > 15% threshold)`
+        );
+      }
+    }
+
+    const allPersonas: CreateManualPersonaDto[] = [];
+
+    // Generate each persona individually with its assigned meta-persona
+    for (let i = 0; i < count; i++) {
+      const name = allNames[i];
+      const interest = allInterests[i];
+      const metaPersona = metaPersonaAssignments[i];
+
+      // Generate conditioning attributes for this persona
+      const conditions = {
+        lifeStage: this.getRandomLifeStage(),
+        expertise: this.getRandomExpertiseLevel(),
+        geographic: this.getRandomGeographicHint(),
+      };
+
+      this.logger.log(
+        `Generating persona ${i + 1}/${count} with ${metaPersona.name} (${conditions.lifeStage}, ${conditions.expertise}, ${conditions.geographic})`
+      );
+
+      try {
+        const prompt = this.buildSeedConstrainedPrompt(
+          [name],
+          [interest],
+          intensityLevel,
+          undefined,
+          [],
+          metaPersona,
+          conditions,
+        );
+
+        const result = await this.openaiService.generatePersonaContent(
+          prompt,
+          metaPersona.systemPrompt,
+        );
+
+        const personas = Array.isArray(result) ? result : result.personas || [result];
+        const persona = personas[0];
+
+        allPersonas.push({
+          name: persona.name || name.fullName,
+          email: persona.email || `dev-persona-${Math.floor(10000 + Math.random() * 90000)}@test.grove.test`,
+          interests: persona.interests || interest,
+          project: persona.project || this.getMetaPersonaFallbackProject(metaPersona, interest),
+          connectionType: persona.connectionType || 'friendship',
+          deepDive: persona.deepDive,
+          preferences: persona.preferences,
+        });
+      } catch (error) {
+        this.logger.error(`Persona ${i + 1} generation failed: ${error.message}. Using fallback.`);
+        // Fallback
+        allPersonas.push({
+          name: name.fullName,
+          email: `dev-persona-${Math.floor(10000 + Math.random() * 90000)}@test.grove.test`,
+          interests: `I'm interested in ${interest}`,
+          project: this.getMetaPersonaFallbackProject(metaPersona, interest),
+          connectionType: 'friendship' as const,
+          preferences: 'Flexible on meeting times',
+        });
+      }
+    }
+
+    this.logger.log(`Meta-persona batch complete. Generated ${allPersonas.length} personas.`);
+    return allPersonas;
+  }
+
+  /**
+   * Get meta-persona appropriate fallback project description
+   */
+  private getMetaPersonaFallbackProject(metaPersona: MetaPersona, interest: string): string {
+    const fallbacks = {
+      'minimalist': 'Exploring.',
+      'enthusiast': `Diving into ${interest}! It's amazing!`,
+      'academic': `Researching applications of ${interest} in contemporary contexts.`,
+      'storyteller': `Started exploring ${interest} recently. Still learning, but the journey has been meaningful.`,
+      'pragmatist': `Current focus: ${interest}. Goal: consistent practice.`,
+      'casual': `Working on ${interest}. Pretty straightforward.`,
+      'deep-diver': `Currently researching ${interest} with focus on advanced techniques and underlying principles.`,
+      'explorer': `Exploring ${interest}. What makes it meaningful? How does it connect to other interests?`,
+    };
+
+    return fallbacks[metaPersona.id] || `Exploring ${interest}`;
+  }
+
+  /**
+   * Generate random life stage with even distribution
+   */
+  private getRandomLifeStage(): 'starting-out' | 'established' | 'transitioning' {
+    const stages: Array<'starting-out' | 'established' | 'transitioning'> = [
+      'starting-out',
+      'established',
+      'transitioning',
+    ];
+    return stages[Math.floor(Math.random() * stages.length)];
+  }
+
+  /**
+   * Generate random expertise level with weighted distribution
+   */
+  private getRandomExpertiseLevel(): 'beginner' | 'intermediate' | 'advanced' {
+    const rand = Math.random();
+    if (rand < 0.3) return 'beginner';      // 30%
+    if (rand < 0.7) return 'intermediate';  // 40%
+    return 'advanced';                      // 30%
+  }
+
+  /**
+   * Generate random geographic hint with weighted distribution
+   */
+  private getRandomGeographicHint(): 'urban' | 'suburban' | 'rural' | 'mixed' {
+    const rand = Math.random();
+    if (rand < 0.5) return 'urban';     // 50%
+    if (rand < 0.75) return 'suburban'; // 25%
+    if (rand < 0.9) return 'rural';     // 15%
+    return 'mixed';                     // 10%
+  }
+
+  /**
    * Extract common phrase patterns from generated personas to avoid repetition
    */
   private extractCommonPhrases(personas: CreateManualPersonaDto[], usedPhrases: Set<string>): void {
@@ -295,19 +473,31 @@ export class DevService {
     intensityLevel: 'casual' | 'engaged' | 'deep' | 'mixed',
     customPrompt?: string,
     avoidPhrases: string[] = [],
+    useMetaPersonas: boolean = false,
   ): Promise<CreateManualPersonaDto[]> {
-    // Build seed-constrained prompt
+    // Get balanced meta-persona assignments if enabled
+    const metaPersonaAssignments = useMetaPersonas
+      ? this.metaPersonaService.getBalancedDistribution(names.length)
+      : [];
+
+    // Build seed-constrained prompt with meta-persona if assigned
     const prompt = this.buildSeedConstrainedPrompt(
       names,
       interests,
       intensityLevel,
       customPrompt,
       avoidPhrases,
+      metaPersonaAssignments.length > 0 ? metaPersonaAssignments[0] : undefined,
     );
+
+    // Use meta-persona system prompt if available
+    const systemPrompt = metaPersonaAssignments.length > 0
+      ? metaPersonaAssignments[0].systemPrompt
+      : undefined;
 
     try {
       // Use OpenAI to generate natural language descriptions
-      const result = await this.openaiService.generatePersonaContent(prompt);
+      const result = await this.openaiService.generatePersonaContent(prompt, systemPrompt);
 
       // Parse result - should be array of personas
       const personas = Array.isArray(result) ? result : result.personas || [result];
@@ -349,9 +539,53 @@ export class DevService {
     intensityLevel: 'casual' | 'engaged' | 'deep' | 'mixed',
     customPrompt?: string,
     avoidPhrases: string[] = [],
+    metaPersona?: any,
+    conditions?: {
+      lifeStage?: string;
+      expertise?: string;
+      geographic?: string;
+    },
   ): string {
     if (customPrompt) {
       return customPrompt;
+    }
+
+    // If meta-persona is provided, use its specific guidelines
+    if (metaPersona) {
+      const personaList = names.map((name, i) => `- ${name.fullName}: ${interests[i]}`).join('\n');
+
+      // Add conditioning section to prompt
+      const conditioningText = conditions ? `
+
+PERSONA CONTEXT (use as subtle background, not explicit in text):
+- Life Stage: ${conditions.lifeStage} (affects time commitment, career context, life priorities)
+- Expertise Level: ${conditions.expertise} (affects language sophistication, project complexity)
+- Geographic Context: ${conditions.geographic} (affects available resources, community access)
+
+Use these to inform the persona's voice and project naturally. Don't explicitly state them.` : '';
+
+      return `Generate realistic employee profiles for these ${names.length} people with these pre-assigned interests.
+${conditioningText}
+
+ASSIGNED NAMES & INTERESTS:
+${personaList}
+
+CRITICAL RULES:
+- Use the EXACT names provided above
+- Base each persona on their assigned interest
+- Write in FIRST PERSON ("I enjoy", "I'm learning", not "they enjoy")
+- Follow the STYLE GUIDELINES from the system prompt
+- Target length: ${metaPersona.lengthTarget.min}-${metaPersona.lengthTarget.max} characters for the bio
+- Generate unique 5-digit numbers for emails
+
+Return a JSON array with ${names.length} objects, each with:
+- name: Use EXACT name from list above
+- email: dev-persona-XXXXX@test.grove.test (unique 5-digit number)
+- interests: A bio written in the assigned style (${metaPersona.lengthTarget.min}-${metaPersona.lengthTarget.max} chars)
+- project: What they're currently working on (50-150 chars)
+- connectionType: "friendship", "mentorship", "collaboration", or "networking"
+- deepDive (optional): A niche topic they're diving into
+- preferences (optional): Meeting/connection preferences`;
     }
 
     const intensityGuide = {
@@ -542,7 +776,7 @@ Make it feel authentic - real people have varied interests and commitment levels
         interests: 'Custom generated interest from prompt',
         project: 'Custom generated project',
         connectionType: 'collaboration',
-        deepDive: 'Custom rabbit hole',
+        deepDive: 'Custom deep dive',
         preferences: 'Flexible schedule',
       };
     }
@@ -592,8 +826,29 @@ Make it feel authentic - real people have varied interests and commitment levels
     orgId: string,
   ): Promise<PersonaResponse[]> {
     const created: PersonaResponse[] = [];
+    const seenCombinations = new Set<string>();
+    let duplicateCount = 0;
+    let emailDuplicateCount = 0;
 
     for (const persona of personas) {
+      // Check for duplicate interests+project combination
+      const combinationKey = this.generatePersonaCombinationKey(
+        persona.interests,
+        persona.project,
+      );
+
+      if (seenCombinations.has(combinationKey)) {
+        this.logger.warn(
+          `Duplicate persona detected (interests+project combination already exists): ` +
+          `interests="${persona.interests.substring(0, 50)}..." + ` +
+          `project="${persona.project.substring(0, 50)}...". Skipping.`
+        );
+        duplicateCount++;
+        continue;
+      }
+
+      seenCombinations.add(combinationKey);
+
       // Check if email already exists
       const existing = await this.prisma.user.findUnique({
         where: { email: persona.email },
@@ -601,6 +856,7 @@ Make it feel authentic - real people have varied interests and commitment levels
 
       if (existing) {
         this.logger.warn(`Persona with email ${persona.email} already exists, skipping`);
+        emailDuplicateCount++;
         continue;
       }
 
@@ -662,7 +918,30 @@ Make it feel authentic - real people have varied interests and commitment levels
       });
     }
 
+    // Log deduplication statistics
+    if (duplicateCount > 0) {
+      this.logger.log(
+        `Deduplication: Skipped ${duplicateCount} duplicate personas (${((duplicateCount/personas.length)*100).toFixed(1)}% of batch)`
+      );
+    }
+    if (emailDuplicateCount > 0) {
+      this.logger.log(
+        `Email duplicates: Skipped ${emailDuplicateCount} personas with duplicate emails`
+      );
+    }
+
     return created;
+  }
+
+  /**
+   * Generate a unique key for a persona combination (interests + project)
+   * Used for deduplication
+   */
+  private generatePersonaCombinationKey(interests: string, project: string): string {
+    // Normalize: trim whitespace, lowercase, remove extra spaces
+    const normalizedInterests = interests.trim().toLowerCase().replace(/\s+/g, ' ');
+    const normalizedProject = project.trim().toLowerCase().replace(/\s+/g, ' ');
+    return `${normalizedInterests}|||${normalizedProject}`;
   }
 
   /**
@@ -726,7 +1005,7 @@ Make it feel authentic - real people have varied interests and commitment levels
    * Preview potential matches for a dev persona (dev-only matching)
    */
   async previewMatches(userId: string, limit: number = 10) {
-    this.logger.log(`Previewing matches for persona ${userId}`);
+    this.logger.log(`Previewing matches for persona ${userId}`); // Force recompile
 
     // Get the user's embedding
     const userEmbedding = await this.prisma.embedding.findUnique({
@@ -748,7 +1027,7 @@ Make it feel authentic - real people have varied interests and commitment levels
         user_id: string;
         name: string;
         email: string;
-        niche_interest: string;
+        interests: string;
         similarity_score: number;
       }>
     >`
@@ -756,7 +1035,7 @@ Make it feel authentic - real people have varied interests and commitment levels
         u.id as user_id,
         u.name,
         u.email,
-        p.niche_interest,
+        p.interests,
         1 - (e.embedding <=> (SELECT embedding FROM embeddings WHERE user_id = ${userId})) as similarity_score
       FROM users u
       INNER JOIN profiles p ON p.user_id = u.id
@@ -774,7 +1053,7 @@ Make it feel authentic - real people have varied interests and commitment levels
         userId: match.user_id,
         name: match.name,
         email: match.email,
-        interests: match.niche_interest,
+        interests: match.interests,
         similarityScore: Number(match.similarity_score.toFixed(4)),
       })),
     };

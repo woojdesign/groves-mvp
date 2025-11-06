@@ -69,7 +69,7 @@ async function main() {
       SELECT
         u.email,
         u.name,
-        p.niche_interest,
+        p.interests,
         1 - (e.embedding <=> (SELECT embedding FROM embeddings WHERE user_id::text = ${user.id})) AS similarity_score
       FROM embeddings e
       JOIN users u ON e.user_id::text = u.id
@@ -84,7 +84,7 @@ async function main() {
     similarUsers.forEach((u: any, i: number) => {
       console.log(`  ${i + 1}. ${u.name} (${u.email})`);
       console.log(`     Score: ${u.similarity_score.toFixed(3)}`);
-      console.log(`     Interest: ${u.niche_interest.slice(0, 60)}...`);
+      console.log(`     Interest: ${u.interests.slice(0, 60)}...`);
     });
   }
 

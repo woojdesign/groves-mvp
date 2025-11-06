@@ -1,0 +1,81 @@
+{
+  "personaCount": 98,
+  "timestamp": "2025-10-31T12:18:18.431Z",
+  "similarity": {
+    "avgPairwiseSimilarity": 0.3973,
+    "minSimilarity": 0.1812,
+    "maxSimilarity": 0.8296,
+    "medianSimilarity": 0.3933,
+    "similarityStdDev": 0.0713,
+    "clusteredPairs": 0,
+    "totalPairs": 4753,
+    "clusterPercentage": 0,
+    "passed": true
+  },
+  "length": {
+    "avgLength": 156,
+    "minLength": 62,
+    "maxLength": 321,
+    "medianLength": 146.5,
+    "stdDev": 49.1,
+    "distribution": {
+      "brief": 14.3,
+      "short": 69.4,
+      "medium": 14.3,
+      "long": 2,
+      "veryLong": 0
+    },
+    "passed": false
+  },
+  "ngrams": {
+    "uniqueTrigrams": 2174,
+    "totalTrigrams": 2267,
+    "trigramDiversity": 0.959,
+    "top10RepeatedTrigrams": [
+      {
+        "trigram": "cant get enough",
+        "count": 6
+      },
+      {
+        "trigram": "get enough of",
+        "count": 6
+      },
+      {
+        "trigram": "is my weekend",
+        "count": 5
+      },
+      {
+        "trigram": "my weekend thing",
+        "count": 5
+      },
+      {
+        "trigram": "working on a",
+        "count": 5
+      },
+      {
+        "trigram": "opened up a",
+        "count": 4
+      },
+      {
+        "trigram": "new world for",
+        "count": 4
+      },
+      {
+        "trigram": "world for me",
+        "count": 4
+      },
+      {
+        "trigram": "is my passion",
+        "count": 4
+      },
+      {
+        "trigram": "has opened up",
+        "count": 3
+      }
+    ],
+    "highRepetitionCount": 2,
+    "passed": false
+  },
+  "overallPassed": false,
+  "summary": "Overall: FAILED\n\nEmbedding Similarity: PASS\n  - Average: 0.3973 PASS\n  - Clustered pairs: 0% PASS\n  - Std dev: 0.0713 (target: > 0.15)\n\nLength Distribution: FAIL\n  - Std dev: 49.1 (target: > 50)\n  - Distribution: 14.3% brief, 69.4% short, 14.3% medium, 2% long, 0% very long\n\nN-gram Diversity: FAIL\n  - Trigram diversity: 0.959 PASS\n  - High repetition count: 2 (target: 0)\n\nTop repeated trigrams:\n  - \"cant get enough\" (6 times)\n  - \"get enough of\" (6 times)\n  - \"is my weekend\" (5 times)\n  - \"my weekend thing\" (5 times)\n  - \"working on a\" (5 times)"
+}
