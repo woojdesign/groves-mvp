@@ -1,6 +1,7 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
-import type { Queue } from 'bull';
+
+import type { Job, Queue } from 'bull';
 import { PrismaService } from '../prisma/prisma.service';
 import { OpenaiService } from '../openai/openai.service';
 import { SeedDataService } from './seed-data.service';
@@ -14,6 +15,10 @@ import {
 } from './dto/persona-response.dto';
 import { EmbeddingJobPayload } from '../jobs/embedding-generation.processor';
 import { MetaPersonaService, MetaPersona } from './meta-personas/meta-persona.service';
+import {
+  PersonaGenerationJobPayload,
+  PersonaGenerationJobResult,
+} from './persona-generation.job-types';
 
 /**
  * Enhanced conditioning attributes for persona generation
@@ -47,6 +52,8 @@ export class DevService {
     private metaPersonaService: MetaPersonaService,
     @InjectQueue('embedding-generation')
     private embeddingQueue: Queue<EmbeddingJobPayload>,
+    @InjectQueue('persona-generation')
+    private personaGenerationQueue: Queue<PersonaGenerationJobPayload>,
   ) {}
 
   /**
@@ -55,26 +62,163 @@ export class DevService {
   async generatePreset(
     dto: GeneratePresetDto,
     orgId: string,
-  ): Promise<GeneratePersonasResponse> {
-    this.logger.log(`Generating personas from preset template: ${dto.template}`);
+  ): Promise<{
+    success: boolean;
+    jobId: string;
+    status: 'queued';
+    message: string;
+  }> {
+    this.logger.log(`Queuing persona generation job for template: ${dto.template}`);
 
     const config = this.getPresetConfig(dto.template);
 
-    // Generate personas in a single batch for efficiency
-    const personas = await this.generatePersonaBatch(
-      config.count,
-      config.intensityLevel,
-      config.categories,
+    if (!config) {
+      throw new BadRequestException(`Unknown preset template: ${dto.template}`);
+    }
+
+    const jobId = `preset-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    const job = await this.personaGenerationQueue.add(
+      jobId,
+      {
+        jobId,
+        orgId,
+        template: dto.template,
+        count: config.count,
+        intensityLevel: config.intensityLevel,
+        categories: config.categories,
+      },
+      {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 2000,
+        },
+        removeOnComplete: {
+          age: 60 * 60 * 24,
+        },
+        removeOnFail: {
+          age: 60 * 60 * 24,
+        },
+      },
     );
 
-    // Create all personas in database
-    const created = await this.createPersonas(personas, orgId);
+    // Initialize progress to 0 so first poll shows correct state
+    await job.progress(0);
 
     return {
       success: true,
+      jobId: job.id.toString(),
+      status: 'queued',
+      message: `Persona generation queued (${config.count} personas)`,
+    };
+  }
+
+  async handlePersonaGenerationJob(
+    payload: PersonaGenerationJobPayload,
+    job?: Job<PersonaGenerationJobPayload>,
+  ): Promise<PersonaGenerationJobResult> {
+    const { template, orgId, count, intensityLevel, categories } = payload;
+
+    this.logger.log(
+      `Processing persona generation job ${payload.jobId} for template ${template} (count=${count})`,
+    );
+
+    if (job) {
+      await job.progress(10);
+    }
+
+    const personas = await this.generatePersonaBatch(
+      count,
+      intensityLevel,
+      categories,
+      undefined,
+      async (completed) => {
+        if (!job) {
+          return;
+        }
+
+        const generationStart = 10;
+        const generationEnd = 80;
+        if (count === 0) {
+          await job.progress(generationEnd);
+          return;
+        }
+        const progress = Math.min(
+          generationEnd,
+          generationStart + Math.floor((completed / count) * (generationEnd - generationStart)),
+        );
+        await job.progress(progress);
+      },
+    );
+
+    if (job) {
+      await job.progress(85);
+    }
+
+    const created = await this.createPersonas(personas, orgId);
+
+    const result: PersonaGenerationJobResult = {
+      success: true,
       count: created.length,
       personas: created,
-      message: `Successfully generated ${created.length} ${dto.template} personas`,
+      message: `Successfully generated ${created.length} personas for template ${template}`,
+    };
+
+    if (job) {
+      await job.progress(100);
+    }
+
+    return result;
+  }
+
+  async getJobStatus(jobId: string) {
+    const job = await this.personaGenerationQueue.getJob(jobId);
+
+    if (!job) {
+      return {
+        status: 'not_found' as const,
+        progress: 0,
+      };
+    }
+
+    const state = await job.getState();
+    const rawProgress = await job.progress();
+    const progress = typeof rawProgress === 'number' ? rawProgress : 0;
+
+    if (state === 'completed') {
+      return {
+        status: 'completed' as const,
+        progress: 100,
+        result: job.returnvalue as PersonaGenerationJobResult,
+      };
+    }
+
+    if (state === 'failed') {
+      return {
+        status: 'failed' as const,
+        progress,
+        error: job.failedReason,
+      };
+    }
+
+    let mappedState: 'queued' | 'active' | 'delayed';
+    switch (state) {
+      case 'waiting':
+      case 'waiting-children':
+        mappedState = 'queued';
+        break;
+      case 'delayed':
+        mappedState = 'delayed';
+        break;
+      default:
+        mappedState = 'active';
+        break;
+    }
+
+    return {
+      status: mappedState,
+      progress,
     };
   }
 
@@ -209,6 +353,7 @@ export class DevService {
     intensityLevel: 'casual' | 'engaged' | 'deep' | 'mixed',
     categories?: string[],
     customPrompt?: string,
+    onProgressUpdate?: (completedCount: number) => Promise<void> | void,
   ): Promise<CreateManualPersonaDto[]> {
     this.logger.log(`Generating batch of ${count} personas with ${intensityLevel} intensity`);
 
@@ -221,13 +366,17 @@ export class DevService {
 
     // If count <= SUB_BATCH_SIZE, generate in one go
     if (count <= SUB_BATCH_SIZE) {
-      return this.generateSubBatch(
+      const personas = await this.generateSubBatch(
         allNames,
         allInterests,
         intensityLevel,
         customPrompt,
         [],
       );
+      if (onProgressUpdate) {
+        await onProgressUpdate(count);
+      }
+      return personas;
     }
 
     // Split into sub-batches for better quality
@@ -254,6 +403,9 @@ export class DevService {
 
         // Extract common phrases from this sub-batch to avoid in next batch
         this.extractCommonPhrases(subBatch, usedPhrases);
+        if (onProgressUpdate) {
+          await onProgressUpdate(Math.min(i + subBatchSize, count));
+        }
       } catch (error) {
         this.logger.error(`Sub-batch ${Math.floor(i / SUB_BATCH_SIZE) + 1} failed: ${error.message}`);
         // Add fallback personas for this sub-batch
@@ -266,6 +418,9 @@ export class DevService {
           preferences: 'Flexible on meeting times',
         }));
         allPersonas.push(...fallbackPersonas);
+        if (onProgressUpdate) {
+          await onProgressUpdate(Math.min(i + subBatchSize, count));
+        }
       }
     }
 
