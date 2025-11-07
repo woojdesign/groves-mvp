@@ -131,11 +131,13 @@ api.interceptors.response.use(
     }
 
     // Handle 403 Forbidden - Could be CSRF token issue
-    if (error.response?.status === 403) {
+    if (error.response?.status === 403 && !originalRequest._retry) {
       const errorMessage = error.response?.data?.message;
       if (errorMessage && errorMessage.includes('CSRF')) {
-        // CSRF token invalid, try to reinitialize
+        originalRequest._retry = true;
+        // CSRF token invalid, try to reinitialize and retry
         await initCsrf();
+        return api(originalRequest);
       }
     }
 
