@@ -105,17 +105,23 @@ export class OidcService {
     const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
-    res.cookie('accessToken', accessToken, {
+    const nodeEnv = process.env.NODE_ENV;
+    const isProduction = nodeEnv === 'production';
+    const isStaging = nodeEnv === 'staging';
+
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProduction || isStaging,
+      sameSite: (isProduction || isStaging ? 'none' : 'lax') as 'none' | 'lax',
+    };
+
+    res.cookie('accessToken', accessToken, {
+      ...cookieOptions,
       maxAge: 15 * 60 * 1000,
     });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

@@ -113,18 +113,24 @@ export class SamlService {
     const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
+    const nodeEnv = process.env.NODE_ENV;
+    const isProduction = nodeEnv === 'production';
+    const isStaging = nodeEnv === 'staging';
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction || isStaging,
+      sameSite: (isProduction || isStaging ? 'none' : 'lax') as 'none' | 'lax',
+    };
+
     // Set httpOnly cookies
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      ...cookieOptions,
       maxAge: 15 * 60 * 1000,
     });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

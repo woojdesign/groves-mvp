@@ -79,10 +79,14 @@ export class AuthController {
     const result = await this.authService.refreshAccessToken(refreshToken);
 
     // Set new access token in cookie
+    const nodeEnv = process.env.NODE_ENV;
+    const isProduction = nodeEnv === 'production';
+    const isStaging = nodeEnv === 'staging';
+
     res.cookie('accessToken', result.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProduction || isStaging,
+      sameSite: (isProduction || isStaging ? 'none' : 'lax') as 'none' | 'lax',
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
