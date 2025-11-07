@@ -50,10 +50,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   getCsrfToken(@Res({ passthrough: true }) res: Response) {
     const token = randomBytes(32).toString('hex');
+    const nodeEnv = process.env.NODE_ENV;
+    const isProduction = nodeEnv === 'production';
+    const isStaging = nodeEnv === 'staging';
+
     res.cookie('csrf-token', token, {
       httpOnly: false, // Must be readable by JavaScript
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProduction || isStaging,
+      sameSite: (isProduction || isStaging ? 'none' : 'lax') as 'none' | 'lax',
     });
     return { csrfToken: token };
   }
