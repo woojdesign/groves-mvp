@@ -8,6 +8,14 @@
       {
         "include": "dev/seed-data/*.json",
         "outDir": "dist/src"
+      },
+      {
+        "include": "email/templates/*.hbs",
+        "outDir": "dist/src"
+      },
+      {
+        "include": "dev/meta-personas/*.json",
+        "outDir": "dist/src"
       }
     ]
   }
