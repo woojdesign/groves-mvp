@@ -189,19 +189,25 @@ export class AuthService {
     });
 
     // Set httpOnly cookies instead of returning tokens
-    const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
+    const nodeEnv = this.configService.get<string>('NODE_ENV');
+    const isProduction = nodeEnv === 'production';
+    const isStaging = nodeEnv === 'staging';
+
+    // For cross-site cookies (staging/production), use sameSite: 'none' with secure: true
+    // For local dev, use sameSite: 'lax' with secure: false
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction || isStaging,
+      sameSite: (isProduction || isStaging ? 'none' : 'lax') as 'none' | 'lax',
+    };
 
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
+      ...cookieOptions,
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
