@@ -19,7 +19,7 @@ export function AdminLayout() {
     { path: '/admin/users', label: 'Users', icon: Users },
     { path: '/admin/audit-logs', label: 'Audit Logs', icon: Activity },
     { path: '/admin/settings', label: 'Organization', icon: Settings },
-    ...(import.meta.env.MODE !== 'production' ? [
+    ...(import.meta.env.MODE !== 'production' || import.meta.env.VITE_ENV === 'staging' ? [
       { path: '/admin/dev', label: 'Dev Dashboard', icon: Beaker },
     ] : []),
   ];
