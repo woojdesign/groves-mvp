@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Label } from '../../../components/ui/label';
@@ -17,6 +17,9 @@ interface PersonaGeneratorProps {
 export function PersonaGenerator({ onPersonasCreated }: PersonaGeneratorProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number>(0);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Preset generation state
   const [presetTemplate, setPresetTemplate] = useState<string>('mixed_10');
@@ -25,15 +28,79 @@ export function PersonaGenerator({ onPersonasCreated }: PersonaGeneratorProps) {
     try {
       setLoading(true);
       setError(null);
+      setProgress(0);
       const result = await devApi.generatePreset(presetTemplate as any);
-      onPersonasCreated(result.personas);
+      setJobId(result.jobId);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to generate personas');
       console.error('Failed to generate personas:', err);
-    } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!jobId) {
+      return undefined;
+    }
+
+    let isActive = true;
+
+    const clearPolling = () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+
+    const pollStatus = async () => {
+      try {
+        const status = await devApi.getPersonaGenerationJobStatus(jobId);
+        if (!isActive) {
+          return;
+        }
+
+        setProgress(Math.max(0, Math.min(100, status.progress ?? 0)));
+
+        if (status.status === 'completed' && status.result) {
+          clearPolling();
+          onPersonasCreated(status.result.personas);
+          setLoading(false);
+          setJobId(null);
+          setProgress(0);
+        } else if (status.status === 'failed') {
+          clearPolling();
+          setError(status.error || 'Persona generation failed');
+          setLoading(false);
+          setJobId(null);
+          setProgress(0);
+        } else if (status.status === 'not_found') {
+          clearPolling();
+          setError('Generation job not found. Please try again.');
+          setLoading(false);
+          setJobId(null);
+          setProgress(0);
+        }
+      } catch (pollError: any) {
+        if (!isActive) {
+          return;
+        }
+        console.error('Failed to poll persona generation status:', pollError);
+        setError('Failed to check generation status. Please try again.');
+        clearPolling();
+        setLoading(false);
+        setJobId(null);
+        setProgress(0);
+      }
+    };
+
+    pollStatus();
+    pollingRef.current = setInterval(pollStatus, 2000);
+
+    return () => {
+      isActive = false;
+      clearPolling();
+    };
+  }, [jobId, onPersonasCreated]);
 
   return (
     <div className="space-y-6">
@@ -83,7 +150,7 @@ export function PersonaGenerator({ onPersonasCreated }: PersonaGeneratorProps) {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating...
+                Generating... {progress}%
               </>
             ) : (
               <>
@@ -92,6 +159,12 @@ export function PersonaGenerator({ onPersonasCreated }: PersonaGeneratorProps) {
               </>
             )}
           </Button>
+
+          {loading && (
+            <p className="text-sm text-muted-foreground">
+              Keep this tab open while we generate personas. Progress updates every few seconds.
+            </p>
+          )}
         </CardContent>
       </Card>
 

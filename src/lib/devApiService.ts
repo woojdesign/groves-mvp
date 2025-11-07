@@ -30,6 +30,28 @@ export interface GeneratePersonasResponse {
   message: string;
 }
 
+export interface PersonaGenerationJobLaunchResponse {
+  success: boolean;
+  jobId: string;
+  status: 'queued';
+  message: string;
+}
+
+export type PersonaGenerationJobStatus =
+  | 'queued'
+  | 'active'
+  | 'delayed'
+  | 'completed'
+  | 'failed'
+  | 'not_found';
+
+export interface PersonaGenerationJobStatusResponse {
+  status: PersonaGenerationJobStatus;
+  progress: number;
+  result?: GeneratePersonasResponse;
+  error?: string;
+}
+
 export interface GeneratePresetRequest {
   template: 'casual_10' | 'engaged_10' | 'deep_10' | 'mixed_10' | 'diverse_50';
 }
@@ -98,10 +120,22 @@ export interface ExportResponse {
  */
 export async function generatePreset(
   template: GeneratePresetRequest['template']
-): Promise<GeneratePersonasResponse> {
-  const response = await api.post<GeneratePersonasResponse>(
+): Promise<PersonaGenerationJobLaunchResponse> {
+  const response = await api.post<PersonaGenerationJobLaunchResponse>(
     '/admin/dev/personas/preset',
     { template }
+  );
+  return response.data;
+}
+
+/**
+ * Fetch persona generation job status
+ */
+export async function getPersonaGenerationJobStatus(
+  jobId: string
+): Promise<PersonaGenerationJobStatusResponse> {
+  const response = await api.get<PersonaGenerationJobStatusResponse>(
+    `/admin/dev/personas/jobs/${jobId}`
   );
   return response.data;
 }

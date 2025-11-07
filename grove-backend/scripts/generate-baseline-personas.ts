@@ -51,8 +51,9 @@ async function main() {
         org.id
       );
 
-      totalGenerated += result.count;
-      console.log(`   ✓ Generated ${result.count} personas (Total: ${totalGenerated})`);
+      // Note: generatePreset now returns jobId (async), not count
+      // totalGenerated += result.count;
+      console.log(`   ✓ Queued generation job: ${result.jobId}`);
 
       // Small delay between batches to avoid API rate limits
       if (i < batchCount) {

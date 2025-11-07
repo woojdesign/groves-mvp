@@ -56,6 +56,11 @@ export class DevController {
     return this.devService.generatePreset(dto, user.orgId);
   }
 
+  @Get('personas/jobs/:jobId')
+  async getPersonaGenerationJobStatus(@Param('jobId') jobId: string) {
+    return this.devService.getJobStatus(jobId);
+  }
+
   @Post('personas/custom')
   async generateCustom(
     @Body() dto: GenerateCustomDto,

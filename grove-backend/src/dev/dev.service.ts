@@ -76,12 +76,8 @@ export class DevService {
       throw new BadRequestException(`Unknown preset template: ${dto.template}`);
     }
 
-    const jobId = `preset-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
     const job = await this.personaGenerationQueue.add(
-      jobId,
       {
-        jobId,
         orgId,
         template: dto.template,
         count: config.count,
@@ -121,7 +117,7 @@ export class DevService {
     const { template, orgId, count, intensityLevel, categories } = payload;
 
     this.logger.log(
-      `Processing persona generation job ${payload.jobId} for template ${template} (count=${count})`,
+      `Processing persona generation job ${job?.id || 'unknown'} for template ${template} (count=${count})`,
     );
 
     if (job) {
@@ -148,6 +144,7 @@ export class DevService {
           generationEnd,
           generationStart + Math.floor((completed / count) * (generationEnd - generationStart)),
         );
+        this.logger.log(`Progress update: ${completed}/${count} personas → ${progress}%`);
         await job.progress(progress);
       },
     );
@@ -205,10 +202,11 @@ export class DevService {
     let mappedState: 'queued' | 'active' | 'delayed';
     switch (state) {
       case 'waiting':
-      case 'waiting-children':
+      case 'delayed':
         mappedState = 'queued';
         break;
-      case 'delayed':
+      case 'paused':
+      case 'stuck':
         mappedState = 'delayed';
         break;
       default:
@@ -374,6 +372,7 @@ export class DevService {
         [],
       );
       if (onProgressUpdate) {
+        this.logger.log(`Calling progress callback with count=${count}`);
         await onProgressUpdate(count);
       }
       return personas;

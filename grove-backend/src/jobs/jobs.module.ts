@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OpenaiModule } from '../openai/openai.module';
 import { EmbeddingsModule } from '../embeddings/embeddings.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { EmbeddingGenerationProcessor } from './embedding-generation.processor';
+import { PersonaGenerationProcessor } from '../dev/persona-generation.processor';
 
 @Module({
   imports: [
@@ -21,11 +22,16 @@ import { EmbeddingGenerationProcessor } from './embedding-generation.processor';
     BullModule.registerQueue({
       name: 'embedding-generation',
     }),
+    BullModule.registerQueue({
+      name: 'persona-generation',
+    }),
     OpenaiModule,
     EmbeddingsModule,
     PrismaModule,
+    // Use forwardRef to avoid circular dependency with DevModule
+    forwardRef(() => require('../dev/dev.module').DevModule),
   ],
-  providers: [EmbeddingGenerationProcessor],
+  providers: [EmbeddingGenerationProcessor, PersonaGenerationProcessor],
   exports: [BullModule],
 })
 export class JobsModule {}
